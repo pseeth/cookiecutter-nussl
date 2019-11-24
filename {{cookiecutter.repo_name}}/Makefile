@@ -1,6 +1,7 @@
 SHELL := /bin/bash
 env_file = $(ENV_FILE)
 gpus = 0
+name = default
 
 install:
 	poetry self:update --preview
@@ -18,6 +19,11 @@ check_environment:
 	echo $(env_file)
 	source $(env_file) && \
 	printenv
+
+check_container_environment:
+	echo $(env_file)
+	source $(env_file) && \
+	poetry run python scripts/run_in_docker.py "printenv"
 
 run_in_host:
 	source $(env_file) && \

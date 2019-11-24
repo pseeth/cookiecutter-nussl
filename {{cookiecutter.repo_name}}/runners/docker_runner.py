@@ -52,7 +52,7 @@ class DockerRunner(object):
                 f"NVIDIA_VISIBLE_DEVICES={gpus}",
                 f"COMET_API_KEY={os.getenv('COMET_API_KEY')}",
                 f"NUSSL_DIRECTORY={os.getenv('NUSSL_DIRECTORY')}",
-                f"DATASET_DIRECTORY={os.getenv('DATASET_DIRECTORY')}",
+                f"DATA_DIRECTORY={os.getenv('DATA_DIRECTORY')}",
                 f"CACHE_DIRECTORY={os.getenv('CACHE_DIRECTORY')}",
                 f"ARTIFACTS_DIRECTORY={os.getenv('ARTIFACTS_DIRECTORY')}",
             ],

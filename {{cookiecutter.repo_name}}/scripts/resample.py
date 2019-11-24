@@ -34,7 +34,7 @@ if __name__ == '__main__':
     args = vars(parser.parse_args())
     with open(args['spec'], 'r') as f:
         spec = yaml.load(f, Loader=yaml.FullLoader)
-
+    
     for key in spec:
         if 'path' in key:
             if spec[key] is not None:

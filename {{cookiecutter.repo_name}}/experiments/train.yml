@@ -40,13 +40,13 @@ datasets:
   #   see setup/environment/default.sh for details
   train:
     folder: babywsj8k/generated/train/
-    class: SCAPER
+    class: Scaper
   val:
     folder: babywsj8k/generated/val/
-    class: SCAPER
+    class: Scaper
   test:
     folder: babywsj8k/generated/test/
-    class: SCAPER
+    class: Scaper
 
 info:
   blocking: false
