@@ -102,3 +102,4 @@ venv.bak/
 .mypy_cache/
 
 **/*_local.sh
+.vscode/*
