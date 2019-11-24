@@ -24,10 +24,10 @@ Project Structure
 
 ```
 .
-├── cookiecutter_repo
-│   ├── algorithms
-│   │   ├── __init__.py
-│   ├── dataset
+├── cookiecutter_repo           <- contains package code called by scripts
+│   ├── algorithms              <- separation algorithms used in experiments
+│   │   ├── __init__.py         <- default includes FT2D, DeepClustering, etc.
+│   ├── dataset                 <- 
 │   │   ├── __init__.py
 │   │   └── scaper_mixer.py
 │   ├── __init__.py
