@@ -9,13 +9,10 @@ sharing research.*
 
 Requirements
 ------------
-Install `cookiecutter` command line: `pip install cookiecutter`
-
-Install Anaconda or Miniconda
-
-Install Docker and NVIDIA Docker
-
-Install Poetry: https://poetry.eustace.io/docs/#installation
+- Install `cookiecutter` command line: `pip install cookiecutter`
+- Install Anaconda or Miniconda
+- Install Docker and NVIDIA Docker
+- Install Poetry: https://poetry.eustace.io/docs/#installation
 
 
 Usage
