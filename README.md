@@ -21,6 +21,33 @@ To start a new project:
 
 `cookiecutter gh:pseeth/cookiecutter-nussl`
 
+Guiding Principles
+-----------------
+The idea behind this project structure is to make it easy to use nussl to set up
+source separation experiments. The functionality here is such that classes are taken
+from nussl and can be extended and customized by your package code. For example, to
+set up a new type of training scheme, you might subclass the Trainer class from 
+nussl and then modify it by overriding functions from the original Trainer class
+with your own implementation.
+
+If you're trying new types of models, you can use the existing SeparationModel class but
+add custom modules in `model/extras/`. These extra modules are handed to 
+SeparationModel so it can resolve the model configuration. Note that models trained using
+extra modules will need to be shipped with the accompanying code to be portable. For a new
+model architecture to be shipped via nussl's external file zoo, the accompanying modules
+must be pull requested to the main nussl repository and then deployed.
+
+Finally, if you are implementing new separation algorithms, you can work in the `algorithms/`
+folder. Implement your algorithm and then include it in `algorithms/__init__.py`. Your
+new algorithm will now be accessible by the scripts via `.yml` files.
+
+All scripts, which are kept in the `scripts/` folder should take in a `.yml` file and 
+function according to the parsed `.yml` file. This is to make sure every part of the
+pipeline you create in your experiment is easily reproducible by processing a sequence
+of `.yml` files with their associated scripts. This prevents "magic commands" with
+mysterious and long forgotten command-line arguments that you ran one time 3 months ago 
+from occurring. 
+
 Project Structure
 -----------------
 
@@ -33,8 +60,11 @@ Project Structure
 │   ├── dataset                     <- contains Dataset classes for training and testing
 │   │   │                              and scripts for generating data.
 │   │   ├── __init__.py             <- imports MixSourceFolder and Scaper from nussl
-│   │   └── scaper_mixer.py         <- Uses Scaper to make datasets for train and test.
-│   ├── model                       <- Set up model code here. Just imports SeparationModel.
+│   │   └── scaper_mixer.py         <- uses Scaper to make datasets for train and test.
+│   ├── model                       <- set up model code here. Just imports SeparationModel.
+│   │   ├── extras                  <- you can put extra modules here that are accessible
+│   │   │   ├── example_module.py      by SeparationModel via the extra_modules arg.
+│   │   │   ├── __init__.py         <- be sure to import your modules here!
 │   │   ├── __init__.py                and shows how custom modules could be used.
 │   ├── test                        <- contains code used for evaluation (e.g. SI-SDR).
 │   │   ├── __init__.py                
