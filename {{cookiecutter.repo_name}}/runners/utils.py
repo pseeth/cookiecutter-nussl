@@ -1,6 +1,11 @@
 import collections
 from concurrent.futures import ProcessPoolExecutor, as_completed
-from tqdm import tqdm
+import yaml
+
+def load_yaml(path_to_yml):
+    with open(path_to_yml, 'r') as f:
+        data = yaml.load(f, Loader=yaml.FullLoader)
+    return data
 
 def deep_update(source, overrides):
     """

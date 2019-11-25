@@ -72,7 +72,7 @@ train_config:
   learning_rate_decay: 0.5
   loss_function:
   - !!python/tuple
-- dpcl                # name of loss function
+    - dpcl                # name of loss function
     - embedding       # what output of model to apply the loss function on
     - 1.0             # weight given to the loss function
   num_epochs: 10
@@ -80,8 +80,6 @@ train_config:
   optimizer: adam
   patience: 5
   sample_strategy: sequential
-  training_folder: ''
-  validation_folder: ''
   weight_decay: 0.0
 
 test_config:
