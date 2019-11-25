@@ -2,10 +2,10 @@ Cookiecutter for NUSSL
 ====================
 
 A boilerplate for reproducible and transparent computer audition research that leverages
-the NUSSL library, which is primarily used for source separation. This project uses
+`nussl`, a source separation library. This project uses
 [cookiecutter](https://cookiecutter.readthedocs.io/en/latest/readme.html).
 *A logical, reasonably standardized, but flexible project structure for doing and 
-sharing data science work.*
+sharing research.*
 
 Requirements
 ------------
@@ -20,7 +20,7 @@ Install Poetry: https://poetry.eustace.io/docs/#installation
 
 Usage
 -----
-To start a new science project:
+To start a new project:
 
 `cookiecutter gh:pseeth/cookiecutter-nussl`
 
