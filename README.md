@@ -37,7 +37,7 @@ extra modules will need to be shipped with the accompanying code to be portable.
 model architecture to be shipped via nussl's external file zoo, the accompanying modules
 must be pull requested to the main nussl repository and then deployed.
 
-Finally, if you are implementing new separation algorithms, you can work in the `algorithms/`
+If you are implementing new separation algorithms, you can work in the `algorithms/`
 folder. Implement your algorithm and then include it in `algorithms/__init__.py`. The 
 base classes in nussl for all separation algorithms are included already: `SeparationBase`,
 `MaskSeparationBase`, and `ClusteringSeparationBase`. 
