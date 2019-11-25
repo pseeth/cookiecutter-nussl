@@ -125,13 +125,17 @@ model_config:
         activation:
         - tanh
   connections:
-  - - mel_projection
-    - - log_spectrogram
-  - - batch_norm
-    - - mel_projection
-  - - recurrent_stack
-    - - batch_norm
-  - - embedding
-    - - recurrent_stack
+    - !!python/tuple
+      - mel_projection
+      - [log_spectrogram]
+    - !!python/tuple
+      - instance_norm
+      - [mel_projection]
+    - !!python/tuple
+      - recurrent_stack
+      - [instance_norm]
+    - !!python/tuple
+      - embedding
+      - [recurrent_stack]
   output:
   - embedding

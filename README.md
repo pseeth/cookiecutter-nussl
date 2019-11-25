@@ -64,7 +64,7 @@ Project Structure
 ├── pyproject.toml                  <- project requirements file. managed via Poetry.
 ├── requirements.txt                <- frozen requirements file. do not edit directly, 
 │                                      only generate via 'make freeze_requirements'.                                                    
-├── runners
+├── runners                         <- contains classes that run experiments in containers.
 │   ├── config.py                   <- uses environment variables to set up container mounts
 │   ├── docker_runner.py            <- sets up a class that runs commands in a container
 │   ├── experiment_runner_pool.py   <- runs multiple experiments in a job pool
@@ -89,9 +89,11 @@ Project Structure
 │       ├── mtg-melodia.n3
 │       ├── mtg-melodia.so
 │       └── README_linux64.txt
-└── tests                           <- any test cases can go in here
+└── tests                           <- any test cases can go in here 'make test' will run
+    │                                  them on the host and then in the container.
     ├── __init__.py
-    └── test_import.py              <- simple test case to make sure your repo imports
+    └── test_yaml.py                <- contains a test case that makes sure all your yaml 
+                                       is valid.
 ```
 
 License

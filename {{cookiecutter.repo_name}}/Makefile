@@ -27,7 +27,7 @@ check_container_environment:
 
 run_in_host:
 	source $(env_file) && \
-	poetry run $(script)
+	poetry run $(command)
 
 run_in_container:
 	source $(env_file) && \
@@ -35,3 +35,9 @@ run_in_container:
 
 jupyter:
 	make command="jupyter lab" gpus=$(gpus) name=jupyter_lab run_in_container
+
+test:
+	echo "Running tests in host"
+	make command="python -m pytest . -s" run_in_host
+	echo "Running tests in container"
+	make command="python -m pytest . -s" run_in_container
