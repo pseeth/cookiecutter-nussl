@@ -93,7 +93,8 @@ Project Structure
     │                                  them on the host and then in the container.
     ├── __init__.py
     └── test_yaml.py                <- contains a test case that makes sure all your yaml 
-                                       is valid.
+                                       is valid. recursively searches directories for .yml 
+                                       files and tries to parse each with pyyaml.
 ```
 
 License
