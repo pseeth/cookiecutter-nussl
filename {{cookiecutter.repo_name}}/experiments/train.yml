@@ -72,9 +72,9 @@ train_config:
   learning_rate_decay: 0.5
   loss_function:
   - !!python/tuple
-    - dpcl
-    - embedding
-    - 1.0
+- dpcl                # name of loss function
+    - embedding       # what output of model to apply the loss function on
+    - 1.0             # weight given to the loss function
   num_epochs: 10
   num_workers: 20
   optimizer: adam
@@ -125,9 +125,9 @@ model_config:
         activation:
         - tanh
   connections:
-    - !!python/tuple
-      - mel_projection
-      - [log_spectrogram]
+    - !!python/tuple # tuple containing two things:
+      - mel_projection # unique name given to module above
+      - [log_spectrogram] # list of runtime arguments needed by that module (e.g. output of prev layer)
     - !!python/tuple
       - instance_norm
       - [mel_projection]

@@ -1,5 +1,3 @@
-# Cookiecutter for NUSSL experiments
-
 Cookiecutter for NUSSL
 ====================
 
@@ -11,7 +9,14 @@ sharing data science work.*
 
 Requirements
 ------------
-Install `cookiecutter` command line: `pip install cookiecutter`    
+Install `cookiecutter` command line: `pip install cookiecutter`
+
+Install Anaconda or Miniconda
+
+Install Docker and NVIDIA Docker
+
+Install Poetry: https://poetry.eustace.io/docs/#installation
+
 
 Usage
 -----
