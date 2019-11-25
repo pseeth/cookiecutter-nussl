@@ -1,11 +1,15 @@
 import collections
 from concurrent.futures import ProcessPoolExecutor, as_completed
 import yaml
+import os
 
 def load_yaml(path_to_yml):
     with open(path_to_yml, 'r') as f:
         data = yaml.load(f, Loader=yaml.FullLoader)
     return data
+
+def modify_path_with_env(path, env):
+    return os.path.join(os.getenv(env, ''), path)
 
 def deep_update(source, overrides):
     """

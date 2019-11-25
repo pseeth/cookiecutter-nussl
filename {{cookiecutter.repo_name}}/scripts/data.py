@@ -3,7 +3,7 @@ sys.path.insert(0, '.')
 
 from cookiecutter_repo.dataset import scaper_mix
 import logging
-import yaml
+from runners.utils import load_yaml, modify_path_with_env
 from argparse import ArgumentParser
 from multiprocessing import cpu_count
 import os
@@ -16,17 +16,16 @@ if __name__ == "__main__":
         help='Path to .yml file containing specification for dataset creation.'
     )
     args = vars(parser.parse_args())
-    with open(args['spec'], 'r') as f:
-        spec = yaml.load(f, Loader=yaml.FullLoader)
+    spec = load_yaml(args['spec'])
 
     for split in spec['mixture_parameters']:
         if isinstance(spec['mixture_parameters'][split], dict):
             for key in spec['mixture_parameters'][split]:
                 if 'path' in key:
                     if spec['mixture_parameters'][split][key] is not None:
-                        spec['mixture_parameters'][split][key] = (
-                            os.path.join(os.getenv('DATA_DIRECTORY', ''),
-                            spec['mixture_parameters'][split][key])
+                        spec['mixture_parameters'][split][key] = modify_path_with_env(
+                            spec['mixture_parameters'][split][key],
+                            'DATA_DIRECTORY'
                         )
 
     scaper_mix(

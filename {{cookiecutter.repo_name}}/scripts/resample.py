@@ -32,15 +32,13 @@ if __name__ == '__main__':
         help='Path to .yml file containing specification for downsampling.'
     )
     args = vars(parser.parse_args())
-    with open(args['spec'], 'r') as f:
-        spec = yaml.load(f, Loader=yaml.FullLoader)
+    spec = load_yaml(args['spec'])
     
     for key in spec:
         if 'path' in key:
             if spec[key] is not None:
-                spec[key] = (
-                    os.path.join(os.getenv('DATA_DIRECTORY', ''),
-                    spec[key])
+                spec[key] = modify_path_with_env(
+                    spec[key], 'DATA_DIRECTORY'
                 )
     print(spec)
 

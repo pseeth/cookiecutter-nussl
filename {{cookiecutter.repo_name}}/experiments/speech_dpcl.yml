@@ -10,7 +10,7 @@ algorithm_config:
     percentile: 95
 
 dataset_config:
-  cache: 'this_cache' # Path is relative to environment variable CACHE_DIRECTORY
+  cache: 'babywsj8k' # Path is relative to environment variable CACHE_DIRECTORY
   data_keys_for_training:
   - log_spectrogram
   - assignments
@@ -39,13 +39,13 @@ datasets:
   # Paths are relative to the environment variable DATA_DIRECTORY
   #   see setup/environment/default.sh for details
   train:
-    folder: babywsj8k/generated/train/
+    path: babywsj8k/generated/train/
     class: Scaper
   val:
-    folder: babywsj8k/generated/val/
+    path: babywsj8k/generated/val/
     class: Scaper
   test:
-    folder: babywsj8k/generated/test/
+    path: babywsj8k/generated/test/
     class: Scaper
 
 info:
@@ -122,6 +122,7 @@ model_config:
         embedding_size: 20
         activation:
         - tanh
+
   connections:
     - !!python/tuple # tuple containing two things:
       - mel_projection # unique name given to module above
@@ -135,5 +136,9 @@ model_config:
     - !!python/tuple
       - embedding
       - [recurrent_stack]
+    - !!python/tuple
+      - test_module
+      - [recurrent_stack]
+
   output:
   - embedding
