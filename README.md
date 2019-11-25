@@ -38,8 +38,12 @@ model architecture to be shipped via nussl's external file zoo, the accompanying
 must be pull requested to the main nussl repository and then deployed.
 
 Finally, if you are implementing new separation algorithms, you can work in the `algorithms/`
-folder. Implement your algorithm and then include it in `algorithms/__init__.py`. Your
-new algorithm will now be accessible by the scripts via `.yml` files.
+folder. Implement your algorithm and then include it in `algorithms/__init__.py`. The 
+base classes in nussl for all separation algorithms are included already: `SeparationBase`,
+`MaskSeparationBase`, and `ClusteringSeparationBase`. 
+Your new algorithm will now be accessible by the scripts via `.yml` files. Once your new
+algorithm is implemented to your satisfaction, you can factor it out of the cookiecutter
+and start a PR for nussl to contribute it to the main library.
 
 All scripts, which are kept in the `scripts/` folder should take in a `.yml` file and 
 function according to the parsed `.yml` file. This is to make sure every part of the
