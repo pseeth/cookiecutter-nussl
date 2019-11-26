@@ -60,7 +60,7 @@ Project Structure
 ├── cookiecutter_repo               <- contains package code called by scripts
 │   ├── __init__.py                 <- imports from submodules and also sets up the logger format.
 │   ├── algorithms                  <- separation algorithms used in experiments
-│   │   ├── __init__.py             <- default includes FT2D, DeepClustering, etc.
+│   │   └── __init__.py             <- default includes FT2D, DeepClustering, etc.
 │   ├── dataset                     <- contains Dataset classes for training and testing
 │   │   │                              and scripts for generating data.
 │   │   ├── __init__.py             <- imports MixSourceFolder and Scaper from nussl
@@ -68,8 +68,8 @@ Project Structure
 │   ├── model                       <- set up model code here. Just imports SeparationModel.
 │   │   ├── extras                  <- you can put extra modules here that are accessible
 │   │   │   ├── example_module.py      by SeparationModel via the extra_modules arg.
-│   │   │   ├── __init__.py         <- be sure to import your modules here!
-│   │   ├── __init__.py                and shows how custom modules could be used.
+│   │   │   └── __init__.py         <- be sure to import your modules here!
+│   │   └── __init__.py                and shows how custom modules could be used.
 │   ├── test                        <- contains code used for evaluation (e.g. SI-SDR).
 │   │   ├── __init__.py                
 │   ├── train                       <- contains code used for training. just imports Trainer
