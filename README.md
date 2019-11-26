@@ -117,7 +117,7 @@ Project Structure
 ├── setup
 │   ├── build_docker_image.sh       <- builds the docker image (use 'make docker').
 │   ├── environment                 <- contains scripts for setting up environment variables
-│   │   ├── default.sh              <- default. copy to *_local.sh (untracked) and fill in
+│   │   └── default.sh              <- default. copy to *_local.sh (untracked) and fill in
 │   ├── install_docker.sh           <- installs Docker and nvidia-docker on an Ubuntu machine
 │   └── melodia                     <- Melodia plug-in files. works only on Linux machines
 │       ├── MELODIA - License.txt      but is copied and used in the container. Depends on
