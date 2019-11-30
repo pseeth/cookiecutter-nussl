@@ -67,7 +67,7 @@ class ScriptRunnerPool(object):
                         available_gpus.remove(t)
                 if len(available_gpus) >= num_gpus:
                     logging.info(
-                        f"Found GPUs {available_gpus} for {script['config']}"
+                        f"Found GPUs {available_gpus} for {script['config']} "
                         f"which needed {num_gpus} GPUs"
                     )
                     taken_gpus += available_gpus
@@ -82,6 +82,7 @@ class ScriptRunnerPool(object):
                         allocated_scripts.append(script)
                         taken_gpus = []
                         self.blocking_executor.shutdown(wait=True)
+                        self.blocking_executor = ThreadPoolExecutor(max_workers=1)
                     else:
                         self.executor.submit(job_runner, script)
                         allocated_scripts.append(script)

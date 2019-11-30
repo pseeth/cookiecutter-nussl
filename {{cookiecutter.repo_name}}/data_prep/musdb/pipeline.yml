@@ -1,17 +1,24 @@
-num_jobs: 1
+num_jobs: 1 # controls whether to run this sequentially or in parallel
 
 jobs:
-# # First, reorganize the MUSDB dataset so that it can be fed into Scaper.
+# First, reorganize the MUSDB dataset so that it can be fed into Scaper.
 - script: scripts/reorganize.py
   config: data_prep/musdb/reorganize.yml
   run_in: container
+  blocking: true
 
-# # Downsample each audio file from 44100 to 16000.
+# Downsample each audio file from 44100 to 16000.
 - script: scripts/resample.py
   config: data_prep/musdb/resample.yml
   run_in: container
+  blocking: true
 
-# Mix a dataset for training with Scaper.
+# Mix a coherent dataset for training with Scaper.
 - script: scripts/mix_with_scaper.py
   config: data_prep/musdb/coherent.yml
+  run_in: container
+
+# Mix an incoherent dataset for training with Scaper.
+- script: scripts/mix_with_scaper.py
+  config: data_prep/musdb/incoherent.yml
   run_in: container

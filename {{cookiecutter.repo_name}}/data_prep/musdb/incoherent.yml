@@ -26,25 +26,25 @@ mixture_parameters:
     num_mixtures: 1200
     foreground_path: DATA_DIRECTORY/musdb/scaper/train_16k
     background_path:
-    target_path: DATA_DIRECTORY/musdb/generated/coherent/train
+    target_path: DATA_DIRECTORY/musdb/generated/incoherent/train
     scene_duration: 10
-    labels: ['vocals', 'bass', 'drums', 'other']
+    num_sources: 4
 
   val:
     num_mixtures: 120
     foreground_path: DATA_DIRECTORY/musdb/scaper/train_16k
     background_path:
-    target_path: DATA_DIRECTORY/musdb/generated/coherent/val
+    target_path: DATA_DIRECTORY/musdb/generated/incoherent/val
     scene_duration: 10
-    labels: ['vocals', 'bass', 'drums', 'other']
+    num_sources: 4
 
   test:
     num_mixtures: 120
     foreground_path: DATA_DIRECTORY/musdb/scaper/test_16k
     background_path:
-    target_path: DATA_DIRECTORY/musdb/generated/coherent/test
+    target_path: DATA_DIRECTORY/musdb/generated/incoherent/test
     scene_duration: 10
-    labels: ['vocals', 'bass', 'drums', 'other']
+    num_sources: 4
 
 event_parameters:
   label: !!python/tuple ['choose', []]
@@ -60,5 +60,5 @@ sample_rate: 16000
 ref_db: -40
 bitdepth: 16
 seed: 0
-coherent: true
+coherent: false
 num_workers: 25
