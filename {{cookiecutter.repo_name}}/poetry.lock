@@ -525,7 +525,7 @@ melodia = ["vamp"]
 musdb = ["stempeg"]
 
 [package.source]
-reference = "6cd6b3fca3aa4011ce3b53d749aca5dfd6c9f3c6"
+reference = "d6ec5ff295f64dc4a4c8a8dccffc9cc5fdc2938f"
 type = "git"
 url = "https://github.com/interactiveaudiolab/nussl.git"
 [[package]]
