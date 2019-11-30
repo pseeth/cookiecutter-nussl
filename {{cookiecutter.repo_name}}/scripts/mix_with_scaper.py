@@ -11,7 +11,7 @@ import os
 def main(path_to_yml_file):
     spec = parse_yaml(path_to_yml_file)
 
-    for _spec in spec:
+    for _spec in spec['jobs']:
         scaper_mix(
             _spec['mixture_parameters'],
             _spec['sample_rate'],

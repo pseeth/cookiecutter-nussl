@@ -7,6 +7,7 @@ from tqdm import tqdm
 import subprocess
 import os
 import logging
+import copy
 
 def make_one_mixture(sc, path_to_file, num_sources, event_parameters):
     for j in range(num_sources):
@@ -16,7 +17,9 @@ def make_one_mixture(sc, path_to_file, num_sources, event_parameters):
 
 def instantiate_and_get_event_spec(sc, master_label, scene_duration, event_parameters):
     sc.fg_spec = []
-    sc.add_event(**event_parameters)
+    _event_parameters = copy.deepcopy(event_parameters)
+    _event_parameters['label'] = ('const', master_label)
+    sc.add_event(**_event_parameters)
     event = sc._instantiate_event(sc.fg_spec[-1])
     sc.fg_spec = []
     return sc, event
@@ -33,10 +36,10 @@ def make_one_mixture_coherent(sc, path_to_file, labels, event_parameters):
                 event_duration=('const', sc.duration),
                 snr=event_parameters['snr'],
                 pitch_shift=('const', event.pitch_shift),
-                time_stretch=event.time_stretch
+                time_stretch=('const', event.time_stretch)
             )
         except:
-            logging.exception(f"Got an error for {label}. Moving on...")
+            logging.exception(f"Got an error for {label} @ {_source_file}. Moving on...")
     sc.generate(path_to_file, path_to_file.replace('.wav', '.jams'), no_audio=True)
     sc.fg_spec = []
 

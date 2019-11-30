@@ -49,7 +49,7 @@ def parse_yaml(path_to_yml):
     spec = {}
 
     if 'jobs' not in _spec:
-        spec['jobs'] = _spec
+        spec['jobs'] = [_spec]
     else:
         spec = _spec
     return spec

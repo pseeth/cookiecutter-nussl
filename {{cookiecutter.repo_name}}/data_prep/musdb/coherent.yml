@@ -53,12 +53,12 @@ event_parameters:
   event_time: !!python/tuple ['const', 0]
   event_duration: !!python/tuple ['const', 10]
   snr: !!python/tuple ['uniform',-2.5, 2.5]
-  pitch_shift: #defaults to None
-  time_stretch: #defaults to None
+  pitch_shift: !!python/tuple ['const', 0]
+  time_stretch: !!python/tuple ['const', 1]
 
 sample_rate: 16000
 ref_db: -40
 bitdepth: 16
 seed: 0
 coherent: true
-num_workers: 10
+num_workers: 25
