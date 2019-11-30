@@ -1,4 +1,4 @@
-num_jobs: 1 # controls whether to run this sequentially or in parallel
+num_jobs: 2 # controls whether to run this sequentially or in parallel
 
 jobs:
 # First, reorganize the MUSDB dataset so that it can be fed into Scaper.
@@ -13,12 +13,12 @@ jobs:
   run_in: container
   blocking: true
 
-# Mix a coherent dataset for training with Scaper.
+# Mix a coherent dataset with Scaper.
 - script: scripts/mix_with_scaper.py
   config: data_prep/musdb/coherent.yml
   run_in: container
 
-# Mix an incoherent dataset for training with Scaper.
+# Mix an incoherent dataset with Scaper.
 - script: scripts/mix_with_scaper.py
   config: data_prep/musdb/incoherent.yml
   run_in: container
