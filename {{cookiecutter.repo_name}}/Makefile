@@ -41,3 +41,4 @@ jupyter:
 
 test:
 	make command="python -m pytest . -v" run_in_host
+	make command="python -m pytest . -v" run_in_container
