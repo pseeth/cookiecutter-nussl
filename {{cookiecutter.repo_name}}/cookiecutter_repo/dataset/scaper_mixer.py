@@ -14,9 +14,9 @@ def make_one_mixture(sc, path_to_file, num_sources, event_parameters):
     sc.generate(path_to_file, path_to_file.replace('.wav', '.jams'), no_audio=True, allow_repeated_label=False)
     sc.fg_spec = []
 
-def instantiate_and_get_event_spec(sc, master_label, scene_duration, master_event_parameters):
+def instantiate_and_get_event_spec(sc, master_label, scene_duration, event_parameters):
     sc.fg_spec = []
-    sc.add_event(**master_event_parameters)
+    sc.add_event(**event_parameters)
     event = sc._instantiate_event(sc.fg_spec[-1])
     sc.fg_spec = []
     return sc, event
@@ -24,16 +24,19 @@ def instantiate_and_get_event_spec(sc, master_label, scene_duration, master_even
 def make_one_mixture_coherent(sc, path_to_file, labels, event_parameters):
     sc, event = instantiate_and_get_event_spec(sc, labels[0], sc.duration, event_parameters)
     for label in labels:
-        sc.add_event(
-            label=('const', label),
-            source_file=('const', event.source_file.replace(labels[0], label)),
-            source_time=('const', event.source_time),
-            event_time=('const', 0),
-            event_duration=('const', sc.duration),
-            snr=event_parameters['snr'],
-            pitch_shift=('const', event.pitch_shift),
-            time_stretch=event.time_stretch
-        )
+        try:
+            sc.add_event(
+                label=('const', label),
+                source_file=('const', event.source_file.replace(labels[0], label)),
+                source_time=('const', event.source_time),
+                event_time=('const', 0),
+                event_duration=('const', sc.duration),
+                snr=event_parameters['snr'],
+                pitch_shift=('const', event.pitch_shift),
+                time_stretch=event.time_stretch
+            )
+        except:
+            logging.exception(f"Got an error for {label}. Moving on...")
     sc.generate(path_to_file, path_to_file.replace('.wav', '.jams'), no_audio=True)
     sc.fg_spec = []
 

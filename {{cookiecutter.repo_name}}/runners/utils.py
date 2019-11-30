@@ -2,14 +2,76 @@ import collections
 from concurrent.futures import ProcessPoolExecutor, as_completed
 import yaml
 import os
+from argparse import ArgumentParser
+from multiprocessing import cpu_count
+import logging
+
+env_variables = [
+    'DATA_DIRECTORY',
+    'CACHE_DIRECTORY',
+    'ARTIFACTS_DIRECTORY',
+    'NUSSL_DIRECTORY',
+]
+
+def modify_yml_with_env(yml):
+    """Replaces specific substrings in a string or elsewhere with
+    their corresponding environment variables. The environment variables it currently
+    replaces are: DATA_DIRECTORY, CACHE_DIRECTORY, ARTIFACTS_DIRECTORY, and 
+    NUSSL_DIRECTORY. Descriptions of these are in setup/environment/default.sh.
+    """
+    for _env in env_variables:
+        if _env in yml:
+            yml = yml.replace(_env, os.getenv(_env, ""))
+    return yml
 
 def load_yaml(path_to_yml):
     with open(path_to_yml, 'r') as f:
-        data = yaml.load(f, Loader=yaml.FullLoader)
+        yml = modify_yml_with_env(f.read())
+        data = yaml.load(yml, Loader=yaml.FullLoader)
     return data
 
-def modify_path_with_env(path, env):
-    return os.path.join(os.getenv(env, ''), path)
+def build_parser_for_yml_script():
+    parser = ArgumentParser()
+    parser.add_argument(
+        'spec', 
+        type=str, 
+        help= """
+            Path to .yml file containing specification for reorganizing. If the only key
+            is 'jobs', then we assume it points to a list of jobs with parameters
+            input_path and output_path. Each job is executed one after the other. The
+            structure of each .yml file is up to you.
+            """
+    )
+    return parser
+
+def parse_yaml(path_to_yml):
+    _spec = load_yaml(path_to_yml)
+    spec = {}
+
+    if 'jobs' not in _spec:
+        spec['jobs'] = _spec
+    else:
+        spec = _spec
+    return spec
+
+def prepare_script_args(spec):
+    spec['run_in'] = spec.pop('run_in', 'host')
+    spec['num_gpus'] = spec.pop('num_gpus', 0)
+    spec['num_workers']  = min(cpu_count(), spec.pop('num_workers', 1))
+    spec['blocking'] = spec.pop('blocking', False)
+    return spec
+
+def disp_script(spec):
+    logging.info(
+        f"\n"
+        f"  Running {spec['script']} with args:\n"
+        f"    config: {spec['config']}\n"
+        f"    run_in: {spec['run_in']}\n"
+        f"    num_gpus: {spec['num_gpus']}\n"
+        f"    num_cpus: {spec['num_gpus']}\n"
+        f"    num_workers: {spec['num_workers']}\n"
+        f"    blocking: {spec['blocking']}\n"
+    )
 
 def deep_update(source, overrides):
     """

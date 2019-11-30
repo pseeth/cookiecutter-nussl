@@ -1,14 +1,17 @@
 import sys
+import os
+
 sys.path.insert(0, '.')
+sys.path.insert(0, os.getenv('NUSSL_DIRECTORY'))
 
 from multiprocessing import cpu_count
-import os
 
 from cookiecutter_repo.utils.parallel import parallel_process
 from nussl import AudioSignal
 import os
 import glob
 from multiprocessing import cpu_count
+from runners.utils import build_parser_for_yml_script, parse_yaml
 
 from argparse import ArgumentParser
 import shutil
@@ -16,59 +19,61 @@ import yaml
 import logging
 
 def resample_audio_file(original_path, resample_path, sample_rate):
-    logging.info(f'{original_path} -> {resample_path} @ {sample_rate}')
     audio_signal = AudioSignal(original_path)
-    audio_signal.resample(sample_rate)
-    audio_signal.write_audio_to_file(resample_path)
+    resample = True
+
+    if os.path.exists(resample_path):
+        resample=False
+        resampled_signal = AudioSignal(resample_path)
+        if resampled_signal.sample_rate != sample_rate:
+            resample = True
+    
+    if resample:
+        logging.info(
+            f'{original_path} @ {audio_signal.sample_rate} -> {resample_path} @ {sample_rate}'
+        )
+        audio_signal.resample(sample_rate)
+        audio_signal.write_audio_to_file(resample_path)
 
 def ig_f(dir, files):
     return [f for f in files if os.path.isfile(os.path.join(dir, f))]
 
-if __name__ == '__main__':
-    parser = ArgumentParser()
-    parser.add_argument(
-        'spec', 
-        type=str, 
-        help='Path to .yml file containing specification for downsampling.'
-    )
-    args = vars(parser.parse_args())
-    spec = load_yaml(args['spec'])
-    
-    for key in spec:
-        if 'path' in key:
-            if spec[key] is not None:
-                spec[key] = modify_path_with_env(
-                    spec[key], 'DATA_DIRECTORY'
-                )
-    print(spec)
+def main(path_to_yml_file):
+    spec = parse_yaml(path_to_yml_file)
 
-    try:
-        shutil.copytree(
-            spec['input_path'], 
-            spec['output_path'], 
-            ignore=ig_f
+    for _spec in spec['jobs']:
+        try:
+            shutil.copytree(
+                _spec['input_path'], 
+                _spec['output_path'], 
+                ignore=ig_f
+            )
+        except:
+            pass
+
+        input_audio_files = glob.glob(f"{_spec['input_path']}/**/*.wav", recursive=True)
+        output_audio_files = [
+            x.replace(_spec['input_path'], _spec['output_path']) 
+            for x in input_audio_files
+        ]
+        arguments = [
+            {
+                'original_path': input_audio_files[i],
+                'resample_path': output_audio_files[i],
+                'sample_rate': _spec['sample_rate'],
+            } 
+            for i in range(len(input_audio_files))
+        ]
+
+        parallel_process(
+            arguments, 
+            resample_audio_file, 
+            n_jobs=min(_spec['num_workers'], cpu_count()),
+            front_num=1,
+            use_kwargs=True,
         )
-    except:
-        pass
 
-    input_audio_files = glob.glob(f"{spec['input_path']}/**/*.wav", recursive=True)
-    output_audio_files = [
-        x.replace(spec['input_path'], spec['output_path']) 
-        for x in input_audio_files
-    ]
-    arguments = [
-        {
-            'original_path': input_audio_files[i],
-            'resample_path': output_audio_files[i],
-            'sample_rate': spec['sample_rate'],
-        } 
-        for i in range(len(input_audio_files))
-    ]
-
-    parallel_process(
-        arguments, 
-        resample_audio_file, 
-        n_jobs=min(spec['num_workers'], cpu_count()),
-        front_num=1,
-        use_kwargs=True,
-    )
+if __name__ == '__main__':
+    parser = build_parser_for_yml_script()
+    args = vars(parser.parse_args())
+    main(args['spec'])

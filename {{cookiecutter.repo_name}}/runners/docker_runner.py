@@ -30,7 +30,11 @@ class DockerRunner(object):
         ports = None
         user = os.getenv('USER')
         if not name:
-            name = command[0] + '-' + command[-1].replace('/', '.').replace('experiments', 'exp')
+            name = command[0] + '-' + command[-1].replace('experiments', 'exp')
+            name = name.replace('_', '-')
+            name = name.replace(' ', '-')
+            name = name.replace('/', '.')
+            logging.info(f'Docker container name: {name}')
         if command[0] == 'jupyter':
             #forward a port
             external_port = os.getenv('JUPYTER_HOST_PORT')

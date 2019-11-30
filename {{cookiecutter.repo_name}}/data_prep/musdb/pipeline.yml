@@ -1,0 +1,15 @@
+num_jobs: 1
+
+jobs:
+# First, reorganize the MUSDB dataset so that it can be fed into Scaper.
+- script: scripts/reorganize.py
+  config: data_prep/musdb/reorganize.yml
+  run_in: container
+# Downsample each audio file from 44100 to 16000.
+- script: scripts/resample.py
+  config: data_prep/musdb/resample.yml
+  run_in: container
+# Mix a dataset for training with Scaper.
+# - script: scripts/mix_with_scaper.py
+#   config: data_prep/musdb/coherent.yml
+#   run_in: container

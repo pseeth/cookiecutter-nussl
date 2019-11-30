@@ -1,10 +1,9 @@
 SHELL := /bin/bash
 env_file = $(ENV_FILE)
-gpus = 0
-name = default
+gpus = ""
+name = ""
 
 install:
-	poetry self:update --preview
 	poetry install
 
 freeze_requirements:
@@ -27,11 +26,15 @@ check_container_environment:
 
 run_in_host:
 	source $(env_file) && \
-	poetry run $(command)
+	CUDA_VISIBLE_DEVICES=$(gpus) poetry run $(command)
 
 run_in_container:
 	source $(env_file) && \
-	poetry run python scripts/run_in_docker.py "$(command)" --gpus $(gpus) --name $(name)
+	CUDA_VISIBLE_DEVICES=$(gpus) NAME=$(name) poetry run python scripts/run_in_docker.py "$(command)"
+
+pipeline:
+	source $(env_file) && \
+	poetry run python scripts/pipeline.py "${yml}"
 
 jupyter:
 	make command="jupyter lab" gpus=$(gpus) name=jupyter_lab run_in_container

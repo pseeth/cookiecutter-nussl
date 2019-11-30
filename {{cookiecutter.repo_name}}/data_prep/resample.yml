@@ -1,5 +1,0 @@
----
-input_path: babywsj8k/dev
-output_path: babywsj8k/dev_16k
-num_workers: 10
-sample_rate: 16000

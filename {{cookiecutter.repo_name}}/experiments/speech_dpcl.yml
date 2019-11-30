@@ -10,7 +10,7 @@ algorithm_config:
     percentile: 95
 
 dataset_config:
-  cache: 'babywsj8k' # Path is relative to environment variable CACHE_DIRECTORY
+  cache: 'CACHE_DIRECTORY/babywsj8k' # Path is relative to environment variable CACHE_DIRECTORY
   data_keys_for_training:
   - log_spectrogram
   - assignments
@@ -39,13 +39,13 @@ datasets:
   # Paths are relative to the environment variable DATA_DIRECTORY
   #   see setup/environment/default.sh for details
   train:
-    path: babywsj8k/generated/train/
+    path: DATA_DIRECTORY/babywsj8k/generated/train/
     class: Scaper
   val:
-    path: babywsj8k/generated/val/
+    path: DATA_DIRECTORY/babywsj8k/generated/val/
     class: Scaper
   test:
-    path: babywsj8k/generated/test/
+    path: DATA_DIRECTORY/babywsj8k/generated/test/
     class: Scaper
 
 info:
@@ -81,6 +81,7 @@ train_config:
   patience: 5
   sample_strategy: sequential
   weight_decay: 0.0
+  output_parent_directory: ARTIFACTS_DIRECTORY
 
 test_config:
   num_workers: 10

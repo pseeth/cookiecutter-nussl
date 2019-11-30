@@ -1,0 +1,11 @@
+---
+jobs:
+- input_path: DATA_DIRECTORY/musdb/scaper/train
+  output_path: DATA_DIRECTORY/musdb/scaper/train_16k
+  num_workers: 25
+  sample_rate: 16000
+
+- input_path: DATA_DIRECTORY/musdb/scaper/test
+  output_path: DATA_DIRECTORY/musdb/scaper/test_16k
+  num_workers: 25
+  sample_rate: 16000
