@@ -40,7 +40,4 @@ jupyter:
 	make command="jupyter lab" gpus=$(gpus) name=jupyter_lab run_in_container
 
 test:
-	echo "Running tests in host"
-	make command="python -m pytest . -s" run_in_host
-	echo "Running tests in container"
-	make command="python -m pytest . -s" run_in_container
+	make command="python -m pytest . -v" run_in_host

@@ -2,6 +2,8 @@ num_jobs: 2 # controls whether to run this sequentially or in parallel
 
 jobs:
 # First, reorganize the MUSDB dataset so that it can be fed into Scaper.
+# Data should start off in a folder at DATA_DIRECTORY/musdb/raw/[train,test]/
+# This is how musdb18.zip unzips.
 - script: scripts/reorganize.py
   config: data_prep/musdb/reorganize.yml
   run_in: container

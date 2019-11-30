@@ -104,3 +104,5 @@ venv.bak/
 **/*_local.sh
 .vscode/*
 **/*.out
+
+**/out/*

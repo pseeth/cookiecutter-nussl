@@ -29,6 +29,7 @@ vamp = { version = "^1.0.0", optional = true }
 nussl = { git = "https://github.com/interactiveaudiolab/nussl.git", branch = "clustering" }
 scaper = { git = "https://github.com/pseeth/scaper.git", branch = "master" }
 pyyaml = "^5.1.2"
+tensorboard = "^2.0.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.3"

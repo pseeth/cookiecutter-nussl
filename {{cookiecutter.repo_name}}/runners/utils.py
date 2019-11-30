@@ -5,6 +5,7 @@ import os
 from argparse import ArgumentParser
 from multiprocessing import cpu_count
 import logging
+from .config import default_script_args
 
 env_variables = [
     'DATA_DIRECTORY',
@@ -55,10 +56,12 @@ def parse_yaml(path_to_yml):
     return spec
 
 def prepare_script_args(spec):
-    spec['run_in'] = spec.pop('run_in', 'host')
-    spec['num_gpus'] = spec.pop('num_gpus', 0)
-    spec['num_workers']  = min(cpu_count(), spec.pop('num_workers', 1))
-    spec['blocking'] = spec.pop('blocking', False)
+    spec['run_in'] = spec.pop('run_in', default_script_args['run_in'])
+    spec['num_gpus'] = spec.pop('num_gpus', default_script_args['num_gpus'])
+    spec['num_workers']  = min(
+        cpu_count(), spec.pop('num_workers', default_script_args['num_workers'])
+    )
+    spec['blocking'] = spec.pop('blocking', default_script_args['blocking'])
     return spec
 
 def disp_script(spec):

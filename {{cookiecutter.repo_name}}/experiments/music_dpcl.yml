@@ -1,6 +1,6 @@
 ---
 dataset_config:
-  cache: 'CACHE_DIRECTORY/babywsj8k' # Path is relative to environment variable CACHE_DIRECTORY
+  cache: 'CACHE_DIRECTORY/musdb' # Path is relative to environment variable CACHE_DIRECTORY
   data_keys_for_training:
   - log_spectrogram
   - assignments
@@ -8,18 +8,19 @@ dataset_config:
   excerpt_selection_strategy: random
   format: rnn
   fraction_of_dataset: 1.0
-  group_sources: []
-  hop_length: 64
+  group_sources: 
+  - [drums, bass, other]
   ignore_sources: []
   length: 400
-  n_fft: 256
+  n_fft: 512
+  hop_length: 128
   num_channels: 1
   output_type: psa
   overwrite_cache: false
-  sample_rate: 8000
+  sample_rate: 16000
   source_labels: []
   use_librosa_stft: false
-  weight_threshold: -40
+  weight_threshold: -80
   weight_type:
   - magnitude
 
@@ -29,18 +30,17 @@ datasets:
   # Paths are relative to the environment variable DATA_DIRECTORY
   #   see setup/environment/default.sh for details
   train:
-    folder: DATA_DIRECTORY/babywsj8k/generated/train/
+    folder: DATA_DIRECTORY/musdb/generated/train/
     class: Scaper
   val:
-    folder: DATA_DIRECTORY/babywsj8k/generated/val/
+    folder: DATA_DIRECTORY/musdb/generated/val/
     class: Scaper
   test:
-    folder: DATA_DIRECTORY/babywsj8k/generated/test/
+    folder: DATA_DIRECTORY/musdb/generated/test/
     class: Scaper
 
 info:
   blocking: false
-  cache_populated: true
   num_gpus: 1
   project_name: Tutorial
   sheet_name: Toy experimental results
@@ -72,7 +72,6 @@ train_config:
   patience: 5
   sample_strategy: sequential
   weight_decay: 0.0
-  output_parent_directory: ARTIFACTS_DIRECTORY
 
 model_config:
   class: SeparationModel
@@ -86,7 +85,7 @@ model_config:
     mel_projection:
       class: MelProjection
       args:
-        sample_rate: 8000
+        sample_rate: 16000
         num_frequencies: 129
         num_mels: -1
         direction: forward
@@ -138,6 +137,7 @@ algorithm_config:
       posterior_alpha: 5.0
     enhancement_amount: 0.0
     mask_type: soft
+    model_path: ARTIFACTS_DIRECTORY/EXPERIMENT_KEY/checkpoints/best.model.pth
     num_sources: 2
     percentile: 95
 

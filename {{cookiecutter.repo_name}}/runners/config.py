@@ -31,5 +31,12 @@ volumes =  {
     },
 }
 
+default_script_args = {
+    'run_in': 'host',
+    'num_gpus': 0,
+    'num_workers': 1,
+    'blocking': False
+}
+
 if __name__ == '__main__':
     print(volumes)
