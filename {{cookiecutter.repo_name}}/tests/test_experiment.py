@@ -1,17 +1,25 @@
 from runners.utils import load_yaml
-from cookiecutter_repo import train
-from cookiecutter_repo import dataset
-from cookiecutter_repo import model
-from cookiecutter_repo.utils import loaders
+from cookiecutter_repo import train, dataset, model, logging
+from cookiecutter_repo.utils import loaders, seed
 import glob
 import pytest
 
 import sys, os
 import torch
+import shutil
+
+seed(0)
+shutil.rmtree('tests/out/')
+
+logger = logging.getLogger()
+os.makedirs('tests/out/_test_train/logs/', exist_ok=True)
+fh = logging.FileHandler(f'tests/out/_test_train/logs/output.txt')
+logger.addHandler(fh)
 
 def _load_dataset(config, split):
     config['dataset_config']['overwrite_cache'] = True
     config['dataset_config']['cache'] = 'tests/out/_test_dataset/'
+    config['dataset_config']['fraction_of_dataset'] = .1
     dset = loaders.load_dataset(
             config['datasets'][split]['class'],
             config['datasets'][split]['folder'],
@@ -61,6 +69,7 @@ def test_train(config):
         train_class = config['train_config'].pop('class')
         output_folder = config['train_config'].pop('output_folder')
         output_folder = 'tests/out/_test_train/'
+        config['train_config']['num_epochs'] = 1
 
         TrainerClass = getattr(train, train_class)
 
@@ -78,3 +87,5 @@ def test_train(config):
             use_tensorboard=True,
             experiment=None,
         )
+
+        trainer.fit()
