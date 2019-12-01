@@ -40,5 +40,5 @@ jupyter:
 	make command="jupyter lab" gpus=$(gpus) name=jupyter_lab run_in_container
 
 test:
-	make command="python -m pytest . -v" run_in_host
-	make command="python -m pytest . -v" run_in_container
+	make gpus=$(gpus) command="python -m pytest . -v" run_in_host
+	make gpus=$(gpus) command="python -m pytest . -v" run_in_container

@@ -9,6 +9,16 @@ import logging
 
 class DockerRunner(object):
     def __init__(self, image=None):
+        """This class just creates a Docker container from the given image and runs it.
+        If the image is not specified, it looks in the environment variable called
+        'DOCKER_IMAGE_NAME'. If that doesn't exist, it throws a warning.
+
+        If there are gpus available, it uses the NVIDIA docker runtime to access them
+        through GPU passthrough. If no GPUs are available, it uses the standard runtime.
+
+        The class mounts volumes in the host into the container at specified paths. These
+        paths are specified in config.py and are accessible via environment variables.
+        """
         self.num_gpus = GPUtil.getAvailable(order = 'first', limit = 1000)
         if self.num_gpus:
             self.runtime = 'nvidia'
@@ -24,7 +34,10 @@ class DockerRunner(object):
                 'or image was not defined when instantiating DockerRunner.'
             )
 
-    def run(self, command, gpus, name=None):
+    def run(self, command, gpus, name=None, detach=True):
+        """Run a given command in a Docker container. This detaches from the container
+        completely by default.
+        """
         logging.info(f'Running: {command} on GPUs: {gpus}')
 
         ports = None
@@ -60,7 +73,7 @@ class DockerRunner(object):
                 f"CACHE_DIRECTORY={os.getenv('CACHE_DIRECTORY')}",
                 f"ARTIFACTS_DIRECTORY={os.getenv('ARTIFACTS_DIRECTORY')}",
             ],
-            detach=True,
+            detach=detach,
             stderr=True,
             stdout=True,
         )

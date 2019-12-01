@@ -79,7 +79,7 @@ model_config:
   modules:
     log_spectrogram:
       input_shape: [-1, -1, 129]
-    batch_norm:
+    normalization:
       class: BatchNorm
       args:
         use_batch_norm: true
@@ -116,16 +116,13 @@ model_config:
       - mel_projection # unique name given to module above
       - [log_spectrogram] # list of runtime arguments needed by that module (e.g. output of prev layer)
     - !!python/tuple
-      - instance_norm
+      - normalization
       - [mel_projection]
     - !!python/tuple
       - recurrent_stack
-      - [instance_norm]
+      - [normalization]
     - !!python/tuple
       - embedding
-      - [recurrent_stack]
-    - !!python/tuple
-      - test_module
       - [recurrent_stack]
 
   output:

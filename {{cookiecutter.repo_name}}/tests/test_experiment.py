@@ -7,6 +7,7 @@ import glob
 import pytest
 
 import sys, os
+import torch
 
 def _load_dataset(config, split):
     config['dataset_config']['overwrite_cache'] = True
@@ -34,6 +35,25 @@ def test_dataset(config):
 def test_model(config):
     if 'model_config' in config:
         model = loaders.load_model(config['model_config'])
+
+@pytest.mark.parametrize("config", configs, ids=paths_to_yml)
+def test_model_and_dataset_match(config):
+    device = (
+        torch.device('cuda') 
+        if torch.cuda.is_available()
+        else torch.device('cpu')
+    )
+    if 'datasets' in config and 'model_config' in config:
+        for split in config['datasets']:
+            dset = _load_dataset(config, split)
+            data = dset[0]
+            for key in data:
+                data[key] = torch.from_numpy(
+                    data[key]
+                ).unsqueeze(0).float().to(device)
+            model_instance = loaders.load_model(config['model_config'])
+            model_instance = model_instance.to(device)
+            output = model_instance(data)
 
 @pytest.mark.parametrize("config", configs, ids=paths_to_yml)
 def test_train(config):
