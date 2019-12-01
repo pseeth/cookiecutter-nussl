@@ -316,7 +316,7 @@ marker = "python_version < \"3.8\""
 name = "importlib-metadata"
 optional = false
 python-versions = ">=2.7,!=3.0,!=3.1,!=3.2,!=3.3"
-version = "0.23"
+version = "1.0.0"
 
 [package.dependencies]
 zipp = ">=0.5"
@@ -599,10 +599,9 @@ melodia = ["vamp"]
 musdb = ["stempeg"]
 
 [package.source]
-reference = "d6ec5ff295f64dc4a4c8a8dccffc9cc5fdc2938f"
+reference = "98ede4dc5544eca2aef1a4d2f743595a0b81e582"
 type = "git"
 url = "https://github.com/interactiveaudiolab/nussl.git"
-
 [[package]]
 category = "main"
 description = "Python Bindings for the NVIDIA Management Library"
@@ -928,7 +927,6 @@ tests = ["backports.tempfile", "pysoundfile"]
 reference = "97cbbc479c6b72521b58923d1a73f7726d8029d9"
 type = "git"
 url = "https://github.com/pseeth/scaper.git"
-
 [[package]]
 category = "main"
 description = "A set of python modules for machine learning and data mining"
@@ -1370,8 +1368,8 @@ idna = [
     {file = "idna-2.8.tar.gz", hash = "sha256:c357b3f628cf53ae2c4c05627ecc484553142ca23264e593d327bcde5e9c3407"},
 ]
 importlib-metadata = [
-    {file = "importlib_metadata-0.23-py2.py3-none-any.whl", hash = "sha256:d5f18a79777f3aa179c145737780282e27b508fc8fd688cb17c7a813e8bd39af"},
-    {file = "importlib_metadata-0.23.tar.gz", hash = "sha256:aa18d7378b00b40847790e7c27e11673d7fed219354109d0e7b9e5b25dc3ad26"},
+    {file = "importlib_metadata-1.0.0-py2.py3-none-any.whl", hash = "sha256:f4a7ba72e93bc97ff491b66d69063819ae2b75238bb653cd4c95e3f2847ce76e"},
+    {file = "importlib_metadata-1.0.0.tar.gz", hash = "sha256:a82ca8c109e194d7d6aee3f7531b0470dd4dd6b36ec14fd55087142a96bd55a7"},
 ]
 jams = [
     {file = "jams-0.3.4.tar.gz", hash = "sha256:8bb2158bd19b4f057b8b90321b44b1dd1659c66cbebe0d4219889d31d7f888b9"},

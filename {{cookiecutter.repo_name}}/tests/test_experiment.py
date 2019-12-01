@@ -7,7 +7,6 @@ import glob
 import pytest
 
 import sys, os
-sys.path.insert(0, os.getenv('NUSSL_DIRECTORY'))
 
 def _load_dataset(config, split):
     config['dataset_config']['overwrite_cache'] = True
