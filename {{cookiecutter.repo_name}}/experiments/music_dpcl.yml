@@ -8,8 +8,7 @@ dataset_config:
   excerpt_selection_strategy: random
   format: rnn
   fraction_of_dataset: 1.0
-  group_sources: 
-  - [drums, bass, other]
+  group_sources: []
   ignore_sources: []
   length: 400
   n_fft: 512
@@ -30,13 +29,13 @@ datasets:
   # Paths are relative to the environment variable DATA_DIRECTORY
   #   see setup/environment/default.sh for details
   train:
-    folder: DATA_DIRECTORY/musdb/generated/train/
+    folder: DATA_DIRECTORY/babymusdb/generated/incoherent/train/
     class: Scaper
   val:
-    folder: DATA_DIRECTORY/musdb/generated/val/
+    folder: DATA_DIRECTORY/babymusdb/generated/incoherent/val/
     class: Scaper
   test:
-    folder: DATA_DIRECTORY/musdb/generated/test/
+    folder: DATA_DIRECTORY/babymusdb/generated/incoherent/test/
     class: Scaper
 
 info:

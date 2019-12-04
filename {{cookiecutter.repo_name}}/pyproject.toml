@@ -30,6 +30,7 @@ nussl = { git = "https://github.com/interactiveaudiolab/nussl.git", branch = "cl
 scaper = { git = "https://github.com/pseeth/scaper.git", branch = "master" }
 pyyaml = "^5.1.2"
 tensorboard = "^2.0.2"
+pytest-cov = "^2.8.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.3"

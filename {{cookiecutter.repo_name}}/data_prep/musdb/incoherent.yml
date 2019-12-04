@@ -23,38 +23,60 @@
 
 mixture_parameters:
   train:
-    num_mixtures: 1200
-    foreground_path: DATA_DIRECTORY/musdb/scaper/train_16k
+    num_mixtures: 100
+    foreground_path: DATA_DIRECTORY/babymusdb/scaper/train_16k
     background_path:
-    target_path: DATA_DIRECTORY/musdb/generated/incoherent/train
-    scene_duration: 10
+    target_path: DATA_DIRECTORY/babymusdb/generated/incoherent/train
+    scene_duration: 4
     num_sources: 4
+
+    event_parameters:
+      label: !!python/tuple ['choose', []]
+      source_file: !!python/tuple ['choose', []]
+      source_time: !!python/tuple ['uniform', 0, 1000]
+      event_time: !!python/tuple ['const', 0]
+      event_duration: !!python/tuple ['const', 4]
+      snr: !!python/tuple ['uniform',-2.5, 2.5]
+      pitch_shift: !!python/tuple ['uniform', -2, 2]
+      time_stretch: !!python/tuple ['const', 1]
 
   val:
-    num_mixtures: 120
-    foreground_path: DATA_DIRECTORY/musdb/scaper/train_16k
+    num_mixtures: 10
+    foreground_path: DATA_DIRECTORY/babymusdb/scaper/train_16k
     background_path:
-    target_path: DATA_DIRECTORY/musdb/generated/incoherent/val
-    scene_duration: 10
+    target_path: DATA_DIRECTORY/babymusdb/generated/incoherent/val
+    scene_duration: 4
     num_sources: 4
+
+    event_parameters:
+      label: !!python/tuple ['choose', []]
+      source_file: !!python/tuple ['choose', []]
+      source_time: !!python/tuple ['uniform', 0, 1000]
+      event_time: !!python/tuple ['const', 0]
+      event_duration: !!python/tuple ['const', 4]
+      snr: !!python/tuple ['uniform',-2.5, 2.5]
+      pitch_shift: !!python/tuple ['uniform', -2, 2]
+      time_stretch: !!python/tuple ['const', 1]
+
 
   test:
-    num_mixtures: 120
-    foreground_path: DATA_DIRECTORY/musdb/scaper/test_16k
+    num_mixtures: 10
+    foreground_path: DATA_DIRECTORY/babymusdb/scaper/test_16k
     background_path:
-    target_path: DATA_DIRECTORY/musdb/generated/incoherent/test
-    scene_duration: 10
+    target_path: DATA_DIRECTORY/babymusdb/generated/incoherent/test
+    scene_duration: 4
     num_sources: 4
 
-event_parameters:
-  label: !!python/tuple ['choose', []]
-  source_file: !!python/tuple ['choose', []]
-  source_time: !!python/tuple ['uniform', 0, 1000]
-  event_time: !!python/tuple ['const', 0]
-  event_duration: !!python/tuple ['const', 10]
-  snr: !!python/tuple ['uniform',-2.5, 2.5]
-  pitch_shift: !!python/tuple ['const', 0]
-  time_stretch: !!python/tuple ['const', 1]
+    event_parameters:
+      label: !!python/tuple ['choose', []]
+      source_file: !!python/tuple ['choose', []]
+      source_time: !!python/tuple ['uniform', 0, 1000]
+      event_time: !!python/tuple ['const', 0]
+      event_duration: !!python/tuple ['const', 4]
+      snr: !!python/tuple ['uniform',-2.5, 2.5]
+      pitch_shift: !!python/tuple ['uniform', 2, 4]
+      time_stretch: !!python/tuple ['const', 1]
+
 
 sample_rate: 16000
 ref_db: -40

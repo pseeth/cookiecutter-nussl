@@ -15,12 +15,12 @@ def main(path_to_yml_file):
         scaper_mix(
             _spec['mixture_parameters'],
             _spec['sample_rate'],
-            event_parameters=_spec['event_parameters'],
-            coherent=_spec['coherent'],
-            ref_db=_spec['ref_db'],
-            bitdepth=_spec['bitdepth'],
-            seed=_spec['seed'],
-            num_workers=min(_spec['num_workers'], cpu_count())
+            event_parameters=_spec.pop('event_parameters', None),
+            coherent=_spec.pop('coherent', False),
+            ref_db=_spec.pop('ref_db', -40),
+            bitdepth=_spec.pop('bitdepth', 16),
+            seed=_spec.pop('seed', 0),
+            num_workers=min(_spec.pop('num_workers', 1), cpu_count())
         )
 
 if __name__ == '__main__':

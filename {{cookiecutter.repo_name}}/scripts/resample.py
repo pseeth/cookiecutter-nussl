@@ -1,9 +1,5 @@
 import sys
 import os
-
-sys.path.insert(0, '.')
-sys.path.insert(0, os.getenv('NUSSL_DIRECTORY'))
-
 from multiprocessing import cpu_count
 
 from cookiecutter_repo.utils.parallel import parallel_process
@@ -18,15 +14,15 @@ import shutil
 import yaml
 import logging
 
+from . import audio_extensions
+
 def resample_audio_file(original_path, resample_path, sample_rate):
     audio_signal = AudioSignal(original_path)
     resample = True
 
     if os.path.exists(resample_path):
-        resample=False
         resampled_signal = AudioSignal(resample_path)
-        if resampled_signal.sample_rate != sample_rate:
-            resample = True
+        resample = resampled_signal.sample_rate != sample_rate
     
     if resample:
         logging.info(
@@ -51,15 +47,21 @@ def main(path_to_yml_file):
         except:
             pass
 
-        input_audio_files = glob.glob(f"{_spec['input_path']}/**/*.wav", recursive=True)
+        input_audio_files = []
+        for ext in audio_extensions:
+            input_audio_files += glob.glob(
+                f"{_spec['input_path']}/**/*{ext}", 
+                recursive=True
+            )
+
         output_audio_files = [
-            x.replace(_spec['input_path'], _spec['output_path']) 
+            x.replace(_spec['input_path'], _spec['output_path'])
             for x in input_audio_files
         ]
         arguments = [
             {
                 'original_path': input_audio_files[i],
-                'resample_path': output_audio_files[i],
+                'resample_path': output_audio_files[i][:-4] + '.wav',
                 'sample_rate': _spec['sample_rate'],
             } 
             for i in range(len(input_audio_files))

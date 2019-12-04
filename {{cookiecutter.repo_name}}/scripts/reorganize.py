@@ -35,9 +35,6 @@ and reorganizes it to a different folder like so:
 so that it can be processed easily by Scaper. Notably, MUSDB has this folder structure.
 """
 
-import sys
-sys.path.insert(0, '.')
-
 import csv
 import os
 import shutil
@@ -48,6 +45,7 @@ import glob
 import logging
 from argparse import ArgumentParser
 import yaml
+from . import audio_extensions
 
 def split_folder_by_class(path_to_file, output_directory):
     head, tail = os.path.split(path_to_file)
@@ -65,10 +63,14 @@ def main(path_to_yml_file):
     spec = parse_yaml(path_to_yml_file)
 
     for _spec in spec['jobs']:
+        print(_spec)
         data_directory = _spec['input_path']
         output_directory = _spec['output_path']
 
-        paths_to_files = glob.glob(f'{data_directory}/**/*.wav')
+        paths_to_files = []
+        for ext in audio_extensions:
+            paths_to_files += glob.glob(f'{data_directory}/**/*{ext}')
+
         args = [{
             'path_to_file': p,
             'output_directory': output_directory

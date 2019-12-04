@@ -1,7 +1,7 @@
 ---
 jobs:
-- input_path: DATA_DIRECTORY/musdb/raw/train
-  output_path: DATA_DIRECTORY/musdb/scaper/train
+- input_path: DATA_DIRECTORY/babymusdb/train
+  output_path: DATA_DIRECTORY/babymusdb/scaper/train
 
-- input_path: DATA_DIRECTORY/musdb/raw/test
-  output_path: DATA_DIRECTORY/musdb/scaper/test
+- input_path: DATA_DIRECTORY/babymusdb/test
+  output_path: DATA_DIRECTORY/babymusdb/scaper/test

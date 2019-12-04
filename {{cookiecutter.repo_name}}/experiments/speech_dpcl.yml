@@ -29,13 +29,13 @@ datasets:
   # Paths are relative to the environment variable DATA_DIRECTORY
   #   see setup/environment/default.sh for details
   train:
-    folder: DATA_DIRECTORY/babywsj8k/generated/train/
+    folder: DATA_DIRECTORY/babywsj/generated/train/
     class: Scaper
   val:
-    folder: DATA_DIRECTORY/babywsj8k/generated/val/
+    folder: DATA_DIRECTORY/babywsj/generated/val/
     class: Scaper
   test:
-    folder: DATA_DIRECTORY/babywsj8k/generated/test/
+    folder: DATA_DIRECTORY/babywsj/generated/test/
     class: Scaper
 
 info:
