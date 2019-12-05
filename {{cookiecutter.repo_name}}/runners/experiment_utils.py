@@ -27,6 +27,7 @@ def save_experiment(config, exp=None):
 def load_experiment(path_to_yml_file):
     config = load_yaml(path_to_yml_file)
     api_key = os.getenv('COMET_API_KEY', None)
+    exp = None        
     
     if not config['info']['experiment_key']:
         if api_key:
@@ -36,7 +37,6 @@ def load_experiment(path_to_yml_file):
             )
             exp_key = exp.get_key()
         else:
-            exp = None
             exp_key = make_random_string(20)
         
         os.environ['EXPERIMENT_KEY'] = exp_key
@@ -49,4 +49,12 @@ def load_experiment(path_to_yml_file):
         logging.info(
             f"Experiment is already set up @ {config['info']['output_folder']}!"
         )
+        try:
+            exp = ExistingExperiment(
+                api_key=api_key,
+                previous_experiment=config['info']['experiment_key']
+            )
+        except:
+            pass
+    
     return config, exp, path_to_yml_file

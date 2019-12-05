@@ -66,7 +66,6 @@ def test_model_and_dataset_match(config):
 def test_train(config):
     if 'train_config' in config:
         train_class = config['train_config'].pop('class')
-        output_folder = config['train_config'].pop('output_folder')
         output_folder = 'tests/out/_test_train/'
         config['train_config']['num_epochs'] = 1
 

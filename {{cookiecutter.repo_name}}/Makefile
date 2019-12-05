@@ -80,11 +80,11 @@ clean:
 
 # Run all the test cases.
 test:
-	make test_host
+	make test_host args=$(args)
 
 # Run all the test cases in the host.
 test_host:
-	make gpus=$(gpus) command="python -m pytest --cov=. . -v" run_in_host
+	make gpus=$(gpus) command="python -m pytest --cov=. . -v $(args)" run_in_host
 
 # Run all the test cases in the container.
 test_container:

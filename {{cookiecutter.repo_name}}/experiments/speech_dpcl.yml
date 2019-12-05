@@ -43,10 +43,10 @@ info:
   num_gpus: 1
   project_name: cookiecutter/speech
   experiment_key:
+  output_folder: ARTIFACTS_DIRECTORY/cookiecutter/speech/EXPERIMENT_KEY
 
 train_config:
   class: Trainer
-  output_folder: ARTIFACTS_DIRECTORY/EXPERIMENT_KEY
   batch_size: 40
   curriculum_learning:
   - args: [400]
