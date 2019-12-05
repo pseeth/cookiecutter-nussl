@@ -40,13 +40,9 @@ datasets:
 
 info:
   blocking: false
-  cache_populated: true
   num_gpus: 1
-  project_name: Tutorial
-  sheet_name: Toy experimental results
-  test: true
-  train: true
-  worksheet_name: Tutorial
+  project_name: cookiecutter/speech
+  experiment_key:
 
 train_config:
   class: Trainer

@@ -6,6 +6,8 @@ from argparse import ArgumentParser
 from multiprocessing import cpu_count
 import logging
 from .config import default_script_args
+import random
+import string
 
 env_variables = [
     'DATA_DIRECTORY',
@@ -14,7 +16,7 @@ env_variables = [
     'NUSSL_DIRECTORY',
 ]
 
-def modify_yml_with_env(yml):
+def modify_yml_with_env(yml, env_variables):
     """Replaces specific substrings in a string or elsewhere with
     their corresponding environment variables. The environment variables it currently
     replaces are: DATA_DIRECTORY, CACHE_DIRECTORY, ARTIFACTS_DIRECTORY, and 
@@ -25,11 +27,15 @@ def modify_yml_with_env(yml):
             yml = yml.replace(_env, os.getenv(_env, ""))
     return yml
 
-def load_yaml(path_to_yml):
+def load_yaml(path_to_yml, env_variables=env_variables):
     with open(path_to_yml, 'r') as f:
-        yml = modify_yml_with_env(f.read())
+        yml = modify_yml_with_env(f.read(), env_variables)
         data = yaml.load(yml, Loader=yaml.FullLoader)
     return data
+
+def dump_yaml(data, path_to_yml):
+    with open(path_to_yml, 'w') as f:
+        yaml.dump(data, f)
 
 def build_parser_for_yml_script():
     parser = ArgumentParser()
@@ -98,3 +104,9 @@ def flatten(d, parent_key='', sep='_'):
         else:
             items.append((new_key, v))
     return dict(items)
+
+def make_random_string(length=10):
+    return ''.join(
+        random.choice(string.ascii_lowercase + string.digits) 
+        for _ in range(length)
+    )

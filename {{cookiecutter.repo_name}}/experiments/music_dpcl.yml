@@ -41,15 +41,12 @@ datasets:
 info:
   blocking: false
   num_gpus: 1
-  project_name: Tutorial
-  sheet_name: Toy experimental results
-  test: true
-  train: true
-  worksheet_name: Tutorial
+  project_name: cookiecutter/music
+  output_folder: ARTIFACTS_DIRECTORY/cookiecutter/music/EXPERIMENT_KEY
+  experiment_key:
 
 train_config:
   class: Trainer
-  output_folder: ARTIFACTS_DIRECTORY/EXPERIMENT_KEY
   batch_size: 40
   curriculum_learning:
   - args: [400]
@@ -133,7 +130,7 @@ algorithm_config:
       posterior_alpha: 5.0
     enhancement_amount: 0.0
     mask_type: soft
-    model_path: ARTIFACTS_DIRECTORY/EXPERIMENT_KEY/checkpoints/best.model.pth
+    model_path: ARTIFACTS_DIRECTORY/cookiecutter/music/EXPERIMENT_KEY/checkpoints/best.model.pth
     num_sources: 2
     percentile: 95
 

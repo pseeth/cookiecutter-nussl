@@ -34,6 +34,9 @@ and reorganizes it to a different folder like so:
     
 so that it can be processed easily by Scaper. Notably, MUSDB has this folder structure.
 """
+import sys
+sys.path.insert(0, '.')
+
 
 import csv
 import os
