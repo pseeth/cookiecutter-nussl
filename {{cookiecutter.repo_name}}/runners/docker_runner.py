@@ -50,9 +50,11 @@ class DockerRunner(object):
             logging.info(f'Docker container name: {name}')
         if command[0] == 'jupyter':
             #forward a port
-            external_port = os.getenv('JUPYTER_HOST_PORT')
+            external_port = os.getenv('JUPYTER_HOST_PORT', 8888)
             ports = {'8888': ('0.0.0.0', external_port)}
-            command.append('--ip=0.0.0.0')
+        elif command[0] == 'tensorboard':
+            external_port = os.getenv('TENSORBOARD_HOST_PORT', 6006)
+            ports = {'6006': ('0.0.0.0', external_port)}
         self.container = self.client.containers.run(
             image=self.image,
             auto_remove=True,

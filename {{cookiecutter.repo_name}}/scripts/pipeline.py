@@ -21,9 +21,6 @@ Could also be multiple jobs:
 
 The jobs get executed one after the other.
 """
-import sys
-sys.path.insert(0, '.')
-
 from runners.utils import build_parser_for_yml_script, parse_yaml
 from runners.script_runner_pool import ScriptRunnerPool
 from cookiecutter_repo import logging

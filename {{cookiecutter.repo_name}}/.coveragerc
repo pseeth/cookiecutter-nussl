@@ -14,3 +14,5 @@ exclude_lines =
     if 0:
     if __name__ == .__main__.:
     except:
+    except Exception as e:
+    import

@@ -69,6 +69,11 @@ export COMET_API_KEY="YOUR_COMET_API_KEY_FROM_COMET_ML"
 # port on the host. Select that port here (default is 8890).
 export JUPYTER_HOST_PORT=8890
 
+# Tensorboard can also run inside a Docker container. The port
+# for the server inside the container (6006) must be forwarded to a
+# port on the host. Select that port here (default is 8891).
+export TENSORBOARD_HOST_PORT=8891
+
 # Obtain the SHA hash for your chosen password and copy it below. To do this, use:
 # from notebook.auth import passwd
 # passwd()

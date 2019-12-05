@@ -18,7 +18,7 @@ jobs:
 # Mix a coherent dataset with Scaper.
 - script: scripts/mix_with_scaper.py
   config: data_prep/musdb/coherent.yml
-  run_in: container
+  run_in: host
 
 # Mix an incoherent dataset with Scaper.
 - script: scripts/mix_with_scaper.py

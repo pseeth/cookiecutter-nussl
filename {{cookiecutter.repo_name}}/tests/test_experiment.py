@@ -62,7 +62,7 @@ def test_model_and_dataset_match(config):
             model_instance = model_instance.to(device)
             output = model_instance(data)
 
-@pytest.mark.parametrize("config", [], ids=[])
+@pytest.mark.parametrize("config", configs, ids=paths_to_yml)
 def test_train(config):
     if 'train_config' in config:
         train_class = config['train_config'].pop('class')
