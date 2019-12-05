@@ -12,12 +12,7 @@ env_file = $(ENV_FILE)
 # Install Poetry in the recommended way.
 poetry:
 	curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
-
-# Create a Conda environment
-conda:
-	conda create -n cookiecutter python=3.7
-	echo "Activate this environment now! conda activate cookiecutter"
-
+	
 # Install all the requirements into the conda environment after activating it.
 install:
 	poetry install
