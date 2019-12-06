@@ -16,7 +16,7 @@ import shutil
 import yaml
 import logging
 
-from . import audio_extensions
+audio_extensions = ['.wav', '.mp3', '.aac']
 
 def resample_audio_file(original_path, resample_path, sample_rate):
     audio_signal = AudioSignal(original_path)

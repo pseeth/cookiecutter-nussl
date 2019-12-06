@@ -1,0 +1,12 @@
+jobs:
+- blocking: false
+  config: /home/pseetharaman/artifacts//cookiecutter/music/0db962bc94b74decb8a2e2ab6fed9b88/config.yml
+  num_gpus: 0
+  run_in: container
+  script: scripts/evaluate.py
+- blocking: false
+  config: /home/pseetharaman/artifacts//cookiecutter/music/0f93cf6b67ba4f2ba7ef3f7cb7c48533/config.yml
+  num_gpus: 0
+  run_in: container
+  script: scripts/evaluate.py
+num_jobs: 2

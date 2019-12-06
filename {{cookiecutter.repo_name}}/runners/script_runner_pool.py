@@ -55,7 +55,8 @@ class ScriptRunnerPool(object):
                 logging.info(f'Trying to allocate resources...')
                 num_gpus = int(script['num_gpus'])
                 
-                available_gpus = GPUtil.getAvailable(order = 'first', limit=num_gpus + num_gpus_allocated,
+                available_gpus = GPUtil.getAvailable(
+                    order = 'first', limit=num_gpus + num_gpus_allocated,
                     maxLoad = 0.05, maxMemory = 0.05, includeNan=False, 
                     excludeID=[], excludeUUID=[]
                 )
@@ -71,8 +72,7 @@ class ScriptRunnerPool(object):
                         f"which needed {num_gpus} GPUs"
                     )
                     taken_gpus += available_gpus
-
-                    script['allocated_gpus'] = ','.join(available_gpus)
+                    script['allocated_gpus'] = ','.join(map(str, available_gpus))
 
                     if script['blocking']:
                         logging.info(

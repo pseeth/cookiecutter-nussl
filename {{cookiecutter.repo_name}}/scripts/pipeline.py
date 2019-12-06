@@ -5,7 +5,6 @@ Takes a .yml file with structure as follows:
     config: path/to/yml/config.yml
     run_in: 'host' or 'container'
     num_gpus: how many gpus (default: 0)
-    num_cpus: how many cpus (default: 1)
     blocking: whether to block on this job or not (default: false)
 
 Could also be multiple jobs:
@@ -21,6 +20,9 @@ Could also be multiple jobs:
 
 The jobs get executed one after the other.
 """
+import sys
+sys.path.insert(0, '.')
+
 from runners.utils import build_parser_for_yml_script, parse_yaml
 from runners.script_runner_pool import ScriptRunnerPool
 from cookiecutter_repo import logging

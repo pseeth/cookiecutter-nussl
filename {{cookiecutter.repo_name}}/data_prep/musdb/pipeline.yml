@@ -1,6 +1,12 @@
 num_jobs: 2 # controls whether to run this sequentially or in parallel
 
 jobs:
+# Before doing anything, download the toy data the scripts below depend on.
+- script: scripts/download_toy_data.py
+  config: data_prep/download_toy_data.yml
+  run_in: host
+  blocking: true
+
 # First, reorganize the MUSDB dataset so that it can be fed into Scaper.
 # Data should start off in a folder at DATA_DIRECTORY/musdb/raw/[train,test]/
 # This is how musdb18.zip unzips.

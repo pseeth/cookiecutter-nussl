@@ -37,7 +37,6 @@ so that it can be processed easily by Scaper. Notably, MUSDB has this folder str
 import sys
 sys.path.insert(0, '.')
 
-
 import csv
 import os
 import shutil
@@ -48,7 +47,8 @@ import glob
 import logging
 from argparse import ArgumentParser
 import yaml
-from . import audio_extensions
+
+audio_extensions = ['.wav', '.mp3', '.aac']
 
 def split_folder_by_class(path_to_file, output_directory):
     head, tail = os.path.split(path_to_file)

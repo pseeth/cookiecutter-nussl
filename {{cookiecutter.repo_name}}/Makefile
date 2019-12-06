@@ -68,7 +68,8 @@ jupyter:
 # Start a Tensorboard server in a container. It'll be available at the host port defined 
 # in your environment setup.
 tensorboard:
-	make command="tensorboard --logdir . --bind_all" name=tensorboard run_in_container
+	source $(env_file) && \
+	make command="tensorboard --logdir $(ARTIFACTS_DIRECTORY) --bind_all" name=tensorboard run_in_container
 
 # Remove temporary files created by tests.
 clean:

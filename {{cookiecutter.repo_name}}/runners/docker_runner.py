@@ -1,10 +1,7 @@
 import docker
 import GPUtil
-from multiprocessing import cpu_count
 from .config import volumes
 import os
-import argparse
-import subprocess
 import logging
 
 class DockerRunner(object):

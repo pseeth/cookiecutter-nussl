@@ -8,7 +8,7 @@ cache_directory = os.getenv('CACHE_DIRECTORY')
 artifacts_directory = os.getenv('ARTIFACTS_DIRECTORY')
 nussl_directory = os.getenv('NUSSL_DIRECTORY')
 
-volumes =  {
+volumes = {
     nussl_directory: {
         'bind': nussl_directory,
         'mode': 'rw'
