@@ -98,7 +98,7 @@ description = "Python Git Library"
 name = "comet-git-pure"
 optional = false
 python-versions = "*"
-version = "0.19.13"
+version = "0.19.14"
 
 [package.dependencies]
 certifi = "*"
@@ -323,8 +323,8 @@ description = "Read metadata from Python packages"
 marker = "python_version < \"3.8\""
 name = "importlib-metadata"
 optional = false
-python-versions = ">=2.7,!=3.0,!=3.1,!=3.2,!=3.3"
-version = "1.0.0"
+python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
+version = "1.2.0"
 
 [package.dependencies]
 zipp = ">=0.5"
@@ -607,10 +607,9 @@ melodia = ["vamp"]
 musdb = ["stempeg"]
 
 [package.source]
-reference = "98ede4dc5544eca2aef1a4d2f743595a0b81e582"
+reference = "212ec47472000be9d1e0a4640db7375d1f1ef1af"
 type = "git"
 url = "https://github.com/interactiveaudiolab/nussl.git"
-
 [[package]]
 category = "main"
 description = "Python Bindings for the NVIDIA Management Library"
@@ -710,7 +709,7 @@ description = "Protocol Buffers"
 name = "protobuf"
 optional = false
 python-versions = "*"
-version = "3.11.0"
+version = "3.11.1"
 
 [package.dependencies]
 setuptools = "*"
@@ -867,7 +866,7 @@ description = "YAML parser and emitter for Python"
 name = "pyyaml"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "5.1.2"
+version = "5.2"
 
 [[package]]
 category = "main"
@@ -951,7 +950,6 @@ tests = ["backports.tempfile", "pysoundfile"]
 reference = "97cbbc479c6b72521b58923d1a73f7726d8029d9"
 type = "git"
 url = "https://github.com/pseeth/scaper.git"
-
 [[package]]
 category = "main"
 description = "A set of python modules for machine learning and data mining"
@@ -1098,7 +1096,7 @@ description = "Fast, Extensible Progress Meter"
 name = "tqdm"
 optional = false
 python-versions = ">=2.6, !=3.0.*, !=3.1.*"
-version = "4.39.0"
+version = "4.40.0"
 
 [package.extras]
 dev = ["py-make (>=0.1.0)", "twine", "argopt", "pydoc-markdown"]
@@ -1284,7 +1282,9 @@ colorama = [
     {file = "colorama-0.4.1.tar.gz", hash = "sha256:05eed71e2e327246ad6b38c540c4a3117230b19679b875190486ddd2d721422d"},
 ]
 comet-git-pure = [
-    {file = "comet_git_pure-0.19.13-py3-none-any.whl", hash = "sha256:222163113a4236b8e8b6248614cd034330c9f412f49eae44c426e2454cf44b04"},
+    {file = "comet-git-pure-0.19.14.tar.gz", hash = "sha256:f4d419157103703fc52fb3b1e6a1ef12b7ca6520a510d7585f712fe949cf1bba"},
+    {file = "comet_git_pure-0.19.14-py2-none-any.whl", hash = "sha256:96e3fdc6fbedb615df77660a48e84633d1dcf6fe09c48e3b804a511129f8c974"},
+    {file = "comet_git_pure-0.19.14-py3-none-any.whl", hash = "sha256:82d292a1253e7a022155ed7688542cb4155b49d580880aaf4359f3c2d7f694fd"},
 ]
 comet-ml = [
     {file = "comet_ml-2.0.18-py3-none-any.whl", hash = "sha256:9a6b7ceff4a582720a5c0b27f2db6b2396e900faee6c99a5a116982fd84d3445"},
@@ -1427,8 +1427,8 @@ idna = [
     {file = "idna-2.8.tar.gz", hash = "sha256:c357b3f628cf53ae2c4c05627ecc484553142ca23264e593d327bcde5e9c3407"},
 ]
 importlib-metadata = [
-    {file = "importlib_metadata-1.0.0-py2.py3-none-any.whl", hash = "sha256:f4a7ba72e93bc97ff491b66d69063819ae2b75238bb653cd4c95e3f2847ce76e"},
-    {file = "importlib_metadata-1.0.0.tar.gz", hash = "sha256:a82ca8c109e194d7d6aee3f7531b0470dd4dd6b36ec14fd55087142a96bd55a7"},
+    {file = "importlib_metadata-1.2.0-py2.py3-none-any.whl", hash = "sha256:3a8b2dfd0a2c6a3636e7c016a7e54ae04b997d30e69d5eacdca7a6c2221a1402"},
+    {file = "importlib_metadata-1.2.0.tar.gz", hash = "sha256:41e688146d000891f32b1669e8573c57e39e5060e7f5f647aa617cd9a9568278"},
 ]
 jams = [
     {file = "jams-0.3.4.tar.gz", hash = "sha256:8bb2158bd19b4f057b8b90321b44b1dd1659c66cbebe0d4219889d31d7f888b9"},
@@ -1666,23 +1666,23 @@ pretty-midi = [
     {file = "pretty_midi-0.2.8.tar.gz", hash = "sha256:1246439dd74c31abbe2f7a3aef3d28620b1882ece635f0baf88e2c1b491f1432"},
 ]
 protobuf = [
-    {file = "protobuf-3.11.0-cp27-cp27m-macosx_10_9_intel.whl", hash = "sha256:be5afc2e1f5c320bd4a38e73d8b02c67d72dbee370a004732c923c7c8a472f72"},
-    {file = "protobuf-3.11.0-cp27-cp27mu-manylinux1_x86_64.whl", hash = "sha256:f4370d0e3d6e1ac2f80911651691ac540901f661b372036ea72637546ba98202"},
-    {file = "protobuf-3.11.0-cp35-cp35m-macosx_10_9_intel.whl", hash = "sha256:90c22f4fd4e01279efc4e4911dafe308f35fcc4310bcb89bcee4d3ca20210d20"},
-    {file = "protobuf-3.11.0-cp35-cp35m-manylinux1_x86_64.whl", hash = "sha256:189b706f72e8b7ddc965168a79ff296ca5b7bdd95b5b05208afb9818a681c712"},
-    {file = "protobuf-3.11.0-cp35-cp35m-win32.whl", hash = "sha256:6bb5d999faceee281bc4a2fc77866c61af7be4b7e5efadc930c42f234a99cafd"},
-    {file = "protobuf-3.11.0-cp35-cp35m-win_amd64.whl", hash = "sha256:aef47082114428b47db73876ecb7751802548830ce5c95dba7ebe24d5e196d7c"},
-    {file = "protobuf-3.11.0-cp36-cp36m-macosx_10_9_intel.whl", hash = "sha256:b89ed3ba88ea5ec8b2c704a5ae747c9038ee1faff277fcddac75f850e645f7e1"},
-    {file = "protobuf-3.11.0-cp36-cp36m-manylinux1_x86_64.whl", hash = "sha256:0ba5d7626dbc4ce78971c3e62ec37f84c8139ea7008c008660d3312cf11e0db8"},
-    {file = "protobuf-3.11.0-cp36-cp36m-win32.whl", hash = "sha256:48d96b559fab3063feaebd316352e3418424629d59b77dbcb96ecc4c594d7f5f"},
-    {file = "protobuf-3.11.0-cp36-cp36m-win_amd64.whl", hash = "sha256:5e32923c7896c49b1d3a327fe25a76363d200acdfa97844f5647f1bf9f298da8"},
-    {file = "protobuf-3.11.0-cp37-cp37m-macosx_10_9_intel.whl", hash = "sha256:340965444aafc7aac7e3586e930f5b3f8347ca9b350afab60bac84dcc0b94437"},
-    {file = "protobuf-3.11.0-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:83b38b7b61b7c60af0fa03a71c27c4232117453a62ccf69a511284793a400751"},
-    {file = "protobuf-3.11.0-cp37-cp37m-win32.whl", hash = "sha256:6662442fbf22796dbd942bb15b664d70dcc25ae28d371b7e4ca6261e9bc495b7"},
-    {file = "protobuf-3.11.0-cp37-cp37m-win_amd64.whl", hash = "sha256:44fbc7b1786ab975ec9eba9da765398d58ec705d1c8e856b0523b8f9c1c53cf7"},
-    {file = "protobuf-3.11.0-py2.7.egg", hash = "sha256:74b35dbd0535584851ad804acae64d3b96d4a453c78c1d8d9f853fa0a99ec3ad"},
-    {file = "protobuf-3.11.0-py2.py3-none-any.whl", hash = "sha256:d1c18853c7ad3c8e34edfafc6488fc24f4221c15b516c14796032cc53f8cde94"},
-    {file = "protobuf-3.11.0.tar.gz", hash = "sha256:97b08853b9bb71512ed52381f05cf2d4179f4234825b505d8f8d2bb9d9429939"},
+    {file = "protobuf-3.11.1-cp27-cp27m-macosx_10_9_intel.whl", hash = "sha256:34a7270940f86da7a28be466ac541c89b6dbf144a6348b9cf7ac6f56b71006ce"},
+    {file = "protobuf-3.11.1-cp27-cp27mu-manylinux1_x86_64.whl", hash = "sha256:e028fee51c96de4e81924484c77111dfdea14010ecfc906ea5b252209b0c4de6"},
+    {file = "protobuf-3.11.1-cp35-cp35m-macosx_10_9_intel.whl", hash = "sha256:29bd1ed46b2536ad8959401a2f02d2d7b5a309f8e97518e4f92ca6c5ba74dbed"},
+    {file = "protobuf-3.11.1-cp35-cp35m-manylinux1_x86_64.whl", hash = "sha256:839bad7d115c77cdff29b488fae6a3ab503ce9a4192bd4c42302a6ea8e5d0f33"},
+    {file = "protobuf-3.11.1-cp35-cp35m-win32.whl", hash = "sha256:c65d135ea2d85d40309e268106dab02d3bea723db2db21c23ecad4163ced210b"},
+    {file = "protobuf-3.11.1-cp35-cp35m-win_amd64.whl", hash = "sha256:38cbc830a4a5ba9956763b0f37090bfd14dd74e72762be6225de2ceac55f4d03"},
+    {file = "protobuf-3.11.1-cp36-cp36m-macosx_10_9_intel.whl", hash = "sha256:c98dea04a1ff41a70aff2489610f280004831798cb36a068013eed04c698903d"},
+    {file = "protobuf-3.11.1-cp36-cp36m-manylinux1_x86_64.whl", hash = "sha256:0265379852b9e1f76af6d3d3fe4b3c383a595cc937594bda8565cf69a96baabd"},
+    {file = "protobuf-3.11.1-cp36-cp36m-win32.whl", hash = "sha256:934a9869a7f3b0d84eca460e386fba1f7ba2a0c1a120a2648bc41fadf50efd1c"},
+    {file = "protobuf-3.11.1-cp36-cp36m-win_amd64.whl", hash = "sha256:3175d45698edb9a07c1a78a1a4850e674ce8988f20596580158b1d0921d0f057"},
+    {file = "protobuf-3.11.1-cp37-cp37m-macosx_10_9_intel.whl", hash = "sha256:d9049aa194378a426f0b2c784e2054565bf6f754d20fcafdee7102a6250556e8"},
+    {file = "protobuf-3.11.1-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:e88a924b591b06d0191620e9c8aa75297b3111066bb09d49a24bae1054a10c13"},
+    {file = "protobuf-3.11.1-cp37-cp37m-win32.whl", hash = "sha256:c4e90bc27c0691c76e09b5dc506133451e52caee1472b8b3c741b7c912ce43ef"},
+    {file = "protobuf-3.11.1-cp37-cp37m-win_amd64.whl", hash = "sha256:e84ad26fb50091b1ea676403c0dd2bd47663099454aa6d88000b1dafecab0941"},
+    {file = "protobuf-3.11.1-py2.7.egg", hash = "sha256:200b77e51f17fbc1d3049045f5835f60405dec3a00fe876b9b986592e46d908c"},
+    {file = "protobuf-3.11.1-py2.py3-none-any.whl", hash = "sha256:665194f5ad386511ac8d8a0bd57b9ab37b8dd2cd71969458777318e774b9cd46"},
+    {file = "protobuf-3.11.1.tar.gz", hash = "sha256:aecdf12ef6dc7fd91713a6da93a86c2f2a8fe54840a3b1670853a2b7402e77c9"},
 ]
 py = [
     {file = "py-1.8.0-py2.py3-none-any.whl", hash = "sha256:64f65755aee5b381cea27766a3a147c3f15b9b6b9ac88676de66ba2ae36793fa"},
@@ -1767,19 +1767,17 @@ pywin32 = [
     {file = "pywin32-227-cp39-cp39-win_amd64.whl", hash = "sha256:f27cec5e7f588c3d1051651830ecc00294f90728d19c3bf6916e6dba93ea357c"},
 ]
 pyyaml = [
-    {file = "PyYAML-5.1.2-cp27-cp27m-win32.whl", hash = "sha256:5124373960b0b3f4aa7df1707e63e9f109b5263eca5976c66e08b1c552d4eaf8"},
-    {file = "PyYAML-5.1.2-cp27-cp27m-win_amd64.whl", hash = "sha256:f81025eddd0327c7d4cfe9b62cf33190e1e736cc6e97502b3ec425f574b3e7a8"},
-    {file = "PyYAML-5.1.2-cp34-cp34m-win32.whl", hash = "sha256:0113bc0ec2ad727182326b61326afa3d1d8280ae1122493553fd6f4397f33df9"},
-    {file = "PyYAML-5.1.2-cp34-cp34m-win_amd64.whl", hash = "sha256:5ca4f10adbddae56d824b2c09668e91219bb178a1eee1faa56af6f99f11bf696"},
-    {file = "PyYAML-5.1.2-cp35-cp35m-win32.whl", hash = "sha256:bf47c0607522fdbca6c9e817a6e81b08491de50f3766a7a0e6a5be7905961b41"},
-    {file = "PyYAML-5.1.2-cp35-cp35m-win_amd64.whl", hash = "sha256:87ae4c829bb25b9fe99cf71fbb2140c448f534e24c998cc60f39ae4f94396a73"},
-    {file = "PyYAML-5.1.2-cp36-cp36m-win32.whl", hash = "sha256:9de9919becc9cc2ff03637872a440195ac4241c80536632fffeb6a1e25a74299"},
-    {file = "PyYAML-5.1.2-cp36-cp36m-win_amd64.whl", hash = "sha256:a5a85b10e450c66b49f98846937e8cfca1db3127a9d5d1e31ca45c3d0bef4c5b"},
-    {file = "PyYAML-5.1.2-cp37-cp37m-win32.whl", hash = "sha256:b0997827b4f6a7c286c01c5f60384d218dca4ed7d9efa945c3e1aa623d5709ae"},
-    {file = "PyYAML-5.1.2-cp37-cp37m-win_amd64.whl", hash = "sha256:7907be34ffa3c5a32b60b95f4d95ea25361c951383a894fec31be7252b2b6f34"},
-    {file = "PyYAML-5.1.2-cp38-cp38m-win32.whl", hash = "sha256:7ec9b2a4ed5cad025c2278a1e6a19c011c80a3caaac804fd2d329e9cc2c287c9"},
-    {file = "PyYAML-5.1.2-cp38-cp38m-win_amd64.whl", hash = "sha256:b631ef96d3222e62861443cc89d6563ba3eeb816eeb96b2629345ab795e53681"},
-    {file = "PyYAML-5.1.2.tar.gz", hash = "sha256:01adf0b6c6f61bd11af6e10ca52b7d4057dd0be0343eb9283c878cf3af56aee4"},
+    {file = "PyYAML-5.2-cp27-cp27m-win32.whl", hash = "sha256:35ace9b4147848cafac3db142795ee42deebe9d0dad885ce643928e88daebdcc"},
+    {file = "PyYAML-5.2-cp27-cp27m-win_amd64.whl", hash = "sha256:ebc4ed52dcc93eeebeae5cf5deb2ae4347b3a81c3fa12b0b8c976544829396a4"},
+    {file = "PyYAML-5.2-cp35-cp35m-win32.whl", hash = "sha256:38a4f0d114101c58c0f3a88aeaa44d63efd588845c5a2df5290b73db8f246d15"},
+    {file = "PyYAML-5.2-cp35-cp35m-win_amd64.whl", hash = "sha256:483eb6a33b671408c8529106df3707270bfacb2447bf8ad856a4b4f57f6e3075"},
+    {file = "PyYAML-5.2-cp36-cp36m-win32.whl", hash = "sha256:7f38e35c00e160db592091751d385cd7b3046d6d51f578b29943225178257b31"},
+    {file = "PyYAML-5.2-cp36-cp36m-win_amd64.whl", hash = "sha256:0e7f69397d53155e55d10ff68fdfb2cf630a35e6daf65cf0bdeaf04f127c09dc"},
+    {file = "PyYAML-5.2-cp37-cp37m-win32.whl", hash = "sha256:e4c015484ff0ff197564917b4b4246ca03f411b9bd7f16e02a2f586eb48b6d04"},
+    {file = "PyYAML-5.2-cp37-cp37m-win_amd64.whl", hash = "sha256:4b6be5edb9f6bb73680f5bf4ee08ff25416d1400fbd4535fe0069b2994da07cd"},
+    {file = "PyYAML-5.2-cp38-cp38-win32.whl", hash = "sha256:8100c896ecb361794d8bfdb9c11fce618c7cf83d624d73d5ab38aef3bc82d43f"},
+    {file = "PyYAML-5.2-cp38-cp38-win_amd64.whl", hash = "sha256:2e9f0b7c5914367b0916c3c104a024bb68f269a486b9d04a2e8ac6f6597b7803"},
+    {file = "PyYAML-5.2.tar.gz", hash = "sha256:c0ee8eca2c582d29c3c2ec6e2c4f703d1b7f1fb10bc72317355a746057e7346c"},
 ]
 requests = [
     {file = "requests-2.22.0-py2.py3-none-any.whl", hash = "sha256:9cf5292fcd0f598c671cfc1e0d7d1a7f13bb8085e9a590f48c010551dc6c4b31"},
@@ -1910,8 +1908,8 @@ torch = [
     {file = "torch-1.3.1-cp37-none-macosx_10_7_x86_64.whl", hash = "sha256:134e8291a97151b1ffeea09cb9ddde5238beb4e6d9dfb66657143d6990bfb865"},
 ]
 tqdm = [
-    {file = "tqdm-4.39.0-py2.py3-none-any.whl", hash = "sha256:5a1f3d58f3eb53264387394387fe23df469d2a3fab98c9e7f99d5c146c119873"},
-    {file = "tqdm-4.39.0.tar.gz", hash = "sha256:f1a1613fee07cc30a253051617f2a219a785c58877f9f6bfa129446cbaf8b4c1"},
+    {file = "tqdm-4.40.0-py2.py3-none-any.whl", hash = "sha256:c0ffb55959ea5f3eaeece8d2db0651ba9ced9c72f40a6cce3419330256234289"},
+    {file = "tqdm-4.40.0.tar.gz", hash = "sha256:156a0565f09d1f0ef8242932a0e1302462c93827a87ba7b4423d90f01befe94c"},
 ]
 urllib3 = [
     {file = "urllib3-1.25.7-py2.py3-none-any.whl", hash = "sha256:a8a318824cc77d1fd4b2bec2ded92646630d7fe8619497b142c84a9e6f5a7293"},

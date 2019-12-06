@@ -12,7 +12,8 @@ env_file = $(ENV_FILE)
 # Install Poetry in the recommended way.
 poetry:
 	curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
-	
+	poetry self:update --preview
+
 # Install all the requirements into the conda environment after activating it.
 install:
 	poetry install
@@ -79,7 +80,7 @@ test:
 
 # Run all the test cases in the host.
 test_host:
-	make gpus=$(gpus) command="python -m pytest --cov=. . -v $(args)" run_in_host
+	make gpus=$(gpus) command="python -m pytest --cov=nussl . -v $(args)" run_in_host
 
 # Run all the test cases in the container.
 test_container:
