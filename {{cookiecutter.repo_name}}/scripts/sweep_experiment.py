@@ -17,19 +17,23 @@ def replace_item(obj, key, replace_value):
     return obj
 
 def update_config_with_sweep(config, sweep, combo, logging_str):
-    this_sweep = {}
-    for key in sweep:
-        if isinstance(sweep[key], list):
-            this_sweep[key] = combo[key]
-        else:
-            this_sweep[key] = sweep[key]
+    multiple_parameters = {}
+    keys_to_pop = []
+    for key in combo:
+        if 'multiple_parameters' in key:
+            multiple_parameters.update(combo[key])
+            keys_to_pop.append(key)
+
+    combo.update(multiple_parameters)
+    this_sweep = copy.deepcopy(sweep)
+    this_sweep.update(combo)
+
+    for key in this_sweep:
+        logging_str += f"\n\t\t{key}: {this_sweep[key]}"
+    logging.info(logging_str)
 
     this_experiment = copy.deepcopy(config)
     
-    for key in this_sweep:
-        logging_str += f"\n\t\t{key} -> {this_sweep[key]}"
-    logging.info(logging_str)
-
     for key in this_sweep:
         this_experiment = replace_item(
             this_experiment, 
@@ -94,6 +98,7 @@ def create_pipeline(
     script_name,
     num_jobs=1,
     num_gpus=0,
+    run_in='container',
 ):
     pipeline = {
         'jobs': [],
@@ -103,7 +108,7 @@ def create_pipeline(
         _job = {
             'script': script_name,
             'config': p,
-            'run_in': 'container',
+            'run_in': run_in,
             'blocking': False,
             'num_gpus': num_gpus,
         }
@@ -121,10 +126,17 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         '--num_gpus', 
-        help="Controls the number of gpus to use in the created pipelines. Defaults to 1.",
+        help="Controls the number of gpus to use in the created pipelines. Defaults to 0.",
         required=False, 
         type=int,
         default=0
+    )
+    parser.add_argument(
+        '--run_in', 
+        help="Run jobs in containers or on the host ('container' or 'host'). Defaults to container.",
+        required=False, 
+        type=str,
+        default='container'
     )
     args = vars(parser.parse_args())
     experiments, cache_experiments = sweep_experiment(args['spec'])
@@ -153,9 +165,13 @@ if __name__ == "__main__":
         pipeline_ymls.append(output_path)
     
     for s in scripts:
+        num_gpus = 0 if s == 'analyze' else args['num_gpus']
+        num_jobs = 1 if s == 'analyze' else args['num_jobs']
         pipeline = create_pipeline(
-            experiments, scripts[s], num_jobs=args['num_jobs'],
-            num_gpus=args['num_gpus']
+            experiments, 
+            scripts[s], 
+            num_jobs=num_jobs,
+            num_gpus=num_gpus
         )
         output_path = os.path.join(base_dir, f'{s}.yml')
         dump_yaml(pipeline, output_path)
@@ -165,6 +181,7 @@ if __name__ == "__main__":
     for p in pipeline['jobs']:
         if os.path.basename(p['config']) == 'cache.yml':
             p['blocking'] = True
+        p['run_in'] = 'host'
 
     output_path = os.path.join(base_dir, 'pipeline.yml')
     dump_yaml(pipeline, output_path)

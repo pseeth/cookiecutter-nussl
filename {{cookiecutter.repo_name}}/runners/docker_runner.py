@@ -40,7 +40,8 @@ class DockerRunner(object):
         ports = None
         user = os.getenv('USER')
         if not name:
-            name = command[0] + '-' + command[-1].replace('experiments', 'exp')
+            name = command[0] + '.'
+            name += command[-1].replace('experiments', 'exp')
             name = name.replace('_', '-')
             name = name.replace(' ', '-')
             name = name.replace('/', '.')

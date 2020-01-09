@@ -21,10 +21,17 @@ sweep:
     num_mels: -1
     num_features: 65
     num_layers: [1, 2]
-    bidirectional: [true, false]
     cache: 'CACHE_DIRECTORY/musdb_128'
     populate_cache: true # controls whether to create a separate experiment for caching
     num_cache_workers: 60 # how many workers to use when populating the cache
+    # multiple parameters can be sweeped across in pairs if 
+    # there are dependencies between them. use 'multiple_parameters' in the key
+    # to indicate this.
+    multiple_parameters_1: 
+      - bidirectional: true
+        hidden_size: 600
+      - bidirectional: false
+        hidden_size: 300
 
   - n_fft: 512
     hop_length: 128
@@ -32,10 +39,17 @@ sweep:
     num_mels: -1
     num_features: 257
     num_layers: [1, 2]
-    bidirectional: [true, false]
     cache: 'CACHE_DIRECTORY/musdb_512'
     populate_cache: true # controls whether to create a separate experiment for caching
     num_cache_workers: 60    # how many workers to use when populating the cache
+    # multiple parameters can be sweeped across in pairs if 
+    # there are dependencies between them. use 'multiple_parameters' in the key
+    # to indicate this.
+    multiple_parameters_1: 
+      - bidirectional: true
+        hidden_size: 600
+      - bidirectional: false
+        hidden_size: 300
 
 # Everything below is static with certain elements being replaced by things in the 
 # sweep config above.
