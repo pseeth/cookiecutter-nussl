@@ -16,6 +16,18 @@ def replace_item(obj, key, replace_value):
         obj[key] = replace_value
     return obj
 
+def nested_set(element, value, *keys):
+    if type(element) is not dict:
+        raise AttributeError('nested_set() expects dict as first argument.')
+    if len(keys) < 2:
+        raise AttributeError('nested_set() expects at least three arguments, not enough given.')
+
+    _keys = keys[:-1]
+    _element = element
+    for key in _keys:
+        _element = _element[key]
+    _element[keys[-1]] = value
+
 def update_config_with_sweep(config, sweep, combo, logging_str):
     multiple_parameters = {}
     keys_to_pop = []
@@ -27,6 +39,8 @@ def update_config_with_sweep(config, sweep, combo, logging_str):
     combo.update(multiple_parameters)
     this_sweep = copy.deepcopy(sweep)
     this_sweep.update(combo)
+    for k in keys_to_pop:
+        this_sweep.pop(k)
 
     for key in this_sweep:
         logging_str += f"\n\t\t{key}: {this_sweep[key]}"
@@ -35,11 +49,17 @@ def update_config_with_sweep(config, sweep, combo, logging_str):
     this_experiment = copy.deepcopy(config)
     
     for key in this_sweep:
-        this_experiment = replace_item(
-            this_experiment, 
-            key,
-            this_sweep[key]
-        )
+        if '.' in key:
+            # specific update
+            loc = key.split('.')
+            nested_set(this_experiment, this_sweep[key], *loc)
+        else:
+            # global update
+            this_experiment = replace_item(
+                this_experiment, 
+                key,
+                this_sweep[key]
+            )
     return this_experiment
 
 def sweep_experiment(path_to_yml_file):
@@ -49,9 +69,6 @@ def sweep_experiment(path_to_yml_file):
     cache_experiments = []
 
     for k, _sweep in enumerate(sweep):
-        config, exp, _path_to_yml_file = load_experiment(path_to_yml_file)
-        config.pop('sweep')
-
         lists = []
         keys = []
         for key in _sweep:
@@ -84,6 +101,9 @@ def sweep_experiment(path_to_yml_file):
             cache_experiments.append(save_experiment(this_experiment, cache_exp))
 
         for j, c in enumerate(combos):
+            config, exp, _path_to_yml_file = load_experiment(path_to_yml_file)
+            config.pop('sweep')
+
             logging_str = (
                 f"\n\tCreating experiment {j+1}/{len(combos)} "
                 f"for sweep {k+1}/{len(sweep)}"
@@ -99,6 +119,7 @@ def create_pipeline(
     num_jobs=1,
     num_gpus=0,
     run_in='container',
+    blocking=False,
 ):
     pipeline = {
         'jobs': [],
@@ -109,7 +130,7 @@ def create_pipeline(
             'script': script_name,
             'config': p,
             'run_in': run_in,
-            'blocking': False,
+            'blocking': blocking,
             'num_gpus': num_gpus,
         }
         pipeline['jobs'].append(_job)
@@ -177,11 +198,13 @@ if __name__ == "__main__":
         dump_yaml(pipeline, output_path)
         pipeline_ymls.append(output_path)
     
-    pipeline = create_pipeline(pipeline_ymls, 'scripts/pipeline.py', num_jobs=1)
-    for p in pipeline['jobs']:
-        if os.path.basename(p['config']) == 'cache.yml':
-            p['blocking'] = True
-        p['run_in'] = 'host'
+    pipeline = create_pipeline(
+        pipeline_ymls, 
+        'scripts/pipeline.py', 
+        num_jobs=1, 
+        blocking=True,
+        run_in='host'
+    )
 
     output_path = os.path.join(base_dir, 'pipeline.yml')
     dump_yaml(pipeline, output_path)

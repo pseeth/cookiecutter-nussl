@@ -14,13 +14,16 @@
 # The config below creates two caches: one with STFTs with n_fft=128 and hop_length=64
 # and the other with  n_fft=512, hop_length=128. Four experiments are created per
 # cache, sweeping across num_layers (1 or 2), and bidirectionality (true or false).
+
+# If there is a '.' in the key, then it is an absolute path to the exact value to update
+# in the configuration. If there isn't, then it is a global update for all matching keys.
 sweep:
   - n_fft: 128
     hop_length: 64
     num_frequencies: 65
     num_mels: -1
     num_features: 65
-    num_layers: [1, 2]
+    model_config.modules.recurrent_stack.args.num_layers: [1, 2]
     cache: 'CACHE_DIRECTORY/musdb_128'
     populate_cache: true # controls whether to create a separate experiment for caching
     num_cache_workers: 60 # how many workers to use when populating the cache
@@ -29,9 +32,11 @@ sweep:
     # to indicate this.
     multiple_parameters_1: 
       - bidirectional: true
-        hidden_size: 600
+        model_config.modules.recurrent_stack.args.hidden_size: 300
+        model_config.modules.embedding.args.hidden_size: 600
       - bidirectional: false
-        hidden_size: 300
+        model_config.modules.recurrent_stack.args.hidden_size: 300
+        model_config.modules.embedding.args.hidden_size: 300
 
   - n_fft: 512
     hop_length: 128
@@ -47,9 +52,11 @@ sweep:
     # to indicate this.
     multiple_parameters_1: 
       - bidirectional: true
-        hidden_size: 600
+        model_config.modules.recurrent_stack.args.hidden_size: 300
+        model_config.modules.embedding.args.hidden_size: 600
       - bidirectional: false
-        hidden_size: 300
+        model_config.modules.recurrent_stack.args.hidden_size: 300
+        model_config.modules.embedding.args.hidden_size: 300
 
 # Everything below is static with certain elements being replaced by things in the 
 # sweep config above.
@@ -181,7 +188,7 @@ model_config:
 
 algorithm_config:
   class: DeepClustering
-  params:
+  args:
     clustering_options:
       posterior_alpha: 5.0
     enhancement_amount: 0.0
@@ -192,5 +199,8 @@ algorithm_config:
 
 test_config:
   num_workers: 10
+  use_blocking_executor: true
   testers:
-  - SDR
+  - ScaleInvariantSDR:
+      compute_permutation: true
+      scaling: false

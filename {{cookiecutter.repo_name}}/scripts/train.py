@@ -23,8 +23,8 @@ def main(path_to_yml_file):
     for key in ['train', 'val']:
         if key in config['datasets']:
             _datasets[key] = loaders.load_dataset(
-                config['datasets']['train']['class'],
-                config['datasets']['train']['folder'],
+                config['datasets'][key]['class'],
+                config['datasets'][key]['folder'],
                 config['dataset_config']
             )
         else:
