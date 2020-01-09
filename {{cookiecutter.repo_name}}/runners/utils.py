@@ -51,11 +51,11 @@ def build_parser_for_yml_script():
     )
     return parser
 
-def parse_yaml(path_to_yml):
+def parse_yaml(path_to_yml, jobs=True):
     _spec = load_yaml(path_to_yml)
     spec = {}
 
-    if 'jobs' not in _spec:
+    if 'jobs' not in _spec and jobs:
         spec['jobs'] = [_spec]
     else:
         spec = _spec

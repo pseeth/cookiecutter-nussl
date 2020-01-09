@@ -86,3 +86,7 @@ test_host:
 # Run all the test cases in the container.
 test_container:
 	make gpus=$(gpus) command="python -m pytest --cov=. . -v" run_in_container
+
+experiment:
+	source $(env_file) && \
+	poetry run python $(exp) 

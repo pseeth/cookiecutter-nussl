@@ -1,4 +1,44 @@
 ---
+# The sweep config is used to replace dictionary keys below and create experiments
+# on the fly. A separate experiment will be created for each sweep discovered. The
+# set of experiments can then be submitted to the job runner in parallel or in sequence.
+# If one of the arguments is a list, then it will loop across each of the items in the
+# list creating a separate experiment for each one. The sweep configuration below 
+# creates 10 experiments in total. This sweep config is very simple, so be very careful
+# when setting things up as creating invalid or buggy experiments (e.g. num_frequencies
+# and n_fft don't match) is possible. If there's no sweep config, then only one 
+# experiment is created with whatever is in the rest of the file. Each sweep within 
+# an item of the list should use the same cache. The cache will be created as a separate
+# experiment. 
+
+# The config below creates two caches: one with STFTs with n_fft=128 and hop_length=64
+# and the other with  n_fft=512, hop_length=128. Four experiments are created per
+# cache, sweeping across num_layers (1 or 2), and bidirectionality (true or false).
+sweep:
+  - n_fft: 128
+    hop_length: 64
+    num_frequencies: 65
+    num_mels: -1
+    num_features: 65
+    num_layers: [1, 2]
+    bidirectional: [true, false]
+    cache: 'CACHE_DIRECTORY/musdb_128'
+    populate_cache: true # controls whether to create a separate experiment for caching
+    num_cache_workers: 60 # how many workers to use when populating the cache
+
+  - n_fft: 512
+    hop_length: 128
+    num_frequencies: 257
+    num_mels: -1
+    num_features: 257
+    num_layers: [1, 2]
+    bidirectional: [true, false]
+    cache: 'CACHE_DIRECTORY/musdb_512'
+    populate_cache: true # controls whether to create a separate experiment for caching
+    num_cache_workers: 60    # how many workers to use when populating the cache
+
+# Everything below is static with certain elements being replaced by things in the 
+# sweep config above.
 dataset_config:
   cache: 'CACHE_DIRECTORY/musdb' # Path is relative to environment variable CACHE_DIRECTORY
   data_keys_for_training:
@@ -60,7 +100,7 @@ train_config:
   learning_rate_decay: 0.5
   loss_function:
   - !!python/tuple
-    - dpcl                # name of loss function
+    - dpcl            # name of loss function
     - embedding       # what output of model to apply the loss function on
     - 1.0             # weight given to the loss function
   num_epochs: 10
@@ -93,7 +133,7 @@ model_config:
       args:
         num_features: 257
         hidden_size: 300
-        num_layers: 4
+        num_layers: 2
         bidirectional: true
         dropout: 0.3
         rnn_type: lstm
@@ -108,9 +148,10 @@ model_config:
         - tanh
 
   connections:
-    - !!python/tuple # tuple containing two things:
-      - mel_projection # unique name given to module above
-      - [log_spectrogram] # list of runtime arguments needed by that module (e.g. output of prev layer)
+    - !!python/tuple      # tuple containing two things:
+      - mel_projection    # unique name given to module above
+      - [log_spectrogram] # list of runtime arguments needed by that module 
+                          # (e.g. output of prev layer)
     - !!python/tuple
       - normalization
       - [mel_projection]

@@ -21,7 +21,7 @@ def job_runner(script):
         subprocess.run(
             [
                 f"""
-                make {target} command="{command}" gpus={script['allocated_gpus']}
+                make {target} command="{command}" gpus={script['allocated_gpus']} 
                 """
             ], 
             shell=True,
