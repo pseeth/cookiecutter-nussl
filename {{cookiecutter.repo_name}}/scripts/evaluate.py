@@ -34,17 +34,15 @@ def main(path_to_yml_file):
         else:
             _datasets[key] = None
 
-    _model = loaders.load_model(config['model_config'])
-    _trainer = TrainerClass(
+    _tester = test.EvaluationRunner(
+        testers,
+        config['algorithm_config'],
+        _datasets['test'],
         config['info']['output_folder'],
-        _datasets['train'],
-        _model,
-        config['train_config'],
-        validation_data=_datasets['val'],
-        use_tensorboard=config['train_config'].pop('use_tensorboard', False),
-        experiment=exp
+        max_workers=config['test_config']['num_workers'],
+        use_blocking_executor=config['test_config']['use_blocking_executor']
     )
-    _trainer.fit()
+    _tester.run()
 
 if __name__ == '__main__':
     parser = build_parser_for_yml_script()

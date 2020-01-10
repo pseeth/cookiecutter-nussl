@@ -21,9 +21,8 @@ sweep:
   - n_fft: 128
     hop_length: 64
     num_frequencies: 65
-    num_mels: -1
     num_features: 65
-    model_config.modules.recurrent_stack.args.num_layers: [1, 2]
+    model_config.modules.recurrent_stack.args.num_layers: 2
     cache: 'CACHE_DIRECTORY/musdb_128'
     populate_cache: true # controls whether to create a separate experiment for caching
     num_cache_workers: 60 # how many workers to use when populating the cache
@@ -33,30 +32,28 @@ sweep:
     multiple_parameters_1: 
       - bidirectional: true
         model_config.modules.recurrent_stack.args.hidden_size: 300
+        num_mels: -1
         model_config.modules.embedding.args.hidden_size: 600
-      - bidirectional: false
-        model_config.modules.recurrent_stack.args.hidden_size: 300
-        model_config.modules.embedding.args.hidden_size: 300
 
-  - n_fft: 512
-    hop_length: 128
-    num_frequencies: 257
-    num_mels: -1
-    num_features: 257
-    num_layers: [1, 2]
-    cache: 'CACHE_DIRECTORY/musdb_512'
-    populate_cache: true # controls whether to create a separate experiment for caching
-    num_cache_workers: 60    # how many workers to use when populating the cache
-    # multiple parameters can be sweeped across in pairs if 
-    # there are dependencies between them. use 'multiple_parameters' in the key
-    # to indicate this.
-    multiple_parameters_1: 
-      - bidirectional: true
-        model_config.modules.recurrent_stack.args.hidden_size: 300
-        model_config.modules.embedding.args.hidden_size: 600
-      - bidirectional: false
-        model_config.modules.recurrent_stack.args.hidden_size: 300
-        model_config.modules.embedding.args.hidden_size: 300
+  # - n_fft: 512
+  #   hop_length: 128
+  #   num_frequencies: 257
+  #   num_mels: -1
+  #   num_features: 257
+  #   num_layers: [1, 2]
+  #   cache: 'CACHE_DIRECTORY/musdb_512'
+  #   populate_cache: true # controls whether to create a separate experiment for caching
+  #   num_cache_workers: 60    # how many workers to use when populating the cache
+  #   # multiple parameters can be sweeped across in pairs if 
+  #   # there are dependencies between them. use 'multiple_parameters' in the key
+  #   # to indicate this.
+  #   multiple_parameters_1: 
+  #     - bidirectional: true
+  #       model_config.modules.recurrent_stack.args.hidden_size: 300
+  #       model_config.modules.embedding.args.hidden_size: 600
+  #     - bidirectional: false
+  #       model_config.modules.recurrent_stack.args.hidden_size: 300
+  #       model_config.modules.embedding.args.hidden_size: 300
 
 # Everything below is static with certain elements being replaced by things in the 
 # sweep config above.
@@ -201,6 +198,7 @@ test_config:
   num_workers: 10
   use_blocking_executor: true
   testers:
-  - ScaleInvariantSDR:
+    ScaleInvariantSDR:
       compute_permutation: true
       scaling: false
+      labels: [vocals, accompaniment]
