@@ -60,13 +60,15 @@ class EvaluationRunner(object):
                 logging.info(logging_str)
     
     def run_func(self, file_path, data=None):
-        data = {} if not data
         mixture, sources = self.dataset.load_audio_files(file_path)[0:2]
         algorithm = self.AlgorithmClass(mixture, **self.algorithm_config['args'])
-        for key in data:
-            if key not in inspect.getargspec(algorithm.run).args:
-                data.pop(key)
-        algorithm.run(**data)
+        if data:
+            for key in data:
+                if key not in inspect.getargspec(algorithm.run).args:
+                    data.pop(key)
+            algorithm.run(**data)
+        else:
+            algorithm.run()
         estimates = algorithm.make_audio_signals()
 
         tester_args = {
@@ -75,27 +77,30 @@ class EvaluationRunner(object):
         }
 
         all_scores = []
-        for tester in self.testers:
-            TestClass = tester[0]
-            kwargs = tester[1]
-            args = {}
-            for k in tester_args:
-                if k in inspect.getargspec(TestClass).args:
-                    args[k] = tester_args[k]
-            args.update(kwargs)
-            evaluator = TestClass(**args)
-            scores = evaluator.evaluate()
-            self.log_scores(scores)
-            
-            all_scores.append(scores)
+        try:
+            for tester in self.testers:
+                TestClass = tester[0]
+                kwargs = tester[1]
+                args = {}
+                for k in tester_args:
+                    if k in inspect.getargspec(TestClass).args:
+                        args[k] = tester_args[k]
+                        
+                args.update(kwargs)
+                evaluator = TestClass(**args)
+                scores = evaluator.evaluate()
+                self.log_scores(scores)
+                all_scores.append(scores)
 
-        path_to_yml = os.path.join(
-            self.output_path, 
-            os.path.splitext(os.path.basename(file_path))[0] + '.yml'
-        )
-        logging.info(path_to_yml)
-        with open(path_to_yml, 'w') as f:
-            yaml.dump(all_scores, f)
+            path_to_yml = os.path.join(
+                self.output_path, 
+                os.path.splitext(os.path.basename(file_path))[0] + '.yml'
+            )
+            logging.info(path_to_yml)
+            with open(path_to_yml, 'w') as f:
+                yaml.dump(all_scores, f)
+        except:
+            logging.exception()
 
     def main_func(self, file_path):
         data = None

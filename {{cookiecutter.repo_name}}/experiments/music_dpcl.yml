@@ -22,7 +22,7 @@ sweep:
     hop_length: 64
     num_frequencies: 65
     num_features: 65
-    model_config.modules.recurrent_stack.args.num_layers: 2
+    model_config.modules.recurrent_stack.args.num_layers: [1, 2]
     cache: 'CACHE_DIRECTORY/musdb_128'
     populate_cache: true # controls whether to create a separate experiment for caching
     num_cache_workers: 60 # how many workers to use when populating the cache
@@ -34,6 +34,10 @@ sweep:
         model_config.modules.recurrent_stack.args.hidden_size: 300
         num_mels: -1
         model_config.modules.embedding.args.hidden_size: 600
+      - bidirectional: false
+        model_config.modules.recurrent_stack.args.hidden_size: 300
+        num_mels: -1
+        model_config.modules.embedding.args.hidden_size: 300
 
   # - n_fft: 512
   #   hop_length: 128
@@ -101,6 +105,8 @@ info:
   blocking: false
   num_gpus: 1
   project_name: cookiecutter/music
+  spreadsheet_name: nussl-testbed
+  worksheet_name: music
   output_folder: ARTIFACTS_DIRECTORY/cookiecutter/music/EXPERIMENT_KEY
   experiment_key:
 
@@ -201,4 +207,4 @@ test_config:
     ScaleInvariantSDR:
       compute_permutation: true
       scaling: false
-      labels: [vocals, accompaniment]
+      source_labels: [vocals, accompaniment]

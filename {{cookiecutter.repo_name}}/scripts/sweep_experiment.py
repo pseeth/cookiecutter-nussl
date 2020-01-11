@@ -43,11 +43,14 @@ def update_config_with_sweep(config, sweep, combo, logging_str):
         this_sweep.pop(k)
 
     for key in this_sweep:
-        logging_str += f"\n\t\t{key}: {this_sweep[key]}"
+        logging_str += f", {key}: {this_sweep[key]}"
     logging.info(logging_str)
 
     this_experiment = copy.deepcopy(config)
-    
+    notes = this_experiment['info'].pop('notes', '')
+    notes += logging_str
+    this_experiment['info']['notes'] = notes
+
     for key in this_sweep:
         if '.' in key:
             # specific update
@@ -60,6 +63,8 @@ def update_config_with_sweep(config, sweep, combo, logging_str):
                 key,
                 this_sweep[key]
             )
+
+
     return this_experiment
 
 def sweep_experiment(path_to_yml_file):
@@ -85,7 +90,7 @@ def sweep_experiment(path_to_yml_file):
             cache_config, cache_exp, cache_path_to_yml_file = load_experiment(path_to_yml_file)
             cache_config.pop('sweep')
             logging_str = (
-                f"\n\tCreating cache population experiment {0}/{len(combos)} "
+                f"Creating cache population experiment {0}/{len(combos)} "
                 f"for sweep {0}/{len(sweep)}"
             )
             this_experiment = update_config_with_sweep(
@@ -188,11 +193,13 @@ if __name__ == "__main__":
     for s in scripts:
         num_gpus = 0 if s == 'analyze' else args['num_gpus']
         num_jobs = 1 if s == 'analyze' else args['num_jobs']
+        run_in = 'host' if s == 'analyze' else args['run_in']
         pipeline = create_pipeline(
             experiments, 
             scripts[s], 
             num_jobs=num_jobs,
-            num_gpus=num_gpus
+            num_gpus=num_gpus,
+            run_in = run_in
         )
         output_path = os.path.join(base_dir, f'{s}.yml')
         dump_yaml(pipeline, output_path)
