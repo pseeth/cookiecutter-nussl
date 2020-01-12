@@ -4,12 +4,12 @@ sys.path.insert(0, '.')
 import csv
 import os
 import shutil
-from cookiecutter_repo.utils.parallel import parallel_process
+from src.utils.parallel import parallel_process
 from multiprocessing import cpu_count
-from runners.utils import modify_path_with_env
+from runners.utils import modify_yml_with_env
 
 if __name__ == "__main__":
-    data_directory = modify_path_with_env('urbansound8k', 'DATA_DIRECTORY')
+    data_directory = modify_yml_with_env('urbansound8k', 'DATA_DIRECTORY')
     train_folds = [1, 2, 3, 4, 5, 6, 7, 8]
     val_folds = [9]
     test_folds = [10]

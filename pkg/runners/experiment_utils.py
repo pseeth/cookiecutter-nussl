@@ -1,5 +1,10 @@
-from comet_ml import Experiment, ExistingExperiment
-from runners.utils import (
+try:
+    from comet_ml import Experiment, ExistingExperiment
+    comet_ml_imported = True
+except:
+    comet_ml_imported = False
+
+from .utils import (
     load_yaml, 
     dump_yaml,
     make_random_string, 
@@ -11,6 +16,8 @@ import os
 import logging
 
 def save_experiment(config, exp=None):
+    """Saves a configuration of an experiment to an experiment directory.
+    """
     logging.info(f"Creating experiment folder @ {config['info']['output_folder']}")
     os.makedirs(config['info']['output_folder'], exist_ok=True)
 
@@ -29,8 +36,8 @@ def load_experiment(path_to_yml_file):
     api_key = os.getenv('COMET_API_KEY', None)
     exp = None        
     
-    if not config['info']['experiment_key']:
-        if api_key:
+    if config['info']['experiment_key'] == '${EXPERIMENT_KEY}':
+        if api_key and comet_ml_imported:
             exp = Experiment(
                 api_key=api_key, 
                 project_name=config['info']['project_name']
@@ -49,12 +56,10 @@ def load_experiment(path_to_yml_file):
         logging.info(
             f"Experiment is already set up @ {config['info']['output_folder']}!"
         )
-        try:
+        if comet_ml_imported:
             exp = ExistingExperiment(
                 api_key=api_key,
                 previous_experiment=config['info']['experiment_key']
             )
-        except:
-            pass
     
     return config, exp, path_to_yml_file

@@ -2,7 +2,7 @@ import sys
 sys.path.insert(0, '.')
 
 from runners.experiment_utils import load_experiment, save_experiment
-from cookiecutter_repo import logging
+from src import logging
 from runners.utils import build_parser_for_yml_script, load_yaml, flatten
 import glob
 import pandas as pd

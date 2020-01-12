@@ -1,5 +1,5 @@
 from scripts import mix_with_scaper, reorganize, resample
-from cookiecutter_repo import logging
+from src import logging
 from runners.utils import load_yaml
 import os
 

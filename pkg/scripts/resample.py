@@ -4,7 +4,7 @@ sys.path.insert(0, '.')
 import os
 from multiprocessing import cpu_count
 
-from cookiecutter_repo.utils.parallel import parallel_process
+from src.utils.parallel import parallel_process
 from nussl import AudioSignal
 import os
 import glob

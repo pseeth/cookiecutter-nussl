@@ -2,8 +2,8 @@ import sys
 sys.path.insert(0, '.')
 
 from runners.experiment_utils import load_experiment, save_experiment
-from cookiecutter_repo import dataset, test, model
-from cookiecutter_repo.utils import loaders
+from src import dataset, train, model
+from src.utils import loaders
 import logging
 from runners.utils import build_parser_for_yml_script, load_yaml
 from argparse import ArgumentParser
@@ -11,20 +11,16 @@ import os
 
 def main(path_to_yml_file):
     config, exp, path_to_yml_file = load_experiment(path_to_yml_file)
-
-    if 'test' not in config['datasets']:
-        logging.error('Test dataset must be specified!')
     
-    test_classes = config['test_config']['testers']
-    testers = []
-    for key in test_classes:
-        TestClass = getattr(test, key)
-        args = test_classes[key]
-        testers.append((TestClass, args))
+    train_class = config['train_config'].pop('class')
+    TrainerClass = getattr(train, train_class)
+
+    if 'train' not in config['datasets']:
+        logging.error('Train dataset must be specified!')
 
     _datasets = {}
 
-    for key in ['test']:
+    for key in ['train', 'val']:
         if key in config['datasets']:
             _datasets[key] = loaders.load_dataset(
                 config['datasets'][key]['class'],
@@ -34,15 +30,17 @@ def main(path_to_yml_file):
         else:
             _datasets[key] = None
 
-    _tester = test.EvaluationRunner(
-        testers,
-        config['algorithm_config'],
-        _datasets['test'],
+    _model = loaders.load_model(config['model_config'])
+    _trainer = TrainerClass(
         config['info']['output_folder'],
-        max_workers=config['test_config']['num_workers'],
-        use_blocking_executor=config['test_config']['use_blocking_executor']
+        _datasets['train'],
+        _model,
+        config['train_config'],
+        validation_data=_datasets['val'],
+        use_tensorboard=config['train_config'].pop('use_tensorboard', False),
+        experiment=exp
     )
-    _tester.run()
+    _trainer.fit()
 
 if __name__ == '__main__':
     parser = build_parser_for_yml_script()

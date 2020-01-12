@@ -23,6 +23,7 @@ def modify_yml_with_env(yml, env_variables):
     NUSSL_DIRECTORY. Descriptions of these are in setup/environment/default.sh.
     """
     for _env in env_variables:
+        _env = f'${{{_env}}}'
         if _env in yml:
             yml = yml.replace(_env, os.getenv(_env, ""))
     return yml

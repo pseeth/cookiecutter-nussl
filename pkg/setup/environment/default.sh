@@ -3,7 +3,7 @@
 
 # USAGE
 # This file should be copied to a local file called 
-# set_environment_local.sh which will not be tracked by
+# {whatever}_local.sh which will not be tracked by
 # git. Run that file to set up your environment so everything
 # works.
 

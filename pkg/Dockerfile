@@ -45,8 +45,8 @@ RUN apt-get update && \
 RUN apt-get install groff -y
 RUN apt-get install -y -qq less
 
-ADD requirements.txt /
-RUN pip install --ignore-installed -r /requirements.txt
+ADD frozen_requirements.txt /
+RUN pip install --ignore-installed -r /frozen_requirements.txt
 
 COPY setup/melodia/ /usr/local/lib/vamp
 

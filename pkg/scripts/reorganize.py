@@ -40,7 +40,7 @@ sys.path.insert(0, '.')
 import csv
 import os
 import shutil
-from cookiecutter_repo.utils.parallel import parallel_process
+from src.utils.parallel import parallel_process
 from multiprocessing import cpu_count
 from runners.utils import build_parser_for_yml_script, parse_yaml
 import glob

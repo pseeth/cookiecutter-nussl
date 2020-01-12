@@ -3,7 +3,7 @@ sys.path.insert(0, '.')
 
 from runners.experiment_utils import load_experiment, save_experiment
 from runners.utils import load_yaml, dump_yaml, build_parser_for_yml_script, parse_yaml
-from cookiecutter_repo import logging
+from src import logging
 import os
 import itertools
 import copy

@@ -1,7 +1,7 @@
 import sys
 sys.path.insert(0, '.')
 
-from cookiecutter_repo.dataset import scaper_mix
+from src.dataset import scaper_mix
 import logging
 from runners.utils import build_parser_for_yml_script, parse_yaml
 from argparse import ArgumentParser

@@ -1,6 +1,6 @@
 from runners.utils import load_yaml
-from cookiecutter_repo import train, dataset, model, logging
-from cookiecutter_repo.utils import loaders, seed
+from src import train, dataset, model, logging
+from src.utils import loaders, seed
 import glob
 import pytest
 

@@ -25,7 +25,7 @@ sys.path.insert(0, '.')
 
 from runners.utils import build_parser_for_yml_script, parse_yaml
 from runners.script_runner_pool import ScriptRunnerPool
-from cookiecutter_repo import logging
+from src import logging
 from multiprocessing import cpu_count
 
 def main(path_to_yml_file):

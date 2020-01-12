@@ -1,6 +1,6 @@
 from runners.experiment_utils import load_experiment, save_experiment
 from runners.utils import build_parser_for_yml_script
-from cookiecutter_repo import logging
+from src import logging
 import os
 import glob
 import pytest

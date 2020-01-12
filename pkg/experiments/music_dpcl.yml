@@ -22,8 +22,9 @@ sweep:
     hop_length: 64
     num_frequencies: 65
     num_features: 65
+    num_epochs: 100
     model_config.modules.recurrent_stack.args.num_layers: [1, 2]
-    cache: 'CACHE_DIRECTORY/musdb_128'
+    cache: '${CACHE_DIRECTORY}/musdb_128'
     populate_cache: true # controls whether to create a separate experiment for caching
     num_cache_workers: 60 # how many workers to use when populating the cache
     # multiple parameters can be sweeped across in pairs if 
@@ -39,30 +40,17 @@ sweep:
         num_mels: -1
         model_config.modules.embedding.args.hidden_size: 300
 
-  # - n_fft: 512
-  #   hop_length: 128
-  #   num_frequencies: 257
-  #   num_mels: -1
-  #   num_features: 257
-  #   num_layers: [1, 2]
-  #   cache: 'CACHE_DIRECTORY/musdb_512'
-  #   populate_cache: true # controls whether to create a separate experiment for caching
-  #   num_cache_workers: 60    # how many workers to use when populating the cache
-  #   # multiple parameters can be sweeped across in pairs if 
-  #   # there are dependencies between them. use 'multiple_parameters' in the key
-  #   # to indicate this.
-  #   multiple_parameters_1: 
-  #     - bidirectional: true
-  #       model_config.modules.recurrent_stack.args.hidden_size: 300
-  #       model_config.modules.embedding.args.hidden_size: 600
-  #     - bidirectional: false
-  #       model_config.modules.recurrent_stack.args.hidden_size: 300
-  #       model_config.modules.embedding.args.hidden_size: 300
+info:
+  blocking: false
+  num_gpus: 1
+  project_name: cookiecutter/music
+  spreadsheet_name: nussl-testbed
+  worksheet_name: music
+  output_folder: ${ARTIFACTS_DIRECTORY}/cookiecutter/music/${EXPERIMENT_KEY}
+  experiment_key: ${EXPERIMENT_KEY}
 
-# Everything below is static with certain elements being replaced by things in the 
-# sweep config above.
 dataset_config:
-  cache: 'CACHE_DIRECTORY/musdb' # Path is relative to environment variable CACHE_DIRECTORY
+  cache: '${CACHE_DIRECTORY}/musdb' # Path is relative to environment variable CACHE_DIRECTORY
   data_keys_for_training:
   - log_spectrogram
   - assignments
@@ -92,23 +80,14 @@ datasets:
   # Paths are relative to the environment variable DATA_DIRECTORY
   #   see setup/environment/default.sh for details
   train:
-    folder: DATA_DIRECTORY/babymusdb/generated/coherent/train/
+    folder: ${DATA_DIRECTORY}/babymusdb/generated/coherent/train/
     class: Scaper
   val:
-    folder: DATA_DIRECTORY/babymusdb/generated/coherent/val/
+    folder: ${DATA_DIRECTORY}/babymusdb/generated/coherent/val/
     class: Scaper
   test:
-    folder: DATA_DIRECTORY/babymusdb/generated/coherent/test/
+    folder: ${DATA_DIRECTORY}/babymusdb/generated/coherent/test/
     class: Scaper
-
-info:
-  blocking: false
-  num_gpus: 1
-  project_name: cookiecutter/music
-  spreadsheet_name: nussl-testbed
-  worksheet_name: music
-  output_folder: ARTIFACTS_DIRECTORY/cookiecutter/music/EXPERIMENT_KEY
-  experiment_key:
 
 train_config:
   class: Trainer
@@ -196,7 +175,7 @@ algorithm_config:
       posterior_alpha: 5.0
     enhancement_amount: 0.0
     mask_type: soft
-    model_path: ARTIFACTS_DIRECTORY/cookiecutter/music/EXPERIMENT_KEY/checkpoints/best.model.pth
+    model_path: ${ARTIFACTS_DIRECTORY}/cookiecutter/music/${EXPERIMENT_KEY}/checkpoints/best.model.pth
     num_sources: 2
     percentile: 95
 
