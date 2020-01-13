@@ -1,5 +1,6 @@
 """
 Takes a folder with audio file structure that looks like this:
+```
     folder_input/
         mixture_one_name/
             vocals.wav
@@ -12,8 +13,10 @@ Takes a folder with audio file structure that looks like this:
             drums.wav
             other.wav
         ...
+```
 
 and reorganizes it to a different folder like so:
+```
     folder_output/
         vocals/
             mixture_one_name.wav
@@ -31,6 +34,7 @@ and reorganizes it to a different folder like so:
             mixture_one_name.wav
             mixture_two_name.wav
             ...
+```
     
 so that it can be processed easily by Scaper. Notably, MUSDB has this folder structure.
 """
@@ -51,6 +55,18 @@ import yaml
 audio_extensions = ['.wav', '.mp3', '.aac']
 
 def split_folder_by_class(path_to_file, output_directory):
+    """Splits a folder by class which is indicated by the name of the file. 
+    
+    The mixture name is the name of the parent directory to the file. This function
+    is used to organize datasets like musdb for consumption by Scaper for mixing
+    new datasets.
+
+    Args:
+        path_to_file: Path to the audio file that will be reorganized. Has form
+            /path/to/mixture_name/source_name.ext
+        output_directory: Where the file after swapping the mixture_name and source_name
+            will be copied to.
+    """
     head, tail = os.path.split(path_to_file)
     class_name, ext = os.path.splitext(tail)
     head, mixture_name = os.path.split(head)

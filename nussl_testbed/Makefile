@@ -18,6 +18,10 @@ poetry:
 install:
 	poetry install
 
+# Create docs. This uses pdoc.
+docs:
+	pdoc --html . --force --config show_source_code=False
+
 # If you add or delete requirements via poetry add, make sure to run 
 # make freeze_requirements to update the requirements file.
 freeze_requirements:
