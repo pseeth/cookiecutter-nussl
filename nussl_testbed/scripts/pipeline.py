@@ -1,25 +1,3 @@
-"""
-Takes a .yml file with structure as follows:
-
-    script: path/to/script/name.py
-    config: path/to/yml/config.yml
-    run_in: 'host' or 'container'
-    num_gpus: how many gpus (default: 0)
-    blocking: whether to block on this job or not (default: false)
-
-Could also be multiple jobs:
-    parallelize: whether to parallelize each job (default: false)
-    num_jobs: how many jobs to run in parallel (default: 1)
-
-    jobs:
-    - script: script1.py
-      config: config1.yml
-    - script: script2.py
-      config: config2.yml
-    ...
-
-The jobs get executed one after the other.
-"""
 import sys
 sys.path.insert(0, '.')
 
@@ -29,6 +7,28 @@ from src import logging
 from multiprocessing import cpu_count
 
 def main(path_to_yml_file):
+    """
+        Takes a .yml file with structure as follows:
+
+            script: path/to/script/name.py
+            config: path/to/yml/config.yml
+            run_in: 'host' or 'container'
+            num_gpus: how many gpus (default: 0)
+            blocking: whether to block on this job or not (default: false)
+
+        Could also be multiple jobs:
+            parallelize: whether to parallelize each job (default: false)
+            num_jobs: how many jobs to run in parallel (default: 1)
+
+            jobs:
+            - script: script1.py
+            config: config1.yml
+            - script: script2.py
+            config: config2.yml
+            ...
+
+        The jobs get executed one after the other.
+    """
     spec = parse_yaml(path_to_yml_file)
 
     num_jobs = min(cpu_count(), spec.pop('num_jobs', 1))

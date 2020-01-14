@@ -17,6 +17,10 @@ which resamples the test data.
 
 You must write a corresponding YAML file for each script that you write and execute.
 This is to reduce dependence on "magic terminal commands" that become undocumented and
-unmentioned as project complexity grows. Finally, reproducing a project then just 
+unmentioned as project complexity grows. Finally, reproducing an experiment then just 
 becomes executing a sequence of YAML files.
+
+The scripts here contain  
 """
+
+from .pipeline import main
