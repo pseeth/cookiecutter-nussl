@@ -24,9 +24,9 @@
 mixture_parameters:
   train:
     num_mixtures: 100
-    foreground_path: DATA_DIRECTORY/babymusdb/scaper/train_16k
+    foreground_path: ${DATA_DIRECTORY}/babymusdb/scaper/train_16k
     background_path:
-    target_path: DATA_DIRECTORY/babymusdb/generated/incoherent/train
+    target_path: ${DATA_DIRECTORY}/babymusdb/generated/incoherent/train
     scene_duration: 4
     num_sources: 4
 
@@ -42,9 +42,9 @@ mixture_parameters:
 
   val:
     num_mixtures: 10
-    foreground_path: DATA_DIRECTORY/babymusdb/scaper/train_16k
+    foreground_path: ${DATA_DIRECTORY}/babymusdb/scaper/train_16k
     background_path:
-    target_path: DATA_DIRECTORY/babymusdb/generated/incoherent/val
+    target_path: ${DATA_DIRECTORY}/babymusdb/generated/incoherent/val
     scene_duration: 4
     num_sources: 4
 
@@ -61,9 +61,9 @@ mixture_parameters:
 
   test:
     num_mixtures: 10
-    foreground_path: DATA_DIRECTORY/babymusdb/scaper/test_16k
+    foreground_path: ${DATA_DIRECTORY}/babymusdb/scaper/test_16k
     background_path:
-    target_path: DATA_DIRECTORY/babymusdb/generated/incoherent/test
+    target_path: ${DATA_DIRECTORY}/babymusdb/generated/incoherent/test
     scene_duration: 4
     num_sources: 4
 

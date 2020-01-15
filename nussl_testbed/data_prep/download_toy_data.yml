@@ -1,1 +1,1 @@
-target_folder: DATA_DIRECTORY
+target_folder: ${DATA_DIRECTORY}

@@ -49,7 +49,6 @@ def upload_to_gsheet(results, config, exp):
 
     datasets = np.unique(results['dataset'])
     metrics = ['SDR', 'SIR', 'SAR']
-    logging.info(config['info'])
     notes = config['info'].pop('notes', 'No notes')
 
     def trunc(values, decs=0):
@@ -99,7 +98,6 @@ def upload_to_gsheet(results, config, exp):
             summary_worksheet.insert_row(
                 row_to_insert, index=3, value_input_option='USER_ENTERED'
             )
-        logging.info(_results)
         overall_metrics = (
             [np.unique(_results['file_name']).shape[0]] + 
             [trunc(x, decs=2) for x in _results.mean()[metrics]]
@@ -164,8 +162,6 @@ if __name__ == '__main__':
     parser = build_parser_for_yml_script()
     args = vars(parser.parse_args())
     results, config, exp = main(args['spec'])
-    keys = [k for k in results.keys() if k not in ['dataset', 'notes', 'source_name']]
-    logging.info(results[keys].to_string())
-
+    logging.info(results.mean())
+    logging.info(config['info']['experiment_key'])
     upload_to_gsheet(results, config, exp)
-    

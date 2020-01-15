@@ -20,9 +20,9 @@
 sweep:
   - n_fft: 128
     hop_length: 64
-    num_frequencies: 65
+    num_frequencies: 65 # n_fft / 2 + 1
     num_features: 65
-    num_epochs: 100
+    num_epochs: 10
     model_config.modules.recurrent_stack.args.num_layers: [1, 2]
     cache: '${CACHE_DIRECTORY}/musdb_128'
     populate_cache: true # controls whether to create a separate experiment for caching
@@ -30,7 +30,7 @@ sweep:
     # multiple parameters can be sweeped across in pairs if 
     # there are dependencies between them. use 'multiple_parameters' in the key
     # to indicate this.
-    multiple_parameters_1: 
+    multiple_parameters_1: # maybe make this a list of tuples? dictionary of configs?
       - bidirectional: true
         model_config.modules.recurrent_stack.args.hidden_size: 300
         num_mels: -1

@@ -26,25 +26,25 @@
 mixture_parameters:
   train:
     num_mixtures: 100
-    foreground_path: DATA_DIRECTORY/babywsj/dev
+    foreground_path: ${DATA_DIRECTORY}/babywsj/dev
     background_path:
-    target_path: DATA_DIRECTORY/babywsj/generated/train
+    target_path: ${DATA_DIRECTORY}/babywsj/generated/train
     scene_duration: 5
     num_sources: 2
 
   val:
     num_mixtures: 10
-    foreground_path: DATA_DIRECTORY/babywsj/dev
+    foreground_path: ${DATA_DIRECTORY}/babywsj/dev
     background_path:
-    target_path: DATA_DIRECTORY/babywsj/generated/val
+    target_path: ${DATA_DIRECTORY}/babywsj/generated/val
     scene_duration: 5
     num_sources: 2
 
   test:
     num_mixtures: 10
-    foreground_path: DATA_DIRECTORY/babywsj/dev
+    foreground_path: ${DATA_DIRECTORY}/babywsj/dev
     background_path:
-    target_path: DATA_DIRECTORY/babywsj/generated/test
+    target_path: ${DATA_DIRECTORY}/babywsj/generated/test
     scene_duration: 5
     num_sources: 2
 

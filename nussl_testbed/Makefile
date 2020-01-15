@@ -93,4 +93,4 @@ test_container:
 
 experiment:
 	source $(env_file) && \
-	poetry run python $(exp) 
+	poetry run python scripts/sweep_experiment.py $(exp) 

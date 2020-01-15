@@ -52,7 +52,7 @@ def update_config_with_sweep(config, sweep, combo, logging_str):
     this_experiment['info']['notes'] = notes
 
     for key in this_sweep:
-        if '.' in key:
+        if '.' in key: # replace | with .
             # specific update
             loc = key.split('.')
             nested_set(this_experiment, this_sweep[key], *loc)
@@ -63,8 +63,6 @@ def update_config_with_sweep(config, sweep, combo, logging_str):
                 key,
                 this_sweep[key]
             )
-
-
     return this_experiment
 
 def sweep_experiment(path_to_yml_file):
