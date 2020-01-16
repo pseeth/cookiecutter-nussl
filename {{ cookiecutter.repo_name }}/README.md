@@ -14,6 +14,8 @@ Requirements
 - Install Docker and NVIDIA Docker
 - Install Poetry: https://poetry.eustace.io/docs/#installation
 
+See the [getting started guide](getting_started.md) for more
+details.
 
 Usage
 -----
