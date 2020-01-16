@@ -8,6 +8,21 @@ containing multiple speakers, music, and environmental sounds. It is easy to add
 train new models or datasets (GPU sold separately). The goal of this project is to enable
 further reproduceability within the source separation community.
 
+#### Features
+##### Models:
+- Mask Inference
+- Deep Clustering
+- Chimera
+- TasNet
+
+##### Datasets:
+- MUSDB18
+- DSD100
+- MIR-1k
+- Slakh
+- WSJ0-mix2
+- Wham!
+
 This project utilizes building block components from `nussl` for input/output 
 (reading/writing audio, STFT/iSTFT, masking, etc.), and for neural network construction
 (recurrent networks, convolutional networks, etc) to train models with minimal setup.
