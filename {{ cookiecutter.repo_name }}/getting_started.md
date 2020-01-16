@@ -606,3 +606,5 @@ This will do everything! To run just, say, the analysis pipeline do:
 ```
 make pipeline yml=experiments/out/music_dpcl/analyze.yml
 ```
+
+Or to load everything into a pandas DataFrame and do your analysis there, look at [notebooks/analyze.ipynb](notebooks/analyze.ipynb).
