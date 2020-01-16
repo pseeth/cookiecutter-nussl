@@ -32,7 +32,6 @@ RUN apt-get update && \
     apt-get -y install gcc mono-mcs && \
     rm -rf /var/lib/apt/lists/*
 
-RUN conda install pytorch torchvision -c pytorch
 RUN conda install -c conda-forge widgetsnbextension
 RUN conda install -c conda-forge nodejs
 RUN conda install -c conda-forge sox

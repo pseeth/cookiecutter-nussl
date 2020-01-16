@@ -15,6 +15,7 @@ poetry:
 
 # Install all the requirements into the conda environment after activating it.
 install:
+	poetry update
 	poetry install
 
 # Create docs. This uses pdoc.
