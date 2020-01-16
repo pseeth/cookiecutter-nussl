@@ -62,7 +62,9 @@ curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.p
 
 or by writing `make poetry`. 
 
-Then just run `make install`.
+Then just run 
+
+```make install```.
 
 This will install all of the requirements into the conda environment.
 
