@@ -17,7 +17,11 @@ This repository contains code that allows for quick and easy experimentation wit
 ## Table of contents
 
 1. [Setting up dependencies](#setting-up-dependencies)
-2. [The Makefile](#the-makefile)
+2. [Setting up environment variables](#setting-up-environment-variables)
+3. [The Makefile](#the-makefile)
+4. [Scripts](#scripts)
+5. [Creating datasets](#creating-datasets)
+6. [Creating experiments](#creating-experiments)
 
 ## Setting up dependencies
 
@@ -45,7 +49,7 @@ Then just run `make install`.
 
 This will install all of the requirements into the conda environment.
 
-### Setting up environment variables
+## Setting up environment variables
 
 The scripts are going to point to a lot of directories 
 (e.g. where your data lives, where to save experiment artifacts,
@@ -264,7 +268,7 @@ are:
 
 ```
 make pipeline yml=path/to/yml
-make experiment yml=path/to/yml num_gpus=4 num_jobs=1"
+make experiment yml=path/to/yml num_gpus=4 num_jobs=1
 ```
 
 `num_gpus` and `num_jobs` are special arguments to the script 
@@ -417,7 +421,7 @@ To do it for music, do
 make pipeline yml=data_prep/wsj/pipeline.yml
 ```
 
-## Experiments
+## Creating experiments
 
 Training runs are specified by experiment YAML files. There are
 two included in this repository: 
@@ -426,4 +430,160 @@ two included in this repository:
 2. [experiments/speech_dpcl.yml](experiments/speech_dpcl.yml)
 
 See the comments at the top of `music_dpcl.yml` for a description 
-of how to configure an experiment.
+of how to configure an experiment. These YAML files contain every
+possible thing you need to reproduce an experiment. Every single
+variable, hyperparameter, data path, and so on, is kept in here. 
+For example, here's what the `train_config` dictionary looks like
+in `music_dpcl.yml`:
+
+```
+train_config:
+  class: Trainer
+  batch_size: 40
+  curriculum_learning:
+  - args: [400]
+    command: set_current_length
+    num_epoch: 0
+  data_parallel: true
+  device: cuda
+  initial_length: 400
+  learning_rate: 0.0002
+  learning_rate_decay: 0.5
+  loss_function:
+  - !!python/tuple
+    - dpcl            # name of loss function
+    - embedding       # what output of model to apply the loss function on
+    - 1.0             # weight given to the loss function
+  num_epochs: 10
+  num_workers: 20
+  optimizer: adam
+  patience: 5
+  sample_strategy: sequential
+  weight_decay: 0.0
+```
+
+Now, let's say we wanted to try *multiple* experiments, with each one playing over
+one of the variables above - like say, the learning rate and the sample strategy. To do that, you use a 
+special dictionary that can be defined called `sweep` as follows:
+
+```
+sweep:
+    - train_config.learning_rate: [.1, .01, .001, .0002]
+      train_config.sample_strategy: [sequential, random]
+      cache: '${CACHE_DIRECTORY}/musdb'
+      populate_cache: true # controls whether to create a separate experiment for caching
+```
+
+To instantiate an experiment you pass it to the script `scripts/sweep_experiment.py`. 
+This is best done via the Makefile:
+
+```
+make experiment yml=experiments/music_dpcl.yml num_gpus=4 num_jobs=1
+```
+
+This will create 8 experiments (1 for each item in the Cartesian product of all the
+possible learning rates and the possible sampling strategies). Finally, you'll 
+notice two special keys `cache` and `populate_cache`, that are not lists. To 
+understand what these do, you need to know a bit more about how training deep models 
+in nussl works.
+
+### Caching in nussl
+
+A deep network is trained with input and output data. In audio, the input data is often
+a spectrogram. In source separation, the output data is typically also spectrograms.
+If you have a lot of audio files, computing the spectrograms of every mixture as well
+as every source every time you want to construct a training example can be very
+inefficient. This is because spectrogram computation can be costly. So, what nussl can do
+is trade space efficiency for time efficiency by caching. So, if caching is enabled 
+(controlled by setting cache to be a string, rather than an empty string), then what
+nussl will do is save all the input/output data to a file. This is done by `zarr`, which
+applies compression to the files for space efficiency. `zarr` also decompresses in
+a separate thread. This makes it highly efficient. The organization of a `zarr` cache
+is similar to HDF5. Then, training the network is no longer limited by the computation
+speed of constructing a batch. Data will come into the network as fast as it can
+be read off of disk. 
+
+So in the above `sweep`, you set `populate_cache: True`, and controlled where to put
+the cache via `cache`. What `sweep_experiment` does here is it creates a separate
+`cache` "experiment" that only creates the cache. This experiment should be run
+first before running all of the experiments (in this case the learning rate and sampling
+strategy are tested).
+
+### Examining the resultant pipeline
+
+`sweep_experiment` creates a pipeline that will do four things:
+
+1. Populate the cache
+2. Train each instantiated experiments. The number of experiments depends on the sweep
+configuration.
+3. Evaluate each trained model.
+4. Analyze the results of each model and upload the results to a Google sheet (if that
+is enabled)).
+
+Here's the pipeline constructed on my machine:
+
+```
+jobs:
+- blocking: true
+  config: /home/pseetharaman/Dropbox/research/cookiecutter-nussl/nussl_testbed/experiments/out/music_dpcl/cache.yml
+  num_gpus: 0
+  run_in: host
+  script: scripts/pipeline.py
+- blocking: true
+  config: /home/pseetharaman/Dropbox/research/cookiecutter-nussl/nussl_testbed/experiments/out/music_dpcl/train.yml
+  num_gpus: 0
+  run_in: host
+  script: scripts/pipeline.py
+- blocking: true
+  config: /home/pseetharaman/Dropbox/research/cookiecutter-nussl/nussl_testbed/experiments/out/music_dpcl/evaluate.yml
+  num_gpus: 0
+  run_in: host
+  script: scripts/pipeline.py
+- blocking: true
+  config: /home/pseetharaman/Dropbox/research/cookiecutter-nussl/nussl_testbed/experiments/out/music_dpcl/analyze.yml
+  num_gpus: 0
+  run_in: host
+  script: scripts/pipeline.py
+num_jobs: 1
+```
+
+The pipeline is contained in `experiments/out/music_dpcl/pipeline.yml`.
+Note that this is a pipeline of pipelines! The constructed training pipeline looks like this:
+
+```
+jobs:
+- blocking: false
+  config: /home/pseetharaman/artifacts//cookiecutter/music/5e5d569b1c024a10b3f1131e000a6fe1/config.yml
+  num_gpus: 1
+  run_in: container
+  script: scripts/train.py
+- blocking: false
+  config: /home/pseetharaman/artifacts//cookiecutter/music/fe123134f337457ebffedb7969a79a18/config.yml
+  num_gpus: 1
+  run_in: container
+  script: scripts/train.py
+- blocking: false
+  config: /home/pseetharaman/artifacts//cookiecutter/music/ad8a59db894843d2b7bc3e59994ec0ee/config.yml
+  num_gpus: 1
+  run_in: container
+  script: scripts/train.py
+- blocking: false
+  config: /home/pseetharaman/artifacts//cookiecutter/music/fda2925ec58d41158af003938d24f70a/config.yml
+  num_gpus: 1
+  run_in: container
+  script: scripts/train.py
+num_jobs: 4
+```
+
+The random strings (e.g. `fda2925ec58d41158af003938d24f70a`) in there are created automatically by comet.ml. All artifacts from the training run will be kept in there. Run the 
+entire training, evaluation, analysis pipeline like this:
+
+```
+make pipeline yml=experiments/out/music_dpcl/pipeline.yml
+```
+
+This will do everything! To run just, say, the analysis pipeline do:
+
+```
+make pipeline yml=experiments/out/music_dpcl/analyze.yml
+```
