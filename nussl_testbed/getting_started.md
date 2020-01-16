@@ -184,8 +184,20 @@ Go to the Google sheet you created above and share it to the email listed in the
 `client_email` field in the JSON file above. This is super important!
 
 Finally, fill out the field titled `PATH_TO_GOOGLE_CREDENTIALS` in the `{prefix}_local.sh` file you made above. You should now have automated access to 
-edit the Google sheet.
+edit the Google sheet. The Google sheet will look something like
+this after you do a training run.
 
+![](images/sheet.png)
+
+### comet.ml integration
+
+![](images/comet.png)
+
+comet.ml is a useful way to keep track of experiments. It's completely
+optional to use, just like the Google sheet, but it's handy
+as it will make it easier to check your loss curves on the go and
+so on. You'll get to compare runs like in the graphs above. The
+dashboard for a project looks like this.
 
 
 
