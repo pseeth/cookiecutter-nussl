@@ -56,10 +56,13 @@ def load_experiment(path_to_yml_file):
         logging.info(
             f"Experiment is already set up @ {config['info']['output_folder']}!"
         )
-        if comet_ml_imported:
-            exp = ExistingExperiment(
-                api_key=api_key,
-                previous_experiment=config['info']['experiment_key']
-            )
+        if comet_ml_imported and api_key:
+            try:
+                exp = ExistingExperiment(
+                    api_key=api_key,
+                    previous_experiment=config['info']['experiment_key']
+                )
+            except:
+                pass
     
     return config, exp, path_to_yml_file

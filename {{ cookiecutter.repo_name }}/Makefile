@@ -85,7 +85,7 @@ test:
 
 # Run all the test cases in the host.
 test_host:
-	make gpus=$(gpus) command="python -m pytest --cov=nussl . -v $(args)" run_in_host
+	make gpus=$(gpus) command="python -m pytest --cov=. . -v $(args)" run_in_host
 
 # Run all the test cases in the container.
 test_container:

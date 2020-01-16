@@ -5,7 +5,7 @@ import os
 import glob
 import pytest
 
-paths_to_yml = list(glob.glob('./experiments/**/*.yml', recursive=True))
+paths_to_yml = list(glob.glob('./experiments/*.yml', recursive=False))
 
 @pytest.mark.parametrize("path_to_yml", paths_to_yml, ids=paths_to_yml)
 def test_with_comet(path_to_yml):

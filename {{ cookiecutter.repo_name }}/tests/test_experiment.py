@@ -26,7 +26,7 @@ def _load_dataset(config, split):
         )
     return dset
 
-paths_to_yml = list(glob.glob('./experiments/**/*.yml', recursive=True))
+paths_to_yml = list(glob.glob('./experiments/*.yml', recursive=False))
 configs = [
     load_yaml(path_to_yml)
     for path_to_yml in paths_to_yml
