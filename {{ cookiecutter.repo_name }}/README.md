@@ -7,22 +7,6 @@ A boilerplate for reproducible and transparent computer audition research that l
 *A logical, reasonably standardized, but flexible project structure for doing and 
 sharing research.*
 
-Requirements
-------------
-- Install `cookiecutter` command line: `pip install cookiecutter`
-- Install Anaconda or Miniconda
-- Install Docker and NVIDIA Docker
-- Install Poetry: https://poetry.eustace.io/docs/#installation
-
-See the [getting started guide](getting_started.md) for more
-details.
-
-Usage
------
-To start a new project:
-
-`cookiecutter gh:pseeth/cookiecutter-nussl`
-
 Guiding Principles
 -----------------
 The idea behind this project structure is to make it easy to use nussl to set up

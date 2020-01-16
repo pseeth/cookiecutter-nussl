@@ -1,11 +1,19 @@
 {
     "repo_name": "nussl-testbed",
-    "author_name": "Firstame Lastname",
-    "author_email": "your_email@email.com",
-    "github_username": "github_username",
-    "info": "To complete setup, use the Getting Started guide to set up your environment variables. Press enter to complete setup...",
+    "help1": "The next few prompts will ask about settings for environment variables you want. Descriptions of these are in the Getting Started guide. If you don't know what to set a variable to, just hit enter. You can edit it later at setup/environment/[machine_name]_local.sh. Press enter to continue...",
+    "machine_name": "default",
+    "DOCKER_IMAGE_NAME": "user/image:tag",
+    "CACHE_DIRECTORY": "/path/to/cache",
+    "ARTIFACTS_DIRECTORY": "/path/to/where/models/get/saved",
+    "DATA_DIRECTORY": "/path/to/where/your/data/lives",
+    "JUPYTER_HOST_PORT": 8888,
+    "TENSORBOARD_HOST_PORT": 6006,
+    "JUPYTER_PASSWORD_HASH": "sha1:bed4d260d700:74cd5c1c5d43cab7e975a99c8bae5d6384d5891d",
+    "PATH_TO_GOOGLE_CREDENTIALS": "",
+    "COMET_API_KEY": "",
+    "help2": "To complete setup, use the Getting Started guide to set up your environment variables if you didn't know what to put above. Press enter to complete setup...",
     "_copy_without_render": [
         "setup/melodia/*",
-        "runners/utils.py"
+        "runners/utils.py"    
     ]
 }

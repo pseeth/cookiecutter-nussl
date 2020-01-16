@@ -157,14 +157,14 @@ This tells the Docker container where the code containing all of
 your scripts are. When the container starts, this is the folder you
 will be in. You can assume relative paths from the root of this code
 directory in your script. It now just uses the current working directory.
-
+<!-- 
 ```export NUSSL_DIRECTORY="/path/to/nussl"```
 
 This tells the Docker container where nussl is, so the scripts
 can import your version of nussl. This is useful if
 are editing nussl continuously and testing it. This is optional
 as you could just use the version of nussl on Github. But if 
-you're editing core nussl features, this is useful.
+you're editing core nussl features, this is useful. -->
 
 ```export PATH_TO_GOOGLE_CREDENTIALS=""```
 

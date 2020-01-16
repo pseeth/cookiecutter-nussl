@@ -12,7 +12,7 @@
 # before the / and some identifier after (e.g. your_name/your_project).
 # You can optionally add a tag afterwards, like 
 # your_name/your_project:latest.
-export DOCKER_IMAGE_NAME="user/image"
+export DOCKER_IMAGE_NAME="{{ cookiecutter.DOCKER_IMAGE_NAME }}"
 
 # This sets up all of the paths you need on the host machine. 
 # The data in those folders gets mounted inside the container,
@@ -24,31 +24,31 @@ export DOCKER_IMAGE_NAME="user/image"
 # all the input/output for the network and can be substantial
 # in size. It's good to know where they are so you can free up
 # hard drive space from time to time as needed.
-export CACHE_DIRECTORY="/path/to/cache"
+export CACHE_DIRECTORY="{{ cookiecutter.CACHE_DIRECTORY }}"
 
 # The experiment scripts all output their results in custom
 # named folders whose names are randomly generated (by comet.ml).
 # These folders get saved to /storage/artifacts/ inside the 
 # docker container. Good to know where these are so that you 
 # know where your results are.
-export ARTIFACTS_DIRECTORY="/path/to/artifacts"
+export ARTIFACTS_DIRECTORY="{{ cookiecutter.ARTIFACTS_DIRECTORY }}"
 
 # This folder is where all of your data lives for training and
 # evaluating. This folder will be mapped to /storage/data/ in your
 # docker container, allowing you to write the scripts in reference
 # to those locations. Make sure you have read/write permissions for 
 # the folder you are pointing to.
-export DATA_DIRECTORY="/path/to/data"
+export DATA_DIRECTORY="{{ cookiecutter.DATA_DIRECTORY }}"
 
 # Jupyter notebooks run inside a Docker container as well. The port
 # for the server inside the container (8888) must be forwarded to a
 # port on the host. Select that port here (default is 8890).
-export JUPYTER_HOST_PORT=8888
+export JUPYTER_HOST_PORT={{ cookiecutter.JUPYTER_HOST_PORT }}
 
 # Tensorboard can also run inside a Docker container. The port
 # for the server inside the container (6006) must be forwarded to a
 # port on the host. Select that port here (default is 8891).
-export TENSORBOARD_HOST_PORT=6006
+export TENSORBOARD_HOST_PORT={{ cookiecutter.TENSORBOARD_HOST_PORT }}
 
 # Obtain the SHA hash for your chosen password and copy it below. To do this, use:
 # from notebook.auth import passwd
@@ -57,7 +57,7 @@ export TENSORBOARD_HOST_PORT=6006
 # Copy it (without the single quotes) and paste it below. This will be the password 
 # you use to login to the Jupyter server.
 # By default the password is 'password'
-export JUPYTER_PASSWORD_HASH="sha1:bed4d260d700:74cd5c1c5d43cab7e975a99c8bae5d6384d5891d"
+export JUPYTER_PASSWORD_HASH="{{ cookiecutter.JUPYTER_PASSWORD_HASH }}"
 
 # This tells the Docker container where the code containing all of
 # your scripts are. When the container starts, this is the folder you
@@ -65,20 +65,21 @@ export JUPYTER_PASSWORD_HASH="sha1:bed4d260d700:74cd5c1c5d43cab7e975a99c8bae5d63
 # directory in your script. It now just uses the current working directory.
 export CODE_DIRECTORY=`pwd`
 
-# This tells the Docker container where nussl is, so the scripts
-# can import your version of nussl. This is useful if
-# are editing nussl continuously and testing it. This is optional
-# as you could just use the version of nussl on Github. But if 
-# you're editing core nussl features, this is useful.
-# export NUSSL_DIRECTORY="/path/to/nussl"
+# # This tells the Docker container where nussl is, so the scripts
+# # can import your version of nussl. This is useful if
+# # are editing nussl continuously and testing it. This is optional
+# # as you could just use the version of nussl on Github. But if 
+# # you're editing core nussl features, this is useful.
+
+# export NUSSL_DIRECTORY="path/to/nussl"
 
 # Experiment results are logged to a Google sheet. Put the path
 # to the Google service account credentials here. Make sure that
 # those credentials are not being tracked by Git. This only needs
 # to be visible outside the Docker (not inside the container).
-export PATH_TO_GOOGLE_CREDENTIALS=""
+export PATH_TO_GOOGLE_CREDENTIALS="{{ cookiecutter.PATH_TO_GOOGLE_CREDENTIALS }}"
 
 # Put the API key you get from comet.ml after making an account here. 
 # comet.ml is used to monitor the experiments easily from anywhere as
 # they run.
-export COMET_API_KEY=""
+export COMET_API_KEY="{{ cookiecutter.COMET_API_KEY }}"
