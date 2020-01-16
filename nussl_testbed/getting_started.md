@@ -16,7 +16,7 @@ This repository contains code that allows for quick and easy experimentation wit
 
 ## Just tell me what commands to run
 
-Well first set up dependcies and environment variables below. Then...
+Well first set up dependencies and environment variables below. Then...
 
 ```
 make pipeline yml=data_prep/musdb/pipeline.yml
