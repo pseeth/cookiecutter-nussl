@@ -16,7 +16,7 @@ This repository contains code that allows for quick and easy experimentation wit
 
 ## Project organization
 
-All commands are mainly run via the [Makefile](../Makefile), which has several useful commands that will be used throughout.
+All commands are mainly run via the [Makefile](Makefile), which has several useful commands that will be used throughout.
 
 ## Setting up dependencies
 
@@ -199,6 +199,48 @@ as it will make it easier to check your loss curves on the go and
 so on. You'll get to compare runs like in the graphs above. The
 dashboard for a project looks like this.
 
+### Setting up Docker
 
+Now, let's set up Docker. If you've followed all the steps so far, this should just 
+require you to run `make docker`.
 
+## The Makefile
 
+The Makefile will be your entrance to running all of the scripts.
+It has a bunch of useful commands. I'll describe some of the
+more useful ones here, but the rest are detailed with comments
+in [Makefile](Makefile).
+
+**IMPORTANT**
+
+The most important thing before using the Makefile is to first
+source which enviroment setup file you are using. This needs
+to be done every time you shell in. So run this:
+
+```
+export ENV_FILE=setup/environment/{prefix}_local.sh
+```
+
+Replace the path with whatever or wherever the environment file you made
+is. After you do this, the Makefile can now be used. First, lets do
+some simple stuff to make sure the environment is set up correctly.
+
+```make check_environment```
+
+This will check the environment. Peruse the list to make sure your environment 
+variables are set correctly. 
+
+### Launching a Jupyter notebook
+
+```make jupyter gpus=0 name=jupyter-lab```
+
+This will launch a Jupyter notebook at the port specified in your sourced environment
+file. Note that this make command takes *arguments*. The arguments are `gpus` and
+`name`. The first controls the GPUs that are available to the notebook on the host
+machine and name controls the Docker container name. The Jupyter notebook here
+is run inside of Docker. The `name` of the container must be unique on the machine (this
+can be a problem if you're sharing the machine).
+
+### Launching TensorBoard
+
+```make tensorboard```

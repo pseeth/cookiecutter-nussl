@@ -66,7 +66,7 @@ pipeline:
 # Start a Jupyter notebook in a container. It'll be available at the host port defined 
 # in your environment setup.
 jupyter:
-	make command="jupyter lab --ip=0.0.0.0" gpus=$(gpus) name=jupyter_lab run_in_container
+	make command="jupyter lab --ip=0.0.0.0" gpus=$(gpus) name=$(name) run_in_container
 
 # Start a Tensorboard server in a container. It'll be available at the host port defined 
 # in your environment setup.
@@ -92,4 +92,4 @@ test_container:
 
 experiment:
 	source $(env_file) && \
-	poetry run python scripts/sweep_experiment.py $(exp) 
+	poetry run python scripts/sweep_experiment.py $(yml) 
