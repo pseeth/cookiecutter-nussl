@@ -92,4 +92,4 @@ test_container:
 
 experiment:
 	source $(env_file) && \
-	poetry run python scripts/sweep_experiment.py $(yml) 
+	poetry run python scripts/sweep_experiment.py $(yml) --num_gpus $(num_gpus) --num_jobs $(num_jobs) 

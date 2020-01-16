@@ -14,9 +14,10 @@ clustering network. There are five major steps:
 
 This repository contains code that allows for quick and easy experimentation with the nussl library. With this code, you can easily experiment with the various hyperparameters that are native to each separation algorithm. The goal of this document is to guide you through setting up an environment via Anaconda and Docker, setting up experiment monitoring via comet.ml, setting up experiment reporting via a Google sheet, and training and testing your first model on a small dataset.
 
-## Project organization
+## Table of contents
 
-All commands are mainly run via the [Makefile](Makefile), which has several useful commands that will be used throughout.
+1. [Setting up dependencies](#setting-up-dependencies)
+2. [The Makefile](#the-makefile)
 
 ## Setting up dependencies
 
@@ -244,3 +245,185 @@ can be a problem if you're sharing the machine).
 ### Launching TensorBoard
 
 ```make tensorboard```
+
+You might want to run stuff in the background. To do that, just append
+an `&`:
+
+```make tensorboard &```
+
+We now have everything we need to start creating datasets and
+training and evaluating models. 
+
+
+### Pipelines and experiments
+
+Two commands are special in the Makefile and are used for running
+pipelines (a sequence of jobs) and instantiating experiments 
+(a specification that is used to train and test a model). These
+are:
+
+```
+make pipeline yml=path/to/yml
+make experiment yml=path/to/yml num_gpus=4 num_jobs=1"
+```
+
+`num_gpus` and `num_jobs` are special arguments to the script 
+`scripts/sweep_experiment.py`.
+
+These will be described more indepth once we describe the scripting
+interface.
+
+## Scripts
+
+All of the code you write should always be run via a script. Scripts in this
+project take a special form for the purposes of reproducibility. Scripts always
+taken in a YAML file which contains all the information needed to run the 
+script. For example, `scripts/resample.py` takes in a YAML file as follows:
+
+```
+jobs:
+- input_path: ${DATA_DIRECTORY}/babymusdb/scaper/train
+  output_path: ${DATA_DIRECTORY}/babymusdb/scaper/train_16k
+  num_workers: 25
+  sample_rate: 16000
+
+- input_path: ${DATA_DIRECTORY}/babymusdb/scaper/test
+  output_path: ${DATA_DIRECTORY}/babymusdb/scaper/test_16k
+  num_workers: 25
+  sample_rate: 16000
+```
+
+This YAML File is processed by the script to resample two datasets. A special 
+key called `jobs` can be used to run the script multiple times (once for each job).
+The file above contains two jobs, one which resamples the train data and the other
+which resamples the test data.
+
+Note that there are special sequences like so `${DATA_DIRECTORY}`. These, at run-time
+will get replaced by the corresponding environment variable set previously. This 
+is so that scripts are portable between machines.
+
+You must write a corresponding YAML file for each script that you write and execute.
+This is to reduce dependence on "magic terminal commands" that become undocumented and
+unmentioned as project complexity grows. Finally, reproducing an experiment then just 
+becomes executing a sequence of YAML files.
+
+### Pipelines
+
+There is a specific script at `scripts/pipeline.py` that is very useful. 
+The pipeline script allows you to run a sequence of other scripts using commands
+from other scripts.  A corresponding YAML file for the pipeline script looks
+like this:
+
+```
+num_jobs: 2 # controls whether to run this sequentially or in parallel
+
+jobs:
+# Before doing anything, download the toy data the scripts below depend on.
+- script: scripts/download_toy_data.py
+  config: data_prep/download_toy_data.yml
+  run_in: host
+  blocking: true
+
+# First, reorganize the MUSDB dataset so that it can be fed into Scaper.
+# Data should start off in a folder at DATA_DIRECTORY/musdb/raw/[train,test]/
+# This is how musdb18.zip unzips.
+- script: scripts/reorganize.py
+  config: data_prep/musdb/reorganize.yml
+  run_in: container
+  blocking: true
+
+# Downsample each audio file from 44100 to 16000.
+- script: scripts/resample.py
+  config: data_prep/musdb/resample.yml
+  run_in: container
+  blocking: true
+
+# Mix a coherent dataset with Scaper.
+- script: scripts/mix_with_scaper.py
+  config: data_prep/musdb/coherent.yml
+  run_in: host
+
+# Mix an incoherent dataset with Scaper.
+- script: scripts/mix_with_scaper.py
+  config: data_prep/musdb/incoherent.yml
+  run_in: container
+```
+
+There are a few things to note here. First, at the top of the script is how many
+jobs to run in parallel in `num_jobs`. Then there is a list of jobs to be run in
+`jobs`. Each item in the list can have five parameters: 
+
+1. `script`: what script to run
+2. `config`: what YAML file should be passed to the script for it to run
+3. `run_in`: where to run the command, either on the host or the container.
+4. `blocking`: true or false, tells the pipeline to execute this script to completion before moving on to the next one. If not specified, it defaults to false.
+5. `num_gpus`: an int that says how many GPUs this script will need when run. Not used above but if it is specified, the pipeline script will execute the script with a GPU attached. If all GPUs are being used, then the pipeline script will wait until a GPU is free before executing the script.
+
+So the script above will first download the toy data, then reorganize the data, then resample it to 16000 Hz. Then, it will the last two jobs in parallel - mixing the two datasets together using Scaper.
+
+Try it now by doing `make pipeline yml=data_prep/musdb/pipeline.yml`.
+
+## Creating datasets
+
+Now we're ready to create datasets that can be used for source 
+separation. To do this, we'll be using a library called [Scaper](https://github.com/justinsalamon/scaper). But, we'll be using my fork of Scaper
+which has additional unmerged features: [my fork of Scaper](https://github.com/pseeth/scaper). It was already installed via poetry.
+
+Scaper expects your audio to be organized as follows:
+
+```
+root/
+    audio_class_one/
+        file0.wav
+        file1.wav
+        file2.wav
+        ...
+    audio_class_two/
+        file0.wav
+        file1.wav
+        file2.wav
+        ...
+    audio_class_three/
+        file0.wav
+        file1.wav
+        file2.wav
+        ...
+    ...
+```
+
+### Preparing the data
+
+First, you want to organize all your audio in the format above. Each class folder might
+be a different speaker, or a different sound class (e.g. car_horn, siren, and so on).
+After organizing the audio content for Scaper, you might want to first downsample all 
+of your audio files to a different sample rate.  Alternatively, you can let Scaper do this
+by setting the sample rate appropriately, but this will be a lot slower than just 
+pre-processing.
+
+### Creating the Scaper dataset
+
+Finally, the dataset is created using Scaper. The configuration of
+how the dataset is created is in [data_prep/musdb/coherent.yml](data_prep/musdb/coherent.yml), along with a description.
+
+All of these steps are done by the pipeline above. To run these steps on the toy data for music, do:
+
+```
+make pipeline yml=data_prep/musdb/pipeline.yml
+```
+
+To do it for music, do
+
+```
+make pipeline yml=data_prep/wsj/pipeline.yml
+```
+
+## Experiments
+
+Training runs are specified by experiment YAML files. There are
+two included in this repository: 
+
+1. [experiments/music_dpcl.yml](experiments/music_dpcl.yml)
+2. [experiments/speech_dpcl.yml](experiments/speech_dpcl.yml)
+
+See the comments at the top of `music_dpcl.yml` for a description 
+of how to configure an experiment.
