@@ -6,7 +6,7 @@ dataset_directory = os.getenv('DATA_DIRECTORY')
 code_directory = os.getenv('CODE_DIRECTORY')
 cache_directory = os.getenv('CACHE_DIRECTORY')
 artifacts_directory = os.getenv('ARTIFACTS_DIRECTORY')
-nussl_directory = os.getenv('NUSSL_DIRECTORY')
+nussl_directory = os.getenv('NUSSL_DIRECTORY', artifacts_directory)
 
 volumes = {
     nussl_directory: {
