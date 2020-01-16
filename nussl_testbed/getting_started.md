@@ -14,6 +14,23 @@ clustering network. There are five major steps:
 
 This repository contains code that allows for quick and easy experimentation with the nussl library. With this code, you can easily experiment with the various hyperparameters that are native to each separation algorithm. The goal of this document is to guide you through setting up an environment via Anaconda and Docker, setting up experiment monitoring via comet.ml, setting up experiment reporting via a Google sheet, and training and testing your first model on a small dataset.
 
+## Just tell me what commands to run
+
+Well first set up dependcies and environment variables below. Then...
+
+```
+make pipeline yml=data_prep/musdb/pipeline.yml
+make experiment yml=experiments/music_dpcl.yml num_gpus=4 num_jobs=1
+make pipeline yml=experiments/out/music_dpcl/pipeline.yml
+
+make pipeline yml=data_prep/wsj/pipeline.yml
+make experiment yml=experiments/speech_dpcl.yml num_gpus=4 num_jobs=1
+make pipeline yml=experiments/out/speech_dpcl/pipeline.yml
+```
+
+You just created training, validation and evaluation datasets for music
+and for speech, trained 4 models on each domain, and evaluated them!
+
 ## Table of contents
 
 1. [Setting up dependencies](#setting-up-dependencies)
