@@ -12,6 +12,7 @@ def main(path_to_yml_file):
     spec = parse_yaml(path_to_yml_file)
 
     for _spec in spec['jobs']:
+        logging.info(_spec)
         scaper_mix(
             _spec['mixture_parameters'],
             _spec['sample_rate'],
@@ -20,7 +21,8 @@ def main(path_to_yml_file):
             ref_db=_spec.pop('ref_db', -40),
             bitdepth=_spec.pop('bitdepth', 16),
             seed=_spec.pop('seed', 0),
-            num_workers=min(_spec.pop('num_workers', 1), cpu_count())
+            num_workers=min(_spec.pop('num_workers', 1), cpu_count()),
+            allow_repeated_label=_spec.pop('allow_repeated_label', False),
         )
 
 if __name__ == '__main__':

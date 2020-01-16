@@ -9,10 +9,15 @@ import os
 import logging
 import copy
 
-def make_one_mixture(sc, path_to_file, num_sources, event_parameters):
+def make_one_mixture(sc, path_to_file, num_sources, event_parameters, allow_repeated_label):
     for j in range(num_sources):
         sc.add_event(**event_parameters)
-    sc.generate(path_to_file, path_to_file.replace('.wav', '.jams'), no_audio=True, allow_repeated_label=False)
+    sc.generate(
+        path_to_file, 
+        path_to_file.replace('.wav', '.jams'), 
+        no_audio=True,
+        allow_repeated_label=allow_repeated_label
+    )
     sc.fg_spec = []
 
 def instantiate_and_get_event_spec(sc, master_label, scene_duration, event_parameters):
@@ -24,7 +29,7 @@ def instantiate_and_get_event_spec(sc, master_label, scene_duration, event_param
     sc.fg_spec = []
     return sc, event
 
-def make_one_mixture_coherent(sc, path_to_file, labels, event_parameters):
+def make_one_mixture_coherent(sc, path_to_file, labels, event_parameters, allow_repeated_label):
     sc, event = instantiate_and_get_event_spec(sc, labels[0], sc.duration, event_parameters)
     for label in labels:
         try:
@@ -40,7 +45,12 @@ def make_one_mixture_coherent(sc, path_to_file, labels, event_parameters):
             )
         except:
             logging.exception(f"Got an error for {label} @ {_source_file}. Moving on...")
-    sc.generate(path_to_file, path_to_file.replace('.wav', '.jams'), no_audio=True)
+    sc.generate(
+        path_to_file, 
+        path_to_file.replace('.wav', '.jams'), 
+        no_audio=True, 
+        allow_repeated_label=allow_repeated_label
+    )
     sc.fg_spec = []
 
 def synthesize_one_mixture(jams_file):
@@ -60,6 +70,7 @@ def scaper_mix(
     sample_rate, 
     event_parameters=None,
     coherent=False,
+    allow_repeated_label=False,
     ref_db=-40, 
     bitdepth=16,
     seed=0,
@@ -103,6 +114,7 @@ def scaper_mix(
                     'sc': generators[i],
                     'labels': params['labels'],
                     'event_parameters': _event_parameters,
+                    'allow_repeated_label': allow_repeated_label
                 } for i in range(params['num_mixtures'])
             ]
             mix_func = make_one_mixture_coherent
@@ -113,6 +125,7 @@ def scaper_mix(
                     'sc': generators[i],
                     'num_sources': params['num_sources'],
                     'event_parameters': _event_parameters,
+                    'allow_repeated_label': allow_repeated_label
                 } for i in range(params['num_mixtures'])
             ]
             mix_func = make_one_mixture

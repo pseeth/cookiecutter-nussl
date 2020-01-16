@@ -25,35 +25,35 @@
 
 mixture_parameters:
   train:
-    num_mixtures: 100
+    num_mixtures: 10
     foreground_path: ${DATA_DIRECTORY}/babywsj/dev
     background_path:
     target_path: ${DATA_DIRECTORY}/babywsj/generated/train
-    scene_duration: 5
-    num_sources: 2
+    scene_duration: 20
+    num_sources: 5
 
   val:
     num_mixtures: 10
     foreground_path: ${DATA_DIRECTORY}/babywsj/dev
     background_path:
     target_path: ${DATA_DIRECTORY}/babywsj/generated/val
-    scene_duration: 5
-    num_sources: 2
+    scene_duration: 20
+    num_sources: 5
 
   test:
     num_mixtures: 10
     foreground_path: ${DATA_DIRECTORY}/babywsj/dev
     background_path:
     target_path: ${DATA_DIRECTORY}/babywsj/generated/test
-    scene_duration: 5
-    num_sources: 2
+    scene_duration: 20
+    num_sources: 5
 
 event_parameters:
   label: !!python/tuple ['choose', []]
   source_file: !!python/tuple ['choose', []]
   source_time: !!python/tuple ['const', 0]
-  event_time: !!python/tuple ['const', 0]
-  event_duration: !!python/tuple ['const', 5]
+  event_time: !!python/tuple ['uniform', 0, 20]
+  event_duration: !!python/tuple ['const', 10]
   snr: !!python/tuple ['uniform',-2.5, 2.5]
   pitch_shift: #defaults to None
   time_stretch: #defaults to None
@@ -62,5 +62,6 @@ sample_rate: 8000
 ref_db: -40
 bitdepth: 16
 seed: 0
-coherent: False
+coherent: false
 num_workers: 10
+allow_repeated_label: true
