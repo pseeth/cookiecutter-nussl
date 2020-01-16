@@ -12,7 +12,6 @@ def main(path_to_yml_file):
     spec = parse_yaml(path_to_yml_file)
 
     for _spec in spec['jobs']:
-        logging.info(_spec)
         scaper_mix(
             _spec['mixture_parameters'],
             _spec['sample_rate'],
