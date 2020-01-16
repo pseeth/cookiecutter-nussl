@@ -1,12 +1,9 @@
 {
-    "repo_name": "my-repo-name",
+    "repo_name": "nussl-testbed",
     "author_name": "Firstame Lastname",
     "author_email": "your_email@email.com",
     "github_username": "github_username",
-    "package_version": "0.0.1",
-    "package_description": "Short description",
-    "package_name": "{{ cookiecutter.repo_name.lower().replace(' ', '_').replace('-', '_') }}",
-    "package_url": "https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.repo_name }}",
+    "info": "To complete setup, use the Getting Started guide to set up your environment variables. Press enter to complete setup...",
     "_copy_without_render": [
         "setup/melodia/*",
         "runners/utils.py"
