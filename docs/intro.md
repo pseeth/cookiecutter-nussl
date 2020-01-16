@@ -2,17 +2,25 @@ Introduction
 ====================
 
 A boilerplate for reproducible and transparent computer audition research that leverages
-`nussl`, a source separation library. This project uses
+[nussl](https://interactiveaudiolab.github.io/nussl/), a source separation library. This 
+project provides boilerplate code for training neural network models to separate mixtures
+containing multiple speakers, music, and environmental sounds. It is easy to add and
+train new models or datasets. The goal of this project is to enable further
+reproduceability within the source separation community. The main source separation
+library, `nussl`, contains many pre-trained models trained using this code. 
+
+This project uses
 [cookiecutter](https://cookiecutter.readthedocs.io/en/latest/readme.html).
-*A logical, reasonably standardized, but flexible project structure for doing and 
-sharing research.*
+Cookiecutter is a *logical, reasonably standardized, but flexible project structure
+for doing and sharing research.*
 
 Requirements
 ------------
-- Install `cookiecutter` command line: `pip install cookiecutter`
+- Install `cookiecutter` command line: `pip install cookiecutter` (generates boilerplate 
+code)
 - Install Anaconda or Miniconda
 - Install Docker and NVIDIA Docker
-- Install Poetry: https://poetry.eustace.io/docs/#installation
+- Install Poetry: https://poetry.eustace.io/docs/#installation (dependency management)
 
 Usage
 -----
