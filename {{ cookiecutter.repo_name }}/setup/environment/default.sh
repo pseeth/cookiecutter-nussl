@@ -28,13 +28,13 @@ export CACHE_DIRECTORY="{{ cookiecutter.CACHE_DIRECTORY }}"
 
 # The experiment scripts all output their results in custom
 # named folders whose names are randomly generated (by comet.ml).
-# These folders get saved to /storage/artifacts/ inside the 
+# These folders get saved to mapped to the same location inside the 
 # docker container. Good to know where these are so that you 
 # know where your results are.
 export ARTIFACTS_DIRECTORY="{{ cookiecutter.ARTIFACTS_DIRECTORY }}"
 
 # This folder is where all of your data lives for training and
-# evaluating. This folder will be mapped to /storage/data/ in your
+# evaluating. This folder will be mapped to the same location in your
 # docker container, allowing you to write the scripts in reference
 # to those locations. Make sure you have read/write permissions for 
 # the folder you are pointing to.

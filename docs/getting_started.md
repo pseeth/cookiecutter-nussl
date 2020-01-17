@@ -73,6 +73,8 @@ Now edit your copied file `[prefix]_local.sh`. Below is a description of every e
 
 ### The environment variables
 
+These environment variables will be asked when you run the cookiecutter and
+replaced in the file automatically.
 
 #### Required environment variables
 

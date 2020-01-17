@@ -8,16 +8,19 @@ containing multiple speakers, music, and environmental sounds. It is easy to add
 train new models or datasets (GPU sold separately). The goal of this project is to enable
 further reproduceability within the source separation community.
 
-#### Features
-##### Models:
+Features
+------------
+
+The following models can be trained:
+
 - Mask Inference
 - Deep Clustering
 - Chimera
 - TasNet
 
-##### Datasets:
+on the following datasets:
+
 - MUSDB18
-- DSD100
 - MIR-1k
 - Slakh
 - WSJ0-mix2
