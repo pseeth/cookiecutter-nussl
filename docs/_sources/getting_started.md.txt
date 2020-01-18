@@ -7,9 +7,7 @@ clustering network. There are five major steps:
 1. Setting up dependencies
 2. Setting all the environment variables
 3. Creating the datasets
-4. Setting up experiments
-    - Training models
-    - Evaluating models
+4. Setting up experiments (training and evaluating models)
 5. Analyzing and reporting the results
 
 This repository contains code that allows for quick and easy experimentation with the nussl library. With this code, you can easily experiment with the various hyperparameters that are native to each separation algorithm. The goal of this document is to guide you through setting up an environment via Anaconda and Docker, setting up experiment monitoring via comet.ml, setting up experiment reporting via a Google sheet, and training and testing your first model on a small dataset.
