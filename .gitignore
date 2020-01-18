@@ -107,4 +107,4 @@ venv.bak/
 private/
 
 **/out/*
-docs/code/_build
+**/_build
