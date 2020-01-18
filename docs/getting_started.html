@@ -1,0 +1,768 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Getting started &mdash; Cookiecutter for nussl  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="runners package" href="source/runners.html" />
+    <link rel="prev" title="Introduction" href="intro.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Cookiecutter for nussl
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#just-tell-me-what-commands-to-run">Just tell me what commands to run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setting-up-dependencies">Setting up dependencies</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#setting-up-the-conda-environment">Setting up the conda environment</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#setting-up-environment-variables">Setting up environment variables</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#the-environment-variables">The environment variables</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#required-environment-variables">Required environment variables</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#optional-environment-variables">Optional environment variables</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#google-sheets-integration">Google Sheets integration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#comet-ml-integration">comet.ml integration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#setting-up-docker">Setting up Docker</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#the-makefile">The Makefile</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#launching-a-jupyter-notebook">Launching a Jupyter notebook</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#launching-tensorboard">Launching TensorBoard</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pipelines-and-experiments">Pipelines and experiments</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#scripts">Scripts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pipelines">Pipelines</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-datasets">Creating datasets</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#preparing-the-data">Preparing the data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#creating-the-scaper-dataset">Creating the Scaper dataset</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-experiments">Creating experiments</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#caching-in-nussl">Caching in nussl</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#examining-the-resultant-pipeline">Examining the resultant pipeline</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="source/runners.html">runners package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/scripts.html">scripts package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/src.html">src package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Cookiecutter for nussl</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Getting started</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/getting_started.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="getting-started">
+<h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<p>This guide will get you started with creating datasets for training and testing a
+deep learning based source separation model. Specifically, we will train a deep
+clustering network. There are five major steps:</p>
+<ol class="arabic simple">
+<li><p>Setting up dependencies</p></li>
+<li><p>Setting all the environment variables</p></li>
+<li><p>Creating the datasets</p></li>
+<li><p>Setting up experiments</p>
+<ul class="simple">
+<li><p>Training models</p></li>
+<li><p>Evaluating models</p></li>
+</ul>
+</li>
+<li><p>Analyzing and reporting the results</p></li>
+</ol>
+<p>This repository contains code that allows for quick and easy experimentation with the nussl library. With this code, you can easily experiment with the various hyperparameters that are native to each separation algorithm. The goal of this document is to guide you through setting up an environment via Anaconda and Docker, setting up experiment monitoring via comet.ml, setting up experiment reporting via a Google sheet, and training and testing your first model on a small dataset.</p>
+<div class="section" id="just-tell-me-what-commands-to-run">
+<h2>Just tell me what commands to run<a class="headerlink" href="#just-tell-me-what-commands-to-run" title="Permalink to this headline">¶</a></h2>
+<p>Well first set up dependencies and environment variables below. Then…</p>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span>make pipeline yml=data_prep/musdb/pipeline.yml
+make experiment yml=experiments/music_dpcl.yml num_gpus=4 num_jobs=1
+make pipeline yml=experiments/out/music_dpcl/pipeline.yml
+
+make pipeline yml=data_prep/wsj/pipeline.yml
+make experiment yml=experiments/speech_dpcl.yml num_gpus=4 num_jobs=1
+make pipeline yml=experiments/out/speech_dpcl/pipeline.yml
+</pre></div>
+</div>
+<p>You just created training, validation and evaluation datasets for music
+and for speech, trained 4 models on each domain, and evaluated them!</p>
+</div>
+<div class="section" id="setting-up-dependencies">
+<h2>Setting up dependencies<a class="headerlink" href="#setting-up-dependencies" title="Permalink to this headline">¶</a></h2>
+<p>You’ll need to first install <a class="reference external" href="https://docs.docker.com/v17.12/install/">Docker</a> and <a class="reference external" href="https://docs.anaconda.com/anaconda/install/">Anaconda</a>. If you want GPU support, you should install nvidia-docker and CUDA on the host machine. Once you have those two, you can start setting up the environment.</p>
+<div class="section" id="setting-up-the-conda-environment">
+<h3>Setting up the conda environment<a class="headerlink" href="#setting-up-the-conda-environment" title="Permalink to this headline">¶</a></h3>
+<p>First, create and activate a Python 3 conda environment:</p>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span>conda create -n [your_environment_name] python=3.7
+conda activate [your_environment_name]
+</pre></div>
+</div>
+<p>For some reason, it must be Python 3.7 due to a change in naming importlib in Python 3.8 breaking some dependencies. Then install poetry:</p>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span>curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
+</pre></div>
+</div>
+<p>or by writing <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">poetry</span></code>.</p>
+<p>Then just run</p>
+<p><code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">install</span></code>.</p>
+<p>This will install all of the requirements into the conda environment.</p>
+</div>
+</div>
+<div class="section" id="setting-up-environment-variables">
+<h2>Setting up environment variables<a class="headerlink" href="#setting-up-environment-variables" title="Permalink to this headline">¶</a></h2>
+<p>The scripts are going to point to a lot of directories
+(e.g. where your data lives, where to save experiment artifacts,
+and so on). They may also depend on a bunch of API keys,
+like access tokens for Google sheets (optional), API keys for experiment
+tracking losses and logs on comet.ml (also optional). Each environment variable
+is set in <code class="docutils literal notranslate"><span class="pre">setup/environment/default.sh</span></code>. First, copy <code class="docutils literal notranslate"><span class="pre">default.sh</span></code> to something
+like <code class="docutils literal notranslate"><span class="pre">[prefix]_local.sh</span></code>. It’s important that the file ends in <code class="docutils literal notranslate"><span class="pre">_local.sh</span></code>. This is so that it doesn’t get tracked by Git! You’re putting sensitive API keys in there so be mindful!</p>
+<p>Now edit your copied file <code class="docutils literal notranslate"><span class="pre">[prefix]_local.sh</span></code>. Below is a description of every environnment variable and how to set it.</p>
+<div class="section" id="the-environment-variables">
+<h3>The environment variables<a class="headerlink" href="#the-environment-variables" title="Permalink to this headline">¶</a></h3>
+<p>These environment variables will be asked when you run the cookiecutter and
+replaced in the file automatically.</p>
+<div class="section" id="required-environment-variables">
+<h4>Required environment variables<a class="headerlink" href="#required-environment-variables" title="Permalink to this headline">¶</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">DOCKER_IMAGE_NAME=&quot;user/image&quot;</span></code></p>
+<p>This is the name of the Docker image that is used to run
+all of the experiments. Usually it’s named with your name
+before the / and some identifier after (e.g. your_name/your_project).
+You can optionally add a tag afterwards, like
+your_name/your_project:latest.</p>
+<p><code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">CACHE_DIRECTORY=&quot;/path/to/cache&quot;</span></code></p>
+<p>The training scripts generate a cache of input/output pairs
+for the network. These caches are zarr files that contain
+all the input/output for the network and can be substantial
+in size. It’s good to know where they are so you can free up
+hard drive space from time to time as needed.</p>
+<p><code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">ARTIFACTS_DIRECTORY=&quot;/path/to/artifacts&quot;</span></code></p>
+<p>The experiment scripts all output their results in custom
+named folders whose names are randomly generated (by comet.ml).
+These folders get saved to /storage/artifacts/ inside the
+docker container. Good to know where these are so that you
+know where your results are.</p>
+<p><code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">DATA_DIRECTORY=&quot;/path/to/data&quot;</span></code></p>
+<p>This folder is where all of your data lives for training and
+evaluating. This folder will be mapped to /storage/data/ in your
+docker container, allowing you to write the scripts in reference
+to those locations. Make sure you have read/write permissions for
+the folder you are pointing to.</p>
+<p><code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">JUPYTER_HOST_PORT=8888</span></code></p>
+<p>Jupyter notebooks run inside a Docker container as well. The port
+for the server inside the container (8888) must be forwarded to a
+port on the host. Select that port here (default is 8890).
+Find an open port otherwise it won’t work (this is for if you are
+sharing a machine).</p>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span>export JUPYTER_PASSWORD_HASH=&quot;sha1:bed4d260d700:74cd5c1c5d43cab7e975a99c8bae5d6384d5891d&quot;
+</pre></div>
+</div>
+<p>You can set a password on the Jupyter server. By default, the password is <code class="docutils literal notranslate"><span class="pre">password</span></code>.
+To change it, obtain the SHA hash for your chosen password. To do this, use:</p>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span>from notebook.auth import passwd
+passwd()
+</pre></div>
+</div>
+<p>You’ll be asked to put in your password twice. The SHA value will display.
+Copy it (without the single quotes) and paste it below. This will be the password
+you use to login to the Jupyter server.</p>
+<p><code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">TENSORBOARD_HOST_PORT=6006</span></code></p>
+<p>Tensorboard can also run inside a Docker container. The port
+for the server inside the container (6006) must be forwarded to a
+port on the host. Select that port here (default is 8891).
+Find an open port otherwise it won’t work (this is for if you are
+sharing a machine).</p>
+</div>
+<div class="section" id="optional-environment-variables">
+<h4>Optional environment variables<a class="headerlink" href="#optional-environment-variables" title="Permalink to this headline">¶</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">CODE_DIRECTORY=pwd</span></code></p>
+<p>This tells the Docker container where the code containing all of
+your scripts are. When the container starts, this is the folder you
+will be in. You can assume relative paths from the root of this code
+directory in your script. It now just uses the current working directory.
+&lt;!–
+<code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">NUSSL_DIRECTORY=&quot;/path/to/nussl&quot;</span></code></p>
+<p>This tells the Docker container where nussl is, so the scripts
+can import your version of nussl. This is useful if
+are editing nussl continuously and testing it. This is optional
+as you could just use the version of nussl on Github. But if
+you’re editing core nussl features, this is useful. –&gt;</p>
+<p><code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">PATH_TO_GOOGLE_CREDENTIALS=&quot;&quot;</span></code></p>
+<p>Experiment results are logged to a Google sheet. Put the path
+to the Google service account credentials here. Make sure that
+those credentials are not being tracked by Git. This only needs
+to be visible outside the Docker (not inside the container). For
+details, see the <a class="reference external" href="#google-sheets-integration">Google Sheets integration section</a>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">COMET_API_KEY=&quot;&quot;</span></code></p>
+<p>Put the API key you get from comet.ml after making an account here.
+comet.ml is used to monitor the experiments easily from anywhere as
+they run.</p>
+</div>
+</div>
+<div class="section" id="google-sheets-integration">
+<h3>Google Sheets integration<a class="headerlink" href="#google-sheets-integration" title="Permalink to this headline">¶</a></h3>
+<p>SDR results are reported to a Google sheet for easy analysis at a glance. For more advanced analysis, you should use a Jupyter notebook or some Python scripts. To set this up, you’ll need a Google sheets API key as well as a copy of the template sheet in your Drive somewhere. Here is the link to the template:</p>
+<p><a class="reference external" href="https://docs.google.com/spreadsheets/d/1NwEjBAxFLuLWBd_KzyODvhgc9Y8hB7bnVZaWfzm_T40/edit?usp=sharing">https://docs.google.com/spreadsheets/d/1NwEjBAxFLuLWBd_KzyODvhgc9Y8hB7bnVZaWfzm_T40/edit?usp=sharing</a></p>
+<p>Copy this to your drive, naming the document something that you’ll remember later.</p>
+<p>Next, create Service Account Credentials via Google by following these instructions:
+<a class="reference external" href="https://gspread.readthedocs.io/en/latest/oauth2.html">https://gspread.readthedocs.io/en/latest/oauth2.html</a>. Once that’s done, you’ll get a JSON
+file that you should save to somewhere. I put mine in <code class="docutils literal notranslate"><span class="pre">private/key.json</span></code>. Everything in
+the <code class="docutils literal notranslate"><span class="pre">private</span></code> directory in this repository is not tracked by Git so it’s a safe place
+to put it. The JSON file will look something like:</p>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span>{
+    &quot;private_key_id&quot;: &quot;2cd … ba4&quot;,
+    &quot;private_key&quot;: &quot;-----BEGIN PRIVATE KEY-----\nNrDyLw … jINQh/9\n-----END PRIVATE KEY-----\n&quot;,
+    &quot;client_email&quot;: &quot;473000000000-yoursisdifferent@developer.gserviceaccount.com&quot;,
+    &quot;client_id&quot;: &quot;473 … hd.apps.googleusercontent.com&quot;,
+    &quot;type&quot;: &quot;service_account&quot;
+}
+</pre></div>
+</div>
+<p>Go to the Google sheet you created above and share it to the email listed in the
+<code class="docutils literal notranslate"><span class="pre">client_email</span></code> field in the JSON file above. This is super important!</p>
+<p>Finally, fill out the field titled <code class="docutils literal notranslate"><span class="pre">PATH_TO_GOOGLE_CREDENTIALS</span></code> in the <code class="docutils literal notranslate"><span class="pre">{prefix}_local.sh</span></code> file you made above. You should now have automated access to
+edit the Google sheet. The Google sheet will look something like
+this after you do a training run.</p>
+<a class="reference external image-reference" href="images/sheet.png"><img alt="" src="_images/sheet.png" /></a>
+</div>
+<div class="section" id="comet-ml-integration">
+<h3>comet.ml integration<a class="headerlink" href="#comet-ml-integration" title="Permalink to this headline">¶</a></h3>
+<a class="reference external image-reference" href="images/comet.png"><img alt="" src="_images/comet.png" /></a>
+<p>comet.ml is a useful way to keep track of experiments. It’s completely
+optional to use, just like the Google sheet, but it’s handy
+as it will make it easier to check your loss curves on the go and
+so on. You’ll get to compare runs like in the graphs above. The
+dashboard for a project looks like this.</p>
+</div>
+<div class="section" id="setting-up-docker">
+<h3>Setting up Docker<a class="headerlink" href="#setting-up-docker" title="Permalink to this headline">¶</a></h3>
+<p>Now, let’s set up Docker. If you’ve followed all the steps so far, this should just
+require you to run <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">docker</span></code>.</p>
+</div>
+</div>
+<div class="section" id="the-makefile">
+<h2>The Makefile<a class="headerlink" href="#the-makefile" title="Permalink to this headline">¶</a></h2>
+<p>The Makefile will be your entrance to running all of the scripts.
+It has a bunch of useful commands. I’ll describe some of the
+more useful ones here, but the rest are detailed with comments
+in <a class="reference external" href="Makefile">Makefile</a>.</p>
+<p><strong>IMPORTANT</strong></p>
+<p>The most important thing before using the Makefile is to first
+source which enviroment setup file you are using. This needs
+to be done every time you shell in. So run this:</p>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span>export ENV_FILE=setup/environment/{prefix}_local.sh
+</pre></div>
+</div>
+<p>Replace the path with whatever or wherever the environment file you made
+is. After you do this, the Makefile can now be used. First, lets do
+some simple stuff to make sure the environment is set up correctly.</p>
+<p><code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">check_environment</span></code></p>
+<p>This will check the environment. Peruse the list to make sure your environment
+variables are set correctly.</p>
+<div class="section" id="launching-a-jupyter-notebook">
+<h3>Launching a Jupyter notebook<a class="headerlink" href="#launching-a-jupyter-notebook" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">jupyter</span> <span class="pre">gpus=0</span> <span class="pre">name=jupyter-lab</span></code></p>
+<p>This will launch a Jupyter notebook at the port specified in your sourced environment
+file. Note that this make command takes <em>arguments</em>. The arguments are <code class="docutils literal notranslate"><span class="pre">gpus</span></code> and
+<code class="docutils literal notranslate"><span class="pre">name</span></code>. The first controls the GPUs that are available to the notebook on the host
+machine and name controls the Docker container name. The Jupyter notebook here
+is run inside of Docker. The <code class="docutils literal notranslate"><span class="pre">name</span></code> of the container must be unique on the machine (this
+can be a problem if you’re sharing the machine).</p>
+</div>
+<div class="section" id="launching-tensorboard">
+<h3>Launching TensorBoard<a class="headerlink" href="#launching-tensorboard" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">tensorboard</span></code></p>
+<p>You might want to run stuff in the background. To do that, just append
+an <code class="docutils literal notranslate"><span class="pre">&amp;</span></code>:</p>
+<p><code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">tensorboard</span> <span class="pre">&amp;</span></code></p>
+<p>We now have everything we need to start creating datasets and
+training and evaluating models.</p>
+</div>
+<div class="section" id="pipelines-and-experiments">
+<h3>Pipelines and experiments<a class="headerlink" href="#pipelines-and-experiments" title="Permalink to this headline">¶</a></h3>
+<p>Two commands are special in the Makefile and are used for running
+pipelines (a sequence of jobs) and instantiating experiments
+(a specification that is used to train and test a model). These
+are:</p>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span>make pipeline yml=path/to/yml
+make experiment yml=path/to/yml num_gpus=4 num_jobs=1
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">num_gpus</span></code> and <code class="docutils literal notranslate"><span class="pre">num_jobs</span></code> are special arguments to the script
+<code class="docutils literal notranslate"><span class="pre">scripts/sweep_experiment.py</span></code>.</p>
+<p>These will be described more indepth once we describe the scripting
+interface.</p>
+</div>
+</div>
+<div class="section" id="scripts">
+<h2>Scripts<a class="headerlink" href="#scripts" title="Permalink to this headline">¶</a></h2>
+<p>All of the code you write should always be run via a script. Scripts in this
+project take a special form for the purposes of reproducibility. Scripts always
+taken in a YAML file which contains all the information needed to run the
+script. For example, <code class="docutils literal notranslate"><span class="pre">scripts/resample.py</span></code> takes in a YAML file as follows:</p>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span>jobs:
+- input_path: ${DATA_DIRECTORY}/babymusdb/scaper/train
+  output_path: ${DATA_DIRECTORY}/babymusdb/scaper/train_16k
+  num_workers: 25
+  sample_rate: 16000
+
+- input_path: ${DATA_DIRECTORY}/babymusdb/scaper/test
+  output_path: ${DATA_DIRECTORY}/babymusdb/scaper/test_16k
+  num_workers: 25
+  sample_rate: 16000
+</pre></div>
+</div>
+<p>This YAML File is processed by the script to resample two datasets. A special
+key called <code class="docutils literal notranslate"><span class="pre">jobs</span></code> can be used to run the script multiple times (once for each job).
+The file above contains two jobs, one which resamples the train data and the other
+which resamples the test data.</p>
+<p>Note that there are special sequences like so <code class="docutils literal notranslate"><span class="pre">${DATA_DIRECTORY}</span></code>. These, at run-time
+will get replaced by the corresponding environment variable set previously. This
+is so that scripts are portable between machines.</p>
+<p>You must write a corresponding YAML file for each script that you write and execute.
+This is to reduce dependence on “magic terminal commands” that become undocumented and
+unmentioned as project complexity grows. Finally, reproducing an experiment then just
+becomes executing a sequence of YAML files.</p>
+<div class="section" id="pipelines">
+<h3>Pipelines<a class="headerlink" href="#pipelines" title="Permalink to this headline">¶</a></h3>
+<p>There is a specific script at <code class="docutils literal notranslate"><span class="pre">scripts/pipeline.py</span></code> that is very useful.
+The pipeline script allows you to run a sequence of other scripts using commands
+from other scripts.  A corresponding YAML file for the pipeline script looks
+like this:</p>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span><span class="c">num_jobs: 2 # controls whether to run this sequentially or in parallel</span>
+
+jobs:
+# Before doing anything, download the toy data the scripts below depend on.
+- script: scripts/download_toy_data.py
+  config: data_prep/download_toy_data.yml
+  run_in: host
+  blocking: true
+
+# First, reorganize the MUSDB dataset so that it can be fed into Scaper.
+# Data should start off in a folder at DATA_DIRECTORY/musdb/raw/[train,test]/
+# This is how musdb18.zip unzips.
+- script: scripts/reorganize.py
+  config: data_prep/musdb/reorganize.yml
+  run_in: container
+  blocking: true
+
+# Downsample each audio file from 44100 to 16000.
+- script: scripts/resample.py
+  config: data_prep/musdb/resample.yml
+  run_in: container
+  blocking: true
+
+# Mix a coherent dataset with Scaper.
+- script: scripts/mix_with_scaper.py
+  config: data_prep/musdb/coherent.yml
+  run_in: host
+
+# Mix an incoherent dataset with Scaper.
+- script: scripts/mix_with_scaper.py
+  config: data_prep/musdb/incoherent.yml
+  run_in: container
+</pre></div>
+</div>
+<p>There are a few things to note here. First, at the top of the script is how many
+jobs to run in parallel in <code class="docutils literal notranslate"><span class="pre">num_jobs</span></code>. Then there is a list of jobs to be run in
+<code class="docutils literal notranslate"><span class="pre">jobs</span></code>. Each item in the list can have five parameters:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">script</span></code>: what script to run</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">config</span></code>: what YAML file should be passed to the script for it to run</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">run_in</span></code>: where to run the command, either on the host or the container.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">blocking</span></code>: true or false, tells the pipeline to execute this script to completion before moving on to the next one. If not specified, it defaults to false.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">num_gpus</span></code>: an int that says how many GPUs this script will need when run. Not used above but if it is specified, the pipeline script will execute the script with a GPU attached. If all GPUs are being used, then the pipeline script will wait until a GPU is free before executing the script.</p></li>
+</ol>
+<p>So the script above will first download the toy data, then reorganize the data, then resample it to 16000 Hz. Then, it will the last two jobs in parallel - mixing the two datasets together using Scaper.</p>
+<p>Try it now by doing <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">pipeline</span> <span class="pre">yml=data_prep/musdb/pipeline.yml</span></code>.</p>
+</div>
+</div>
+<div class="section" id="creating-datasets">
+<h2>Creating datasets<a class="headerlink" href="#creating-datasets" title="Permalink to this headline">¶</a></h2>
+<p>Now we’re ready to create datasets that can be used for source
+separation. To do this, we’ll be using a library called <a class="reference external" href="https://github.com/justinsalamon/scaper">Scaper</a>. But, we’ll be using my fork of Scaper
+which has additional unmerged features: <a class="reference external" href="https://github.com/pseeth/scaper">my fork of Scaper</a>. It was already installed via poetry.</p>
+<p>Scaper expects your audio to be organized as follows:</p>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span>root/
+    audio_class_one/
+        file0.wav
+        file1.wav
+        file2.wav
+        ...
+    audio_class_two/
+        file0.wav
+        file1.wav
+        file2.wav
+        ...
+    audio_class_three/
+        file0.wav
+        file1.wav
+        file2.wav
+        ...
+    ...
+</pre></div>
+</div>
+<div class="section" id="preparing-the-data">
+<h3>Preparing the data<a class="headerlink" href="#preparing-the-data" title="Permalink to this headline">¶</a></h3>
+<p>First, you want to organize all your audio in the format above. Each class folder might
+be a different speaker, or a different sound class (e.g. car_horn, siren, and so on).
+After organizing the audio content for Scaper, you might want to first downsample all
+of your audio files to a different sample rate.  Alternatively, you can let Scaper do this
+by setting the sample rate appropriately, but this will be a lot slower than just
+pre-processing.</p>
+</div>
+<div class="section" id="creating-the-scaper-dataset">
+<h3>Creating the Scaper dataset<a class="headerlink" href="#creating-the-scaper-dataset" title="Permalink to this headline">¶</a></h3>
+<p>Finally, the dataset is created using Scaper. The configuration of
+how the dataset is created is in <a class="reference external" href="data_prep/musdb/coherent.yml">data_prep/musdb/coherent.yml</a>, along with a description.</p>
+<p>All of these steps are done by the pipeline above. To run these steps on the toy data for music, do:</p>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span>make pipeline yml=data_prep/musdb/pipeline.yml
+</pre></div>
+</div>
+<p>To do it for music, do</p>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span>make pipeline yml=data_prep/wsj/pipeline.yml
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="creating-experiments">
+<h2>Creating experiments<a class="headerlink" href="#creating-experiments" title="Permalink to this headline">¶</a></h2>
+<p>Training runs are specified by experiment YAML files. There are
+two included in this repository:</p>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="experiments/music_dpcl.yml">experiments/music_dpcl.yml</a></p></li>
+<li><p><a class="reference external" href="experiments/speech_dpcl.yml">experiments/speech_dpcl.yml</a></p></li>
+</ol>
+<p>See the comments at the top of <code class="docutils literal notranslate"><span class="pre">music_dpcl.yml</span></code> for a description
+of how to configure an experiment. These YAML files contain every
+possible thing you need to reproduce an experiment. Every single
+variable, hyperparameter, data path, and so on, is kept in here.
+For example, here’s what the <code class="docutils literal notranslate"><span class="pre">train_config</span></code> dictionary looks like
+in <code class="docutils literal notranslate"><span class="pre">music_dpcl.yml</span></code>:</p>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span><span class="c">train_config:</span>
+<span class="c">  class: Trainer</span>
+<span class="c">  batch_size: 40</span>
+<span class="c">  curriculum_learning:</span>
+<span class="c">  - args: [400]</span>
+<span class="c">    command: set_current_length</span>
+<span class="c">    num_epoch: 0</span>
+<span class="c">  data_parallel: true</span>
+<span class="c">  device: cuda</span>
+<span class="c">  initial_length: 400</span>
+<span class="c">  learning_rate: 0.0002</span>
+<span class="c">  learning_rate_decay: 0.5</span>
+<span class="c">  loss_function:</span>
+<span class="c">  - !!python/tuple</span>
+<span class="c">    - dpcl            # name of loss function</span>
+<span class="c">    - embedding       # what output of model to apply the loss function on</span>
+<span class="c">    - 1.0             # weight given to the loss function</span>
+<span class="c">  num_epochs: 10</span>
+<span class="c">  num_workers: 20</span>
+<span class="c">  optimizer: adam</span>
+<span class="c">  patience: 5</span>
+<span class="c">  sample_strategy: sequential</span>
+<span class="c">  weight_decay: 0.0</span>
+</pre></div>
+</div>
+<p>Now, let’s say we wanted to try <em>multiple</em> experiments, with each one playing over
+one of the variables above - like say, the learning rate and the sample strategy. To do that, you use a
+special dictionary that can be defined called <code class="docutils literal notranslate"><span class="pre">sweep</span></code> as follows:</p>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span><span class="c">sweep:</span>
+<span class="c">    - train_config.learning_rate: [.1, .01, .001, .0002]</span>
+<span class="c">      train_config.sample_strategy: [sequential, random]</span>
+<span class="c">      cache: &#39;${CACHE_DIRECTORY}/musdb&#39;</span>
+<span class="c">      populate_cache: true # controls whether to create a separate experiment for caching</span>
+</pre></div>
+</div>
+<p>To instantiate an experiment you pass it to the script <code class="docutils literal notranslate"><span class="pre">scripts/sweep_experiment.py</span></code>.
+This is best done via the Makefile:</p>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span>make experiment yml=experiments/music_dpcl.yml num_gpus=4 num_jobs=1
+</pre></div>
+</div>
+<p>This will create 8 experiments (1 for each item in the Cartesian product of all the
+possible learning rates and the possible sampling strategies). Finally, you’ll
+notice two special keys <code class="docutils literal notranslate"><span class="pre">cache</span></code> and <code class="docutils literal notranslate"><span class="pre">populate_cache</span></code>, that are not lists. To
+understand what these do, you need to know a bit more about how training deep models
+in nussl works.</p>
+<div class="section" id="caching-in-nussl">
+<h3>Caching in nussl<a class="headerlink" href="#caching-in-nussl" title="Permalink to this headline">¶</a></h3>
+<p>A deep network is trained with input and output data. In audio, the input data is often
+a spectrogram. In source separation, the output data is typically also spectrograms.
+If you have a lot of audio files, computing the spectrograms of every mixture as well
+as every source every time you want to construct a training example can be very
+inefficient. This is because spectrogram computation can be costly. So, what nussl can do
+is trade space efficiency for time efficiency by caching. So, if caching is enabled
+(controlled by setting cache to be a string, rather than an empty string), then what
+nussl will do is save all the input/output data to a file. This is done by <code class="docutils literal notranslate"><span class="pre">zarr</span></code>, which
+applies compression to the files for space efficiency. <code class="docutils literal notranslate"><span class="pre">zarr</span></code> also decompresses in
+a separate thread. This makes it highly efficient. The organization of a <code class="docutils literal notranslate"><span class="pre">zarr</span></code> cache
+is similar to HDF5. Then, training the network is no longer limited by the computation
+speed of constructing a batch. Data will come into the network as fast as it can
+be read off of disk.</p>
+<p>So in the above <code class="docutils literal notranslate"><span class="pre">sweep</span></code>, you set <code class="docutils literal notranslate"><span class="pre">populate_cache:</span> <span class="pre">True</span></code>, and controlled where to put
+the cache via <code class="docutils literal notranslate"><span class="pre">cache</span></code>. What <code class="docutils literal notranslate"><span class="pre">sweep_experiment</span></code> does here is it creates a separate
+<code class="docutils literal notranslate"><span class="pre">cache</span></code> “experiment” that only creates the cache. This experiment should be run
+first before running all of the experiments (in this case the learning rate and sampling
+strategy are tested).</p>
+</div>
+<div class="section" id="examining-the-resultant-pipeline">
+<h3>Examining the resultant pipeline<a class="headerlink" href="#examining-the-resultant-pipeline" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">sweep_experiment</span></code> creates a pipeline that will do four things:</p>
+<ol class="arabic simple">
+<li><p>Populate the cache</p></li>
+<li><p>Train each instantiated experiments. The number of experiments depends on the sweep
+configuration.</p></li>
+<li><p>Evaluate each trained model.</p></li>
+<li><p>Analyze the results of each model and upload the results to a Google sheet (if that
+is enabled)).</p></li>
+</ol>
+<p>Here’s the pipeline constructed on my machine:</p>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span>jobs:
+- blocking: true
+  config: /home/pseetharaman/Dropbox/research/cookiecutter-nussl/nussl_testbed/experiments/out/music_dpcl/cache.yml
+  num_gpus: 0
+  run_in: host
+  script: scripts/pipeline.py
+- blocking: true
+  config: /home/pseetharaman/Dropbox/research/cookiecutter-nussl/nussl_testbed/experiments/out/music_dpcl/train.yml
+  num_gpus: 0
+  run_in: host
+  script: scripts/pipeline.py
+- blocking: true
+  config: /home/pseetharaman/Dropbox/research/cookiecutter-nussl/nussl_testbed/experiments/out/music_dpcl/evaluate.yml
+  num_gpus: 0
+  run_in: host
+  script: scripts/pipeline.py
+- blocking: true
+  config: /home/pseetharaman/Dropbox/research/cookiecutter-nussl/nussl_testbed/experiments/out/music_dpcl/analyze.yml
+  num_gpus: 0
+  run_in: host
+  script: scripts/pipeline.py
+num_jobs: 1
+</pre></div>
+</div>
+<p>The pipeline is contained in <code class="docutils literal notranslate"><span class="pre">experiments/out/music_dpcl/pipeline.yml</span></code>.
+Note that this is a pipeline of pipelines! The constructed training pipeline looks like this:</p>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span>jobs:
+- blocking: false
+  config: /home/pseetharaman/artifacts//cookiecutter/music/5e5d569b1c024a10b3f1131e000a6fe1/config.yml
+  num_gpus: 1
+  run_in: container
+  script: scripts/train.py
+- blocking: false
+  config: /home/pseetharaman/artifacts//cookiecutter/music/fe123134f337457ebffedb7969a79a18/config.yml
+  num_gpus: 1
+  run_in: container
+  script: scripts/train.py
+- blocking: false
+  config: /home/pseetharaman/artifacts//cookiecutter/music/ad8a59db894843d2b7bc3e59994ec0ee/config.yml
+  num_gpus: 1
+  run_in: container
+  script: scripts/train.py
+- blocking: false
+  config: /home/pseetharaman/artifacts//cookiecutter/music/fda2925ec58d41158af003938d24f70a/config.yml
+  num_gpus: 1
+  run_in: container
+  script: scripts/train.py
+num_jobs: 4
+</pre></div>
+</div>
+<p>The random strings (e.g. <code class="docutils literal notranslate"><span class="pre">fda2925ec58d41158af003938d24f70a</span></code>) in there are created automatically by comet.ml. All artifacts from the training run will be kept in there. Run the
+entire training, evaluation, analysis pipeline like this:</p>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span>make pipeline yml=experiments/out/music_dpcl/pipeline.yml
+</pre></div>
+</div>
+<p>This will do everything! To run just, say, the analysis pipeline do:</p>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span>make pipeline yml=experiments/out/music_dpcl/analyze.yml
+</pre></div>
+</div>
+<p>Or to load everything into a pandas DataFrame and do your analysis there, look at <a class="reference external" href="notebooks/analyze.ipynb">notebooks/analyze.ipynb</a>.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="source/runners.html" class="btn btn-neutral float-right" title="runners package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="intro.html" class="btn btn-neutral float-left" title="Introduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Prem Seetharaman
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

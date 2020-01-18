@@ -31,7 +31,7 @@ This project utilizes building block components from `nussl` for input/output
 (recurrent networks, convolutional networks, etc) to train models with minimal setup.
 The main source separation library, `nussl`, contains many pre-trained models trained
 using this code. See the [External File Zoo (EFZ)](http://nussl.ci.northwestern.edu/)
-for pretrained models.
+for
 
 This project uses
 [cookiecutter](https://cookiecutter.readthedocs.io/en/latest/readme.html).
@@ -52,7 +52,9 @@ Usage
 -----
 To start a new project:
 
-`cookiecutter gh:pseeth/cookiecutter-nussl` **TODO: Make this nussl/cookiecutter-nussl**
+`cookiecutter gh:pseeth/cookiecutter-nussl` 
+
+<!-- **TODO: Make this nussl/cookiecutter-nussl** -->
 
 Guiding Principles
 -----------------

@@ -6,7 +6,7 @@
 SPHINXOPTS    ?=
 SPHINXBUILD   ?= sphinx-build
 SOURCEDIR     = .
-BUILDDIR      = ../../cookiecutter-nussl-docs
+BUILDDIR      = ./_build/
 
 
 # Put it first so that "make" without argument is like "make help".
@@ -14,6 +14,10 @@ help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 .PHONY: help Makefile
+
+github:
+	make html 0=-a
+	rsync -r --exclude=code/ --delete _build/html/* ..
 
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).

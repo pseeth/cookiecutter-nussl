@@ -9,6 +9,16 @@ import numpy as np
 import yaml
 
 class EvaluationRunner(object):
+    """[summary]
+        
+    Args:
+        testers ([type]): [description]
+        algorithm_config ([type]): [description]
+        dataset ([type]): [description]
+        output_path ([type]): [description]
+        max_workers (int, optional): [description]. Defaults to 1.
+        use_blocking_executor (bool, optional): [description]. Defaults to False.
+    """
     def __init__(
         self, 
         testers, 

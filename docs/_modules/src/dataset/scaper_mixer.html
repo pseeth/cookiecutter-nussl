@@ -1,0 +1,330 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>src.dataset.scaper_mixer &mdash; Cookiecutter for nussl  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Cookiecutter for nussl
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting started</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/runners.html">runners package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/scripts.html">scripts package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/src.html">src package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Cookiecutter for nussl</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>src.dataset.scaper_mixer</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for src.dataset.scaper_mixer</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">..utils.parallel</span> <span class="kn">import</span> <span class="n">parallel_process</span>
+<span class="kn">from</span> <span class="nn">scaper</span> <span class="kn">import</span> <span class="n">Scaper</span><span class="p">,</span> <span class="n">generate_from_jams</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+
+<div class="viewcode-block" id="make_one_mixture"><a class="viewcode-back" href="../../../source/src.dataset.html#src.dataset.scaper_mixer.make_one_mixture">[docs]</a><span class="k">def</span> <span class="nf">make_one_mixture</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">path_to_file</span><span class="p">,</span> <span class="n">num_sources</span><span class="p">,</span> <span class="n">event_parameters</span><span class="p">,</span> <span class="n">allow_repeated_label</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_sources</span><span class="p">):</span>
+        <span class="n">sc</span><span class="o">.</span><span class="n">add_event</span><span class="p">(</span><span class="o">**</span><span class="n">event_parameters</span><span class="p">)</span>
+    <span class="n">sc</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span>
+        <span class="n">path_to_file</span><span class="p">,</span> 
+        <span class="n">path_to_file</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.wav&#39;</span><span class="p">,</span> <span class="s1">&#39;.jams&#39;</span><span class="p">),</span> 
+        <span class="n">no_audio</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">allow_repeated_label</span><span class="o">=</span><span class="n">allow_repeated_label</span>
+    <span class="p">)</span>
+    <span class="n">sc</span><span class="o">.</span><span class="n">fg_spec</span> <span class="o">=</span> <span class="p">[]</span></div>
+
+<div class="viewcode-block" id="instantiate_and_get_event_spec"><a class="viewcode-back" href="../../../source/src.dataset.html#src.dataset.scaper_mixer.instantiate_and_get_event_spec">[docs]</a><span class="k">def</span> <span class="nf">instantiate_and_get_event_spec</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">master_label</span><span class="p">,</span> <span class="n">scene_duration</span><span class="p">,</span> <span class="n">event_parameters</span><span class="p">):</span>
+    <span class="n">sc</span><span class="o">.</span><span class="n">fg_spec</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">_event_parameters</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">event_parameters</span><span class="p">)</span>
+    <span class="n">_event_parameters</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;const&#39;</span><span class="p">,</span> <span class="n">master_label</span><span class="p">)</span>
+    <span class="n">sc</span><span class="o">.</span><span class="n">add_event</span><span class="p">(</span><span class="o">**</span><span class="n">_event_parameters</span><span class="p">)</span>
+    <span class="n">event</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_instantiate_event</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">fg_spec</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">sc</span><span class="o">.</span><span class="n">fg_spec</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">return</span> <span class="n">sc</span><span class="p">,</span> <span class="n">event</span></div>
+
+<div class="viewcode-block" id="make_one_mixture_coherent"><a class="viewcode-back" href="../../../source/src.dataset.html#src.dataset.scaper_mixer.make_one_mixture_coherent">[docs]</a><span class="k">def</span> <span class="nf">make_one_mixture_coherent</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">path_to_file</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">event_parameters</span><span class="p">,</span> <span class="n">allow_repeated_label</span><span class="p">):</span>
+    <span class="n">sc</span><span class="p">,</span> <span class="n">event</span> <span class="o">=</span> <span class="n">instantiate_and_get_event_spec</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">labels</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">sc</span><span class="o">.</span><span class="n">duration</span><span class="p">,</span> <span class="n">event_parameters</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">sc</span><span class="o">.</span><span class="n">add_event</span><span class="p">(</span>
+                <span class="n">label</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;const&#39;</span><span class="p">,</span> <span class="n">label</span><span class="p">),</span>
+                <span class="n">source_file</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;const&#39;</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">source_file</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">label</span><span class="p">)),</span>
+                <span class="n">source_time</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;const&#39;</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">source_time</span><span class="p">),</span>
+                <span class="n">event_time</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;const&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                <span class="n">event_duration</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;const&#39;</span><span class="p">,</span> <span class="n">sc</span><span class="o">.</span><span class="n">duration</span><span class="p">),</span>
+                <span class="n">snr</span><span class="o">=</span><span class="n">event_parameters</span><span class="p">[</span><span class="s1">&#39;snr&#39;</span><span class="p">],</span>
+                <span class="n">pitch_shift</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;const&#39;</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">pitch_shift</span><span class="p">),</span>
+                <span class="n">time_stretch</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;const&#39;</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">time_stretch</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Got an error for </span><span class="si">{label}</span><span class="s2"> @ </span><span class="si">{_source_file}</span><span class="s2">. Moving on...&quot;</span><span class="p">)</span>
+    <span class="n">sc</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span>
+        <span class="n">path_to_file</span><span class="p">,</span> 
+        <span class="n">path_to_file</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.wav&#39;</span><span class="p">,</span> <span class="s1">&#39;.jams&#39;</span><span class="p">),</span> 
+        <span class="n">no_audio</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
+        <span class="n">allow_repeated_label</span><span class="o">=</span><span class="n">allow_repeated_label</span>
+    <span class="p">)</span>
+    <span class="n">sc</span><span class="o">.</span><span class="n">fg_spec</span> <span class="o">=</span> <span class="p">[]</span></div>
+
+<div class="viewcode-block" id="synthesize_one_mixture"><a class="viewcode-back" href="../../../source/src.dataset.html#src.dataset.scaper_mixer.synthesize_one_mixture">[docs]</a><span class="k">def</span> <span class="nf">synthesize_one_mixture</span><span class="p">(</span><span class="n">jams_file</span><span class="p">):</span>
+    <span class="n">wav_file</span> <span class="o">=</span> <span class="n">jams_file</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.jams&#39;</span><span class="p">,</span> <span class="s1">&#39;.wav&#39;</span><span class="p">)</span>
+    <span class="n">generate_from_jams</span><span class="p">(</span><span class="n">jams_file</span><span class="p">,</span> <span class="n">wav_file</span><span class="p">,</span> <span class="n">save_sources</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="synthesize_mixtures_in_parallel"><a class="viewcode-back" href="../../../source/src.dataset.html#src.dataset.scaper_mixer.synthesize_mixtures_in_parallel">[docs]</a><span class="k">def</span> <span class="nf">synthesize_mixtures_in_parallel</span><span class="p">(</span><span class="n">target_path</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">):</span>
+    <span class="n">jam_files</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">target_path</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">target_path</span><span class="p">)</span> <span class="k">if</span> <span class="s1">&#39;.jams&#39;</span> <span class="ow">in</span> <span class="n">x</span>
+    <span class="p">]</span>
+    <span class="n">parallel_process</span><span class="p">(</span>
+        <span class="n">jam_files</span><span class="p">,</span> <span class="n">synthesize_one_mixture</span><span class="p">,</span> <span class="n">n_jobs</span>
+    <span class="p">)</span></div>
+
+<div class="viewcode-block" id="scaper_mix"><a class="viewcode-back" href="../../../source/src.dataset.html#src.dataset.scaper_mixer.scaper_mix">[docs]</a><span class="k">def</span> <span class="nf">scaper_mix</span><span class="p">(</span>
+    <span class="n">mixture_parameters</span><span class="p">,</span> 
+    <span class="n">sample_rate</span><span class="p">,</span> 
+    <span class="n">event_parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">coherent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">allow_repeated_label</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">ref_db</span><span class="o">=-</span><span class="mi">40</span><span class="p">,</span> 
+    <span class="n">bitdepth</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
+    <span class="n">seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">num_workers</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Making JAMS files&#39;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">params</span> <span class="ow">in</span> <span class="n">mixture_parameters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="s1">&#39;event_parameters&#39;</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+            <span class="n">_event_parameters</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;event_parameters&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_event_parameters</span> <span class="o">=</span> <span class="n">event_parameters</span>
+
+        <span class="n">generators</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Making generators&#39;</span><span class="p">)</span>
+        <span class="n">bg_path</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;background_path&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">bg_path</span><span class="p">:</span>
+            <span class="n">bg_path</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;foreground_path&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;num_mixtures&#39;</span><span class="p">])):</span>
+            <span class="n">sc</span> <span class="o">=</span> <span class="n">Scaper</span><span class="p">(</span>
+                <span class="n">params</span><span class="p">[</span><span class="s1">&#39;scene_duration&#39;</span><span class="p">],</span> 
+                <span class="n">fg_path</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;foreground_path&#39;</span><span class="p">],</span> 
+                <span class="n">bg_path</span><span class="o">=</span><span class="n">bg_path</span><span class="p">,</span> 
+                <span class="n">random_state</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;num_mixtures&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">10</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">sc</span><span class="o">.</span><span class="n">ref_db</span> <span class="o">=</span> <span class="n">ref_db</span>
+            <span class="n">sc</span><span class="o">.</span><span class="n">sr</span> <span class="o">=</span> <span class="n">sample_rate</span>
+            <span class="n">sc</span><span class="o">.</span><span class="n">bitdepth</span> <span class="o">=</span> <span class="n">bitdepth</span>
+            <span class="n">generators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sc</span><span class="p">)</span>
+
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;target_path&#39;</span><span class="p">],</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        
+        <span class="n">timings</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">silent_files</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">coherent</span><span class="p">:</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s1">&#39;path_to_file&#39;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;target_path&#39;</span><span class="p">],</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{i:08d}</span><span class="s1">.wav&#39;</span><span class="p">),</span>
+                    <span class="s1">&#39;sc&#39;</span><span class="p">:</span> <span class="n">generators</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                    <span class="s1">&#39;labels&#39;</span><span class="p">:</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;labels&#39;</span><span class="p">],</span>
+                    <span class="s1">&#39;event_parameters&#39;</span><span class="p">:</span> <span class="n">_event_parameters</span><span class="p">,</span>
+                    <span class="s1">&#39;allow_repeated_label&#39;</span><span class="p">:</span> <span class="n">allow_repeated_label</span>
+                <span class="p">}</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;num_mixtures&#39;</span><span class="p">])</span>
+            <span class="p">]</span>
+            <span class="n">mix_func</span> <span class="o">=</span> <span class="n">make_one_mixture_coherent</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s1">&#39;path_to_file&#39;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;target_path&#39;</span><span class="p">],</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{i:08d}</span><span class="s1">.wav&#39;</span><span class="p">),</span>
+                    <span class="s1">&#39;sc&#39;</span><span class="p">:</span> <span class="n">generators</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                    <span class="s1">&#39;num_sources&#39;</span><span class="p">:</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;num_sources&#39;</span><span class="p">],</span>
+                    <span class="s1">&#39;event_parameters&#39;</span><span class="p">:</span> <span class="n">_event_parameters</span><span class="p">,</span>
+                    <span class="s1">&#39;allow_repeated_label&#39;</span><span class="p">:</span> <span class="n">allow_repeated_label</span>
+                <span class="p">}</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;num_mixtures&#39;</span><span class="p">])</span>
+            <span class="p">]</span>
+            <span class="n">mix_func</span> <span class="o">=</span> <span class="n">make_one_mixture</span>
+
+        <span class="n">parallel_process</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">mix_func</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="n">num_workers</span><span class="p">,</span> <span class="n">front_num</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">use_kwargs</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Synthesizing mixtures in parallel across </span><span class="si">{num_workers}</span><span class="s1"> threads&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">params</span> <span class="ow">in</span> <span class="n">mixture_parameters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">synthesize_mixtures_in_parallel</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;target_path&#39;</span><span class="p">],</span> <span class="n">num_workers</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Prem Seetharaman
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

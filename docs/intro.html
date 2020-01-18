@@ -1,0 +1,303 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Introduction &mdash; Cookiecutter for nussl  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Getting started" href="getting_started.html" />
+    <link rel="prev" title="Cookiecutter for NUSSL" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Cookiecutter for nussl
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#features">Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#guiding-principles">Guiding Principles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#getting-started">Getting started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#license">License</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="source/runners.html">runners package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/scripts.html">scripts package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/src.html">src package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Cookiecutter for nussl</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Introduction</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/intro.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<p>A boilerplate for reproducible and transparent computer audition research that leverages
+<a class="reference external" href="https://interactiveaudiolab.github.io/nussl/">nussl</a>, a source separation library. This
+project provides boilerplate code for training neural network models to separate mixtures
+containing multiple speakers, music, and environmental sounds. It is easy to add and
+train new models or datasets (GPU sold separately). The goal of this project is to enable
+further reproduceability within the source separation community.</p>
+<div class="section" id="features">
+<h2>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h2>
+<p>The following models can be trained:</p>
+<ul class="simple">
+<li><p>Mask Inference</p></li>
+<li><p>Deep Clustering</p></li>
+<li><p>Chimera</p></li>
+<li><p>TasNet</p></li>
+</ul>
+<p>on the following datasets:</p>
+<ul class="simple">
+<li><p>MUSDB18</p></li>
+<li><p>MIR-1k</p></li>
+<li><p>Slakh</p></li>
+<li><p>WSJ0-mix2</p></li>
+<li><p>Wham!</p></li>
+</ul>
+<p>This project utilizes building block components from <code class="docutils literal notranslate"><span class="pre">nussl</span></code> for input/output
+(reading/writing audio, STFT/iSTFT, masking, etc.), and for neural network construction
+(recurrent networks, convolutional networks, etc) to train models with minimal setup.
+The main source separation library, <code class="docutils literal notranslate"><span class="pre">nussl</span></code>, contains many pre-trained models trained
+using this code. See the <a class="reference external" href="http://nussl.ci.northwestern.edu/">External File Zoo (EFZ)</a>
+for</p>
+<p>This project uses
+<a class="reference external" href="https://cookiecutter.readthedocs.io/en/latest/readme.html">cookiecutter</a>.
+Cookiecutter is a <em>logical, reasonably standardized, but flexible project structure
+for doing and sharing research.</em> This project and <code class="docutils literal notranslate"><span class="pre">nussl</span></code> are both built upon
+the <a class="reference external" href="https://pytorch.org/">PyTorch</a> machine learning framework, as such, building new
+components is as simple as adding new PyTorch code, though writing python is not required.</p>
+</div>
+<div class="section" id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Install <code class="docutils literal notranslate"><span class="pre">cookiecutter</span></code> command line: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">cookiecutter</span></code> (generates boilerplate
+code)</p></li>
+<li><p>Install <a class="reference external" href="https://www.anaconda.com/distribution/">Anaconda or Miniconda</a></p></li>
+<li><p>Install <a class="reference external" href="https://www.docker.com/">Docker</a> and <a class="reference external" href="https://github.com/NVIDIA/nvidia-docker">NVIDIA Docker</a></p></li>
+<li><p>Install Poetry: <a class="reference external" href="https://poetry.eustace.io/docs/#installation">https://poetry.eustace.io/docs/#installation</a> (dependency management)</p></li>
+</ul>
+</div>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<p>To start a new project:</p>
+<p><code class="docutils literal notranslate"><span class="pre">cookiecutter</span> <span class="pre">gh:pseeth/cookiecutter-nussl</span></code></p>
+<!-- **TODO: Make this nussl/cookiecutter-nussl** --></div>
+<div class="section" id="guiding-principles">
+<h2>Guiding Principles<a class="headerlink" href="#guiding-principles" title="Permalink to this headline">¶</a></h2>
+<p>The idea behind this project structure is to make it easy to use <code class="docutils literal notranslate"><span class="pre">nussl</span></code> to set up
+source separation experiments. The functionality here is such that classes are taken
+from <code class="docutils literal notranslate"><span class="pre">nussl</span></code> and can be extended and customized by your package code. For example, to
+set up a new type of training scheme, you might subclass the Trainer class from
+<code class="docutils literal notranslate"><span class="pre">nussl</span></code> and then modify it by overriding functions from the original Trainer class
+with your own implementation.</p>
+<p>If you’re trying new types of models, you can use the existing SeparationModel class but
+add custom modules in <code class="docutils literal notranslate"><span class="pre">model/extras/</span></code>. These extra modules are handed to
+SeparationModel so it can resolve the model configuration. Note that models trained using
+extra modules will need to be shipped with the accompanying code to be portable. For a new
+model architecture to be shipped via nussl’s external file zoo, the accompanying modules
+must be pull requested to the main nussl repository and then deployed.</p>
+<p>If you are implementing new separation algorithms, you can work in the <code class="docutils literal notranslate"><span class="pre">algorithms/</span></code>
+folder. Implement your algorithm and then include it in <code class="docutils literal notranslate"><span class="pre">algorithms/__init__.py</span></code>. The
+base classes in nussl for all separation algorithms are included already: <code class="docutils literal notranslate"><span class="pre">SeparationBase</span></code>,
+<code class="docutils literal notranslate"><span class="pre">MaskSeparationBase</span></code>, and <code class="docutils literal notranslate"><span class="pre">ClusteringSeparationBase</span></code>.
+Your new algorithm will now be accessible by the scripts via <code class="docutils literal notranslate"><span class="pre">.yml</span></code> files. Once your new
+algorithm is implemented to your satisfaction, you can factor it out of the cookiecutter
+and start a PR for nussl to contribute it to the main library.</p>
+<p>All scripts, which are kept in the <code class="docutils literal notranslate"><span class="pre">scripts/</span></code> folder should take in a <code class="docutils literal notranslate"><span class="pre">.yml</span></code> file and
+function according to the parsed <code class="docutils literal notranslate"><span class="pre">.yml</span></code> file. This is to make sure every part of the
+pipeline you create in your experiment is easily reproducible by processing a sequence
+of <code class="docutils literal notranslate"><span class="pre">.yml</span></code> files with their associated scripts. This prevents “magic commands” with
+mysterious and long forgotten command-line arguments that you ran one time 3 months ago
+from occurring.</p>
+</div>
+<div class="section" id="getting-started">
+<h2>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
+<p>See the getting started guide after you create the cookiecutter.</p>
+</div>
+<div class="section" id="license">
+<h2>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h2>
+<p>This project is licensed under the terms of the <a class="reference external" href="/LICENSE">MIT License</a></p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="getting_started.html" class="btn btn-neutral float-right" title="Getting started" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="Cookiecutter for NUSSL" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Prem Seetharaman
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

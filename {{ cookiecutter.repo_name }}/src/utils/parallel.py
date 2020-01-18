@@ -4,6 +4,7 @@ from tqdm import tqdm
 def parallel_process(array, function, n_jobs=4, use_kwargs=False, front_num=0):
     """
         A parallel version of the map function with a progress bar.
+
         Args:
             array (array-like): An array to iterate over.
             function (function): A python function to apply to the elements of array
@@ -12,8 +13,12 @@ def parallel_process(array, function, n_jobs=4, use_kwargs=False, front_num=0):
                 keyword arguments to function
             front_num (int, default=3): The number of iterations to run serially before kicking off the parallel job.
                 Useful for catching bugs
+
         Returns:
-            [function(array[0]), function(array[1]), ...]
+            list: A list containing the results of each function on each of the arguments 
+            in the array::
+                
+                [function(array[0]), function(array[1]), ...].
     """
     #We run the first few iterations serially to catch bugs
     if front_num > 0:

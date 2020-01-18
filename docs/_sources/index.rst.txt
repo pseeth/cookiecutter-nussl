@@ -24,4 +24,3 @@ API documentation
     source/runners
     source/scripts
     source/src
-    source/tests

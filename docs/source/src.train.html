@@ -1,0 +1,368 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>src.train package &mdash; Cookiecutter for nussl  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="src.utils package" href="src.utils.html" />
+    <link rel="prev" title="src.test package" href="src.test.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Cookiecutter for nussl
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting started</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="runners.html">runners package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts.html">scripts package</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="src.html">src package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="src.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="src.algorithms.html">src.algorithms package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.dataset.html">src.dataset package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.model.html">src.model package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.test.html">src.test package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">src.train package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-src.train">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="src.utils.html">src.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.html#module-src">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Cookiecutter for nussl</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="src.html">src package</a> &raquo;</li>
+        
+      <li>src.train package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/source/src.train.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="src-train-package">
+<h1>src.train package<a class="headerlink" href="#src-train-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-src.train">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-src.train" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="src.train.Trainer">
+<em class="property">class </em><code class="sig-prename descclassname">src.train.</code><code class="sig-name descname">Trainer</code><span class="sig-paren">(</span><em class="sig-param">output_folder</em>, <em class="sig-param">train_data</em>, <em class="sig-param">model</em>, <em class="sig-param">options</em>, <em class="sig-param">validation_data=None</em>, <em class="sig-param">use_tensorboard=True</em>, <em class="sig-param">experiment=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/train/trainer.html#Trainer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.train.Trainer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="src.train.Trainer.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">output_folder</em>, <em class="sig-param">train_data</em>, <em class="sig-param">model</em>, <em class="sig-param">options</em>, <em class="sig-param">validation_data=None</em>, <em class="sig-param">use_tensorboard=True</em>, <em class="sig-param">experiment=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/train/trainer.html#Trainer.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.train.Trainer.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.train.Trainer.before_epoch">
+<code class="sig-name descname">before_epoch</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/train/trainer.html#Trainer.before_epoch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.train.Trainer.before_epoch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do whatever needs to be done before each epoch (e.g. lengthen sequences).
+Can use this to implement curriculum learning.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.train.Trainer.build_model">
+<em class="property">static </em><code class="sig-name descname">build_model</code><span class="sig-paren">(</span><em class="sig-param">model</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/train/trainer.html#Trainer.build_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.train.Trainer.build_model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.train.Trainer.calculate_loss">
+<code class="sig-name descname">calculate_loss</code><span class="sig-paren">(</span><em class="sig-param">outputs</em>, <em class="sig-param">targets</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/train/trainer.html#Trainer.calculate_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.train.Trainer.calculate_loss" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.train.Trainer.check_loss">
+<code class="sig-name descname">check_loss</code><span class="sig-paren">(</span><em class="sig-param">loss</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/train/trainer.html#Trainer.check_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.train.Trainer.check_loss" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.train.Trainer.create_dataloader">
+<code class="sig-name descname">create_dataloader</code><span class="sig-paren">(</span><em class="sig-param">dataset</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/train/trainer.html#Trainer.create_dataloader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.train.Trainer.create_dataloader" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.train.Trainer.create_optimizer_and_scheduler">
+<code class="sig-name descname">create_optimizer_and_scheduler</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">options</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/train/trainer.html#Trainer.create_optimizer_and_scheduler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.train.Trainer.create_optimizer_and_scheduler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.train.Trainer.fit">
+<code class="sig-name descname">fit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/train/trainer.html#Trainer.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.train.Trainer.fit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.train.Trainer.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/train/trainer.html#Trainer.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.train.Trainer.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs a forward pass on the data using the model.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.train.Trainer.freeze_layers">
+<code class="sig-name descname">freeze_layers</code><span class="sig-paren">(</span><em class="sig-param">freeze_layers</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/train/trainer.html#Trainer.freeze_layers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.train.Trainer.freeze_layers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.train.Trainer.log_metrics">
+<code class="sig-name descname">log_metrics</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">step</em>, <em class="sig-param">scope</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/train/trainer.html#Trainer.log_metrics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.train.Trainer.log_metrics" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.train.Trainer.populate_cache">
+<code class="sig-name descname">populate_cache</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/train/trainer.html#Trainer.populate_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.train.Trainer.populate_cache" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.train.Trainer.prepare_data">
+<code class="sig-name descname">prepare_data</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/train/trainer.html#Trainer.prepare_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.train.Trainer.prepare_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Moves all the data to the requested device (cuda or cpu).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.train.Trainer.prepare_directories">
+<code class="sig-name descname">prepare_directories</code><span class="sig-paren">(</span><em class="sig-param">output_folder</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/train/trainer.html#Trainer.prepare_directories"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.train.Trainer.prepare_directories" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.train.Trainer.preprocess_targets">
+<code class="sig-name descname">preprocess_targets</code><span class="sig-paren">(</span><em class="sig-param">targets</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/train/trainer.html#Trainer.preprocess_targets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.train.Trainer.preprocess_targets" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.train.Trainer.resume">
+<code class="sig-name descname">resume</code><span class="sig-paren">(</span><em class="sig-param">resume_location</em>, <em class="sig-param">load_only_model=True</em>, <em class="sig-param">prefixes=('best'</em>, <em class="sig-param">'latest')</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/train/trainer.html#Trainer.resume"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.train.Trainer.resume" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.train.Trainer.run_epoch">
+<code class="sig-name descname">run_epoch</code><span class="sig-paren">(</span><em class="sig-param">key</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/train/trainer.html#Trainer.run_epoch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.train.Trainer.run_epoch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.train.Trainer.save">
+<code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param">is_best: bool</em>, <em class="sig-param">prefix: str = ''</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="../_modules/nussl/deep/train/trainer.html#Trainer.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.train.Trainer.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the model being trained with either <cite>latest</cite> or <cite>best</cite> prefix
+based on validation loss</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>- whether</strong><strong> or </strong><strong>not the model is known to have improved</strong> (<em>is_best</em>) – accuracy from the last epoch (based on validation loss). Always
+False if no validation data was given.</p></li>
+<li><p><strong>- path to folder in which to save model. If not given</strong><strong>, </strong><strong>model</strong> (<em>[</em><em>path</em><em>]</em>) – saved in checkpoint folder</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>path to saved model</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.train.Trainer.setup_loss">
+<code class="sig-name descname">setup_loss</code><span class="sig-paren">(</span><em class="sig-param">loss_functions</em>, <em class="sig-param">output_target_map</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/train/trainer.html#Trainer.setup_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.train.Trainer.setup_loss" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.train.Trainer.switch_to_cache">
+<code class="sig-name descname">switch_to_cache</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/train/trainer.html#Trainer.switch_to_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.train.Trainer.switch_to_cache" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.train.Trainer.validate">
+<code class="sig-name descname">validate</code><span class="sig-paren">(</span><em class="sig-param">key</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="../_modules/nussl/deep/train/trainer.html#Trainer.validate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.train.Trainer.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate loss on validation set</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>- a dataloader yielding the validation data if there is</strong> (<em>dataloader</em>) – any, <cite>None</cite> otherwise</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><cite>np.inf</cite> if there is no validation dataset (<cite>dataloader</cite> is <cite>None</cite>)
+else the loss over the given validation data</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="src.utils.html" class="btn btn-neutral float-right" title="src.utils package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="src.test.html" class="btn btn-neutral float-left" title="src.test package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Prem Seetharaman
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

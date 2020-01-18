@@ -1,0 +1,800 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>src.dataset package &mdash; Cookiecutter for nussl  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="src.model package" href="src.model.html" />
+    <link rel="prev" title="src.algorithms package" href="src.algorithms.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Cookiecutter for nussl
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting started</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="runners.html">runners package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts.html">scripts package</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="src.html">src package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="src.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="src.algorithms.html">src.algorithms package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">src.dataset package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-src.dataset.scaper_mixer">src.dataset.scaper_mixer module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-src.dataset">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="src.model.html">src.model package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.test.html">src.test package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.train.html">src.train package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.utils.html">src.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.html#module-src">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Cookiecutter for nussl</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="src.html">src package</a> &raquo;</li>
+        
+      <li>src.dataset package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/source/src.dataset.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="src-dataset-package">
+<h1>src.dataset package<a class="headerlink" href="#src-dataset-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-src.dataset.scaper_mixer">
+<span id="src-dataset-scaper-mixer-module"></span><h2>src.dataset.scaper_mixer module<a class="headerlink" href="#module-src.dataset.scaper_mixer" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="src.dataset.scaper_mixer.instantiate_and_get_event_spec">
+<code class="sig-prename descclassname">src.dataset.scaper_mixer.</code><code class="sig-name descname">instantiate_and_get_event_spec</code><span class="sig-paren">(</span><em class="sig-param">sc</em>, <em class="sig-param">master_label</em>, <em class="sig-param">scene_duration</em>, <em class="sig-param">event_parameters</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/dataset/scaper_mixer.html#instantiate_and_get_event_spec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.dataset.scaper_mixer.instantiate_and_get_event_spec" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.dataset.scaper_mixer.make_one_mixture">
+<code class="sig-prename descclassname">src.dataset.scaper_mixer.</code><code class="sig-name descname">make_one_mixture</code><span class="sig-paren">(</span><em class="sig-param">sc</em>, <em class="sig-param">path_to_file</em>, <em class="sig-param">num_sources</em>, <em class="sig-param">event_parameters</em>, <em class="sig-param">allow_repeated_label</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/dataset/scaper_mixer.html#make_one_mixture"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.dataset.scaper_mixer.make_one_mixture" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.dataset.scaper_mixer.make_one_mixture_coherent">
+<code class="sig-prename descclassname">src.dataset.scaper_mixer.</code><code class="sig-name descname">make_one_mixture_coherent</code><span class="sig-paren">(</span><em class="sig-param">sc</em>, <em class="sig-param">path_to_file</em>, <em class="sig-param">labels</em>, <em class="sig-param">event_parameters</em>, <em class="sig-param">allow_repeated_label</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/dataset/scaper_mixer.html#make_one_mixture_coherent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.dataset.scaper_mixer.make_one_mixture_coherent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.dataset.scaper_mixer.scaper_mix">
+<code class="sig-prename descclassname">src.dataset.scaper_mixer.</code><code class="sig-name descname">scaper_mix</code><span class="sig-paren">(</span><em class="sig-param">mixture_parameters</em>, <em class="sig-param">sample_rate</em>, <em class="sig-param">event_parameters=None</em>, <em class="sig-param">coherent=False</em>, <em class="sig-param">allow_repeated_label=False</em>, <em class="sig-param">ref_db=-40</em>, <em class="sig-param">bitdepth=16</em>, <em class="sig-param">seed=0</em>, <em class="sig-param">num_workers=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/dataset/scaper_mixer.html#scaper_mix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.dataset.scaper_mixer.scaper_mix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.dataset.scaper_mixer.synthesize_mixtures_in_parallel">
+<code class="sig-prename descclassname">src.dataset.scaper_mixer.</code><code class="sig-name descname">synthesize_mixtures_in_parallel</code><span class="sig-paren">(</span><em class="sig-param">target_path</em>, <em class="sig-param">n_jobs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/dataset/scaper_mixer.html#synthesize_mixtures_in_parallel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.dataset.scaper_mixer.synthesize_mixtures_in_parallel" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="src.dataset.scaper_mixer.synthesize_one_mixture">
+<code class="sig-prename descclassname">src.dataset.scaper_mixer.</code><code class="sig-name descname">synthesize_one_mixture</code><span class="sig-paren">(</span><em class="sig-param">jams_file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/dataset/scaper_mixer.html#synthesize_one_mixture"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.dataset.scaper_mixer.synthesize_one_mixture" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-src.dataset">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-src.dataset" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="src.dataset.BaseDataset">
+<em class="property">class </em><code class="sig-prename descclassname">src.dataset.</code><code class="sig-name descname">BaseDataset</code><span class="sig-paren">(</span><em class="sig-param">folder: str, options: Dict[str, Any]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/datasets/base_dataset.html#BaseDataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.dataset.BaseDataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.utils.data.dataset.Dataset</span></code></p>
+<dl class="method">
+<dt id="src.dataset.BaseDataset.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">folder: str, options: Dict[str, Any]</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/datasets/base_dataset.html#BaseDataset.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.dataset.BaseDataset.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implements a variety of methods for loading source separation
+datasets such as WSJ0-[2,3]mix and datasets made with Scaper.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>- Folder where dataset is contained.</strong> (<em>folder</em>) – </p>
+</dd>
+<dt class="field-even">Keyword Arguments</dt>
+<dd class="field-even"><p><strong>- a dictionary containing the settings for the dataset</strong> (<em>options</em>) – loader. See <cite>config/defaults/metadata/dataset.json</cite> for full
+description.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.dataset.BaseDataset.class_weights">
+<em class="property">static </em><code class="sig-name descname">class_weights</code><span class="sig-paren">(</span><em class="sig-param">assignments</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/datasets/base_dataset.html#BaseDataset.class_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.dataset.BaseDataset.class_weights" title="Permalink to this definition">¶</a></dt>
+<dd><p>More common classes are weighted down while less common classes are weighted
+up.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>assignments</strong> – returned by construct_input_output, a matrix that indicates the
+assignment of every time-frequency point in the mixture spectrogram.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Weights based on class frequency.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.dataset.BaseDataset.clear_cache">
+<code class="sig-name descname">clear_cache</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/datasets/base_dataset.html#BaseDataset.clear_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.dataset.BaseDataset.clear_cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes the cache.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.dataset.BaseDataset.construct_input_output">
+<code class="sig-name descname">construct_input_output</code><span class="sig-paren">(</span><em class="sig-param">mix</em>, <em class="sig-param">sources</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/datasets/base_dataset.html#BaseDataset.construct_input_output"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.dataset.BaseDataset.construct_input_output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a mixture signal and source signals, each represented as AudioSignal
+object, construct the input and the output for a neural network. This
+implementation of this function is capable of computing many different types
+of outputs, depending on the setting in self.options[‘output_type’]:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>‘msa’: Produces the magnitude spectrum approximation [1]. A network trained</dt><dd><p>with this output will try to match the magnitudes of the ground
+truth source when masking the mixture.</p>
+</dd>
+<dt>‘psa’: Produces the phase-sensitive spectrum approximation [1]. A network</dt><dd><p>trained with this output will try to create a mask of the mixture
+that takes into account the phase information. This sometimes results
+in higher separation performance.</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>The output of these is stored in dictionary key ‘source_spectrograms’.</p>
+<p>[1] Erdogan, Hakan, John R. Hershey, Shinji Watanabe, and Jonathan Le Roux.
+“Phase-sensitive and recognition-boosted speech separation using
+deep recurrent neural networks.” In 2015 IEEE International Conference
+on Acoustics, Speech and Signal Processing (ICASSP), pp. 708-712. IEEE,
+2015.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>- AudioSignal object containing the mixture.</strong> (<em>mix</em>) – </p></li>
+<li><p><strong>- list of AudioSignal objects containing the sources that sum to</strong> (<em>sources</em>) – the mixture.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>‘log_spectrogram’: The log-magnitude spectrogram of the mixture.
+‘magnitude_spectrogram’: The magnitude spectrogram of the mixture.
+‘source_spectrograms’: A numpy array containing the spectrograms that</p>
+<blockquote>
+<div><p>the separation network should attempt to match. See ‘psa’ and ‘msa’
+description above.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>’assignments’: The binary assignments for each time-frequency point.</dt><dd><p>Useful for training deep clustering networks.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>A dictionary with four keys</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.dataset.BaseDataset.get_files">
+<code class="sig-name descname">get_files</code><span class="sig-paren">(</span><em class="sig-param">folder</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/datasets/base_dataset.html#BaseDataset.get_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.dataset.BaseDataset.get_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function must be implemented by whatever class inherits BaseDataset.
+It should return a list of files in the given folder, each of which is
+processed by load_audio_files in some way to produce mixes, sources, class
+labels, etc.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>- location that should be processed to produce the list of files.</strong> (<em>folder</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of files</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.dataset.BaseDataset.get_target_length">
+<code class="sig-name descname">get_target_length</code><span class="sig-paren">(</span><em class="sig-param">data_dict</em>, <em class="sig-param">target_length</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/datasets/base_dataset.html#BaseDataset.get_target_length"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.dataset.BaseDataset.get_target_length" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extracts sequences from each key, val pair in data_dict that match a
+given target_length. So if target_length is 400, all of the sequences will be
+400 frames long. There are two strategies for selecting excerpts from the
+training sequences:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>‘random’: Randomly select some offset between the start and the length of</dt><dd><p>the sequence - the target length.</p>
+</dd>
+<dt>‘balanced’: First filter all possible offsets to points where both sources</dt><dd><p>are actually active. Then select randomly from this list. This is useful
+if you have sparse mixtures where the sources are sometimes overlapping
+in time and sometimes not. This strategy looks for when they are
+overlapping in time and tries to only return those excerpts. This can be
+important for training a separation algorithm.</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_dict</strong> – dictionary containing keys and values which are numpy arrays.</p></li>
+<li><p><strong>target_length</strong> – The length of a sequence you want.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary with each value trimmed to match the requested target_length.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.dataset.BaseDataset.get_weights">
+<code class="sig-name descname">get_weights</code><span class="sig-paren">(</span><em class="sig-param">data_dict</em>, <em class="sig-param">weight_type</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/datasets/base_dataset.html#BaseDataset.get_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.dataset.BaseDataset.get_weights" title="Permalink to this definition">¶</a></dt>
+<dd><p>During training, the loss for every time-frequency bin can be weighted in
+different ways. There are several weighting schemes that are implemented in
+this function. See the staticmethods below for more information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_dict</strong> – dictionary containing keys and values which are numpy arrays.</p></li>
+<li><p><strong>weight_type</strong> – a list of weighting schemes that you want. Each set of weights
+is multiplied against the other weights to combine them.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The square root of the weights. This is to match the weighted
+version of the deep clustering loss.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.dataset.BaseDataset.inspect">
+<code class="sig-name descname">inspect</code><span class="sig-paren">(</span><em class="sig-param">i</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/datasets/base_dataset.html#BaseDataset.inspect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.dataset.BaseDataset.inspect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Useful for inspecting if a dataset implementation is working inside of a
+Jupyter notebook. It prints every AudioSignal object loaded by load_audio_files,
+visualizes the output of the network, and embeds the audio files via
+jupyter_utils.embed_audio.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>i</strong> – Index of the dataset to visualize.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None. Visualizes via plots and audio files.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.dataset.BaseDataset.load_audio_files">
+<code class="sig-name descname">load_audio_files</code><span class="sig-paren">(</span><em class="sig-param">filename: str</em><span class="sig-paren">)</span> &#x2192; Tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray]<a class="reference internal" href="../_modules/nussl/deep/datasets/base_dataset.html#BaseDataset.load_audio_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.dataset.BaseDataset.load_audio_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Each file returned by get_files is processed by this function. For example,
+if each file is a json file containing the paths to the mixture and sources,
+then this function should parse the json file and load the mixture and sources
+and return them.</p>
+<p>Exact behavior of this functionality is determined by implementation by subclass.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>- name of file to load</strong> (<em>filename</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Depends on sub-class. Should return at least the mixture and the constituent
+sources.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.dataset.BaseDataset.load_from_cache">
+<code class="sig-name descname">load_from_cache</code><span class="sig-paren">(</span><em class="sig-param">i</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/datasets/base_dataset.html#BaseDataset.load_from_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.dataset.BaseDataset.load_from_cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads the ith dictionary from the cache.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.dataset.BaseDataset.magnitude_weights">
+<em class="property">static </em><code class="sig-name descname">magnitude_weights</code><span class="sig-paren">(</span><em class="sig-param">magnitude_spectrogram</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/datasets/base_dataset.html#BaseDataset.magnitude_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.dataset.BaseDataset.magnitude_weights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loud points matter more than quiet points.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>magnitude_spectrogram</strong> – returned by construct_input_output, a matrix indicating
+magnitude (loudness) of each time-frequency bin.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Weights based on loudness</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.dataset.BaseDataset.populate_cache">
+<code class="sig-name descname">populate_cache</code><span class="sig-paren">(</span><em class="sig-param">filename</em>, <em class="sig-param">i</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/datasets/base_dataset.html#BaseDataset.populate_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.dataset.BaseDataset.populate_cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates an example and puts it in the cache.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.dataset.BaseDataset.set_current_length">
+<code class="sig-name descname">set_current_length</code><span class="sig-paren">(</span><em class="sig-param">current_length</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/datasets/base_dataset.html#BaseDataset.set_current_length"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.dataset.BaseDataset.set_current_length" title="Permalink to this definition">¶</a></dt>
+<dd><p>The current length of sequences can be altered on the fly during training
+via calls to this function. This is useful for implementing something like
+curriculum learning. You can start with sequences of length 100 and then switch
+to sequences of length 400 during training like so:</p>
+<blockquote>
+<div><p># dset is an initialized subclass of BaseDataset
+dset.set_current_length(100)
+# train for 20 epochs
+dset.set_current_length(400)
+# train at longer length</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>current_length</strong> – length of training sequences.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>No effect. Sets self.current_length = current_length after some validation.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.dataset.BaseDataset.setup_cache">
+<code class="sig-name descname">setup_cache</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/datasets/base_dataset.html#BaseDataset.setup_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.dataset.BaseDataset.setup_cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Items generated by the dataset can be cached using zarr. Zarr is a
+library for easily storing data in efficient and compressed structures.
+Every time BaseDataset’s __getitem__ method is called, it returns a
+dictionary with keys and values (usually numpy arrays but they can be
+anything). If self.options[‘cache’] points to some place (is a string of
+nonzero length), then a cache is created. The name of the cache follows
+a specific format, allowing for cache reuse. It uses the dataset location
+with underscores instead of /, and appends the dataset_tag, kept in
+self.options[‘dataset_tag’], and adds the extension ‘.zarr’. The location
+will be printed by the logging.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.dataset.BaseDataset.source_magnitude_weights">
+<em class="property">static </em><code class="sig-name descname">source_magnitude_weights</code><span class="sig-paren">(</span><em class="sig-param">source_spectrograms</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/datasets/base_dataset.html#BaseDataset.source_magnitude_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.dataset.BaseDataset.source_magnitude_weights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loud points matter more than quiet points, but this time loudness is based
+on each source magnitude.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>source_spectrograms</strong> – returned by construct_input_output, a matrix with
+magnitude spectrograms for every source.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Weights based on loudness of each source.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.dataset.BaseDataset.switch_to_cache">
+<code class="sig-name descname">switch_to_cache</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/datasets/base_dataset.html#BaseDataset.switch_to_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.dataset.BaseDataset.switch_to_cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>In the first pass through the data, the cache is created on the fly. On
+subsequent epochs, you should use <cite>switch_to_cache</cite> to switch to the cache.
+This function closes and reopens the cache in read-only mode, and sets the
+internal flag cache_populated to True. Now future reads are done via the
+cache.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.dataset.BaseDataset.threshold_weights">
+<em class="property">static </em><code class="sig-name descname">threshold_weights</code><span class="sig-paren">(</span><em class="sig-param">log_spectrogram</em>, <em class="sig-param">threshold=-40</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/datasets/base_dataset.html#BaseDataset.threshold_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.dataset.BaseDataset.threshold_weights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Quiet points don’t matter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>log_spectrogram</strong> – returned by construct_input_output, a matrix indicating
+log magnitude (dB) of each time-frequency bin.</p></li>
+<li><p><strong>threshold</strong> – loudness threshold. Below this, weights will be 0.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Weights for time-frequency bins below a given threshold are 0.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.dataset.BaseDataset.transform">
+<code class="sig-name descname">transform</code><span class="sig-paren">(</span><em class="sig-param">audio_signal</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/datasets/base_dataset.html#BaseDataset.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.dataset.BaseDataset.transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses nussl STFT to transform.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>{</strong><strong>[</strong><strong>np.ndarray</strong><strong>]</strong><strong>} -- AudioSignal object</strong> (<em>audio_signal</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>[tuple] – (log_spec, stft). log_spec contains the
+log_spectrogram, stft contains the complex spectrogram</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.dataset.BaseDataset.transpose_pad_and_filter">
+<code class="sig-name descname">transpose_pad_and_filter</code><span class="sig-paren">(</span><em class="sig-param">data_dict</em>, <em class="sig-param">max_length</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/datasets/base_dataset.html#BaseDataset.transpose_pad_and_filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.dataset.BaseDataset.transpose_pad_and_filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>For training, each data point should be at least of some length, so that we
+can extract an excerpt that is of ‘max_length’. The data is also transposed so
+that the length of the sequence is on the first axis and the number of features
+is on the second axis. This function also filters the data dictionary so that
+keys that are not needed during training are not stored. For a key to be saved
+during training, it should be in self.options[‘data_keys_for_training’]
+when initializing the dataset class. This is to reduce the size of the
+cache (which can get very big if you’re not careful.)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_dict</strong> – dictionary containing keys and values which are numpy arrays.</p></li>
+<li><p><strong>max_length</strong> – The maximum length of a sequence you use during training.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dictionary containing keys and values that are transposed,
+padded to the max_length, and filtered for unnecessary keys.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.dataset.BaseDataset.whiten">
+<code class="sig-name descname">whiten</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/datasets/base_dataset.html#BaseDataset.whiten"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.dataset.BaseDataset.whiten" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optionally preprocess the data in some way (e.g. make zero mean and unit
+variance). In Base class, this function does nothing, but it can be overridden
+by a subclass.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>- nparray containing the data</strong> (<em>data</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Processed version of data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.dataset.BaseDataset.write_to_cache">
+<code class="sig-name descname">write_to_cache</code><span class="sig-paren">(</span><em class="sig-param">data_dict</em>, <em class="sig-param">i</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/datasets/base_dataset.html#BaseDataset.write_to_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.dataset.BaseDataset.write_to_cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes a dictionary of keys and values to a location in the cache.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="src.dataset.MixSourceFolder">
+<em class="property">class </em><code class="sig-prename descclassname">src.dataset.</code><code class="sig-name descname">MixSourceFolder</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">options</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/datasets/mix_source_folder_dataset.html#MixSourceFolder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.dataset.MixSourceFolder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">nussl.deep.datasets.base_dataset.BaseDataset</span></code></p>
+<dl class="method">
+<dt id="src.dataset.MixSourceFolder.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">options</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/datasets/mix_source_folder_dataset.html#MixSourceFolder.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.dataset.MixSourceFolder.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>This dataset expects your data to be formatted in the following way:</p>
+<blockquote>
+<div><dl>
+<dt>data/</dt><dd><dl class="simple">
+<dt>mix/</dt><dd><p>[file0].wav
+[file1].wav
+[file2].wav
+…</p>
+</dd>
+<dt>s0/</dt><dd><p>[file0].wav
+[file1].wav
+[file2].wav
+…</p>
+</dd>
+<dt>s1/</dt><dd><p>[file0].wav
+[file1].wav
+[file2].wav
+…</p>
+</dd>
+<dt>s2/</dt><dd><p>[file0].wav
+[file1].wav
+[file2].wav
+…</p>
+</dd>
+</dl>
+<p>…</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>Note that the the filenames match between the mix folder and each source folder.
+The only protected folder name here is ‘mix’. The source folder names can be
+whatever you want. Given a file in the ‘mix’ folder, this dataset will look up
+the corresponding files with the same name in the source folders. These are the
+source audio files. The sum of the sources should equal the mixture. Each source
+will be labeled according to the folder name it comes from.</p>
+<p>If no mix folder exists, then this class will use the files in the first source
+folder and look for matching files in the other source folder. Then the mix
+will be created by summing the sources on the fly. This can also happen
+if there is a mix folder by setting self.options[‘sum_sources’] = True.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>folder</strong> – location where all the data lives that is in MixSourceFolder format.</p></li>
+<li><p><strong>options</strong> – the options for the dataset (see deep/config/defaults/dataset.json)
+for more details.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.dataset.MixSourceFolder.get_files">
+<code class="sig-name descname">get_files</code><span class="sig-paren">(</span><em class="sig-param">folder</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/datasets/mix_source_folder_dataset.html#MixSourceFolder.get_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.dataset.MixSourceFolder.get_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function must be implemented by whatever class inherits BaseDataset.
+It should return a list of files in the given folder, each of which is
+processed by load_audio_files in some way to produce mixes, sources, class
+labels, etc.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>- location that should be processed to produce the list of files.</strong> (<em>folder</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of files</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.dataset.MixSourceFolder.load_audio_files">
+<code class="sig-name descname">load_audio_files</code><span class="sig-paren">(</span><em class="sig-param">wav_file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/datasets/mix_source_folder_dataset.html#MixSourceFolder.load_audio_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.dataset.MixSourceFolder.load_audio_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Each file returned by get_files is processed by this function. For example,
+if each file is a json file containing the paths to the mixture and sources,
+then this function should parse the json file and load the mixture and sources
+and return them.</p>
+<p>Exact behavior of this functionality is determined by implementation by subclass.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>- name of file to load</strong> (<em>filename</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Depends on sub-class. Should return at least the mixture and the constituent
+sources.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="src.dataset.Scaper">
+<em class="property">class </em><code class="sig-prename descclassname">src.dataset.</code><code class="sig-name descname">Scaper</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">options</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/datasets/scaper_dataset.html#Scaper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.dataset.Scaper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">nussl.deep.datasets.base_dataset.BaseDataset</span></code></p>
+<dl class="method">
+<dt id="src.dataset.Scaper.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">options</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/datasets/scaper_dataset.html#Scaper.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.dataset.Scaper.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>This dataset expects that your data was mixed using Scaper, which generates
+mixtures from a given source library. Scaper generates a bunch of JSON files
+which are then parsed by this dataset class. Each JSON file contains all of the
+metadata to find the sources that went into the mixture, the mixture itself (must
+have the same name as the JSON file but with a different extension), and the
+classes of the sources. This JSON file is processed here to load the mixture
+and sources, and label the sources.</p>
+<dl class="simple">
+<dt>For now, Scaper datasets must be mixed by this fork of Scaper, kept here:</dt><dd><p><a class="reference external" href="https://github.com/pseeth/scaper">https://github.com/pseeth/scaper</a></p>
+</dd>
+</dl>
+<p>This fork saves the sources alongside the mixture. Datasets created using this
+fork can be immediately used for training a deep source separation model by
+using this Dataset class.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.dataset.Scaper.get_files">
+<code class="sig-name descname">get_files</code><span class="sig-paren">(</span><em class="sig-param">folder</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/datasets/scaper_dataset.html#Scaper.get_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.dataset.Scaper.get_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function must be implemented by whatever class inherits BaseDataset.
+It should return a list of files in the given folder, each of which is
+processed by load_audio_files in some way to produce mixes, sources, class
+labels, etc.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>- location that should be processed to produce the list of files.</strong> (<em>folder</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of files</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.dataset.Scaper.load_audio_files">
+<code class="sig-name descname">load_audio_files</code><span class="sig-paren">(</span><em class="sig-param">file_name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/nussl/deep/datasets/scaper_dataset.html#Scaper.load_audio_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.dataset.Scaper.load_audio_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Each file returned by get_files is processed by this function. For example,
+if each file is a json file containing the paths to the mixture and sources,
+then this function should parse the json file and load the mixture and sources
+and return them.</p>
+<p>Exact behavior of this functionality is determined by implementation by subclass.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>- name of file to load</strong> (<em>filename</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Depends on sub-class. Should return at least the mixture and the constituent
+sources.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="src.dataset.scaper_mix">
+<code class="sig-prename descclassname">src.dataset.</code><code class="sig-name descname">scaper_mix</code><span class="sig-paren">(</span><em class="sig-param">mixture_parameters</em>, <em class="sig-param">sample_rate</em>, <em class="sig-param">event_parameters=None</em>, <em class="sig-param">coherent=False</em>, <em class="sig-param">allow_repeated_label=False</em>, <em class="sig-param">ref_db=-40</em>, <em class="sig-param">bitdepth=16</em>, <em class="sig-param">seed=0</em>, <em class="sig-param">num_workers=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/dataset/scaper_mixer.html#scaper_mix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.dataset.scaper_mix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="src.model.html" class="btn btn-neutral float-right" title="src.model package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="src.algorithms.html" class="btn btn-neutral float-left" title="src.algorithms package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Prem Seetharaman
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

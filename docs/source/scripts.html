@@ -1,0 +1,451 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>scripts package &mdash; Cookiecutter for nussl  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="src package" href="src.html" />
+    <link rel="prev" title="runners package" href="runners.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Cookiecutter for nussl
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting started</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="runners.html">runners package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">scripts package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-scripts.analyze">scripts.analyze module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-scripts.download_toy_data">scripts.download_toy_data module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-scripts.evaluate">scripts.evaluate module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-scripts.mix_with_scaper">scripts.mix_with_scaper module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-scripts.pipeline">scripts.pipeline module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-scripts.prepare_urbansound">scripts.prepare_urbansound module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-scripts.reorganize">scripts.reorganize module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-scripts.resample">scripts.resample module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-scripts.run_in_docker">scripts.run_in_docker module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-scripts.sweep_experiment">scripts.sweep_experiment module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-scripts.train">scripts.train module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-scripts">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="src.html">src package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Cookiecutter for nussl</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>scripts package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/source/scripts.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="scripts-package">
+<h1>scripts package<a class="headerlink" href="#scripts-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-scripts.analyze">
+<span id="scripts-analyze-module"></span><h2>scripts.analyze module<a class="headerlink" href="#module-scripts.analyze" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="scripts.analyze.init_gsheet">
+<code class="sig-prename descclassname">scripts.analyze.</code><code class="sig-name descname">init_gsheet</code><span class="sig-paren">(</span><em class="sig-param">credentials_path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/analyze.html#init_gsheet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.analyze.init_gsheet" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="scripts.analyze.main">
+<code class="sig-prename descclassname">scripts.analyze.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param">path_to_yml_file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/analyze.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.analyze.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="scripts.analyze.upload_to_gsheet">
+<code class="sig-prename descclassname">scripts.analyze.</code><code class="sig-name descname">upload_to_gsheet</code><span class="sig-paren">(</span><em class="sig-param">results</em>, <em class="sig-param">config</em>, <em class="sig-param">exp</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/analyze.html#upload_to_gsheet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.analyze.upload_to_gsheet" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-scripts.download_toy_data">
+<span id="scripts-download-toy-data-module"></span><h2>scripts.download_toy_data module<a class="headerlink" href="#module-scripts.download_toy_data" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="scripts.download_toy_data.download_toy_data">
+<code class="sig-prename descclassname">scripts.download_toy_data.</code><code class="sig-name descname">download_toy_data</code><span class="sig-paren">(</span><em class="sig-param">target_folder</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/download_toy_data.html#download_toy_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.download_toy_data.download_toy_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-scripts.evaluate">
+<span id="scripts-evaluate-module"></span><h2>scripts.evaluate module<a class="headerlink" href="#module-scripts.evaluate" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="scripts.evaluate.main">
+<code class="sig-prename descclassname">scripts.evaluate.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param">path_to_yml_file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/evaluate.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.evaluate.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-scripts.mix_with_scaper">
+<span id="scripts-mix-with-scaper-module"></span><h2>scripts.mix_with_scaper module<a class="headerlink" href="#module-scripts.mix_with_scaper" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="scripts.mix_with_scaper.main">
+<code class="sig-prename descclassname">scripts.mix_with_scaper.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param">path_to_yml_file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/mix_with_scaper.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.mix_with_scaper.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-scripts.pipeline">
+<span id="scripts-pipeline-module"></span><h2>scripts.pipeline module<a class="headerlink" href="#module-scripts.pipeline" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="scripts.pipeline.main">
+<code class="sig-prename descclassname">scripts.pipeline.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param">path_to_yml_file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/pipeline.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.pipeline.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a .yml file with structure as follows:</p>
+<blockquote>
+<div><p>script: path/to/script/name.py
+config: path/to/yml/config.yml
+run_in: ‘host’ or ‘container’
+num_gpus: how many gpus (default: 0)
+blocking: whether to block on this job or not (default: false)</p>
+</div></blockquote>
+<dl>
+<dt>Could also be multiple jobs:</dt><dd><p>parallelize: whether to parallelize each job (default: false)
+num_jobs: how many jobs to run in parallel (default: 1)</p>
+<p>jobs:
+- script: script1.py
+config: config1.yml
+- script: script2.py
+config: config2.yml
+…</p>
+</dd>
+</dl>
+<p>The jobs get executed one after the other.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-scripts.prepare_urbansound">
+<span id="scripts-prepare-urbansound-module"></span><h2>scripts.prepare_urbansound module<a class="headerlink" href="#module-scripts.prepare_urbansound" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-scripts.reorganize">
+<span id="scripts-reorganize-module"></span><h2>scripts.reorganize module<a class="headerlink" href="#module-scripts.reorganize" title="Permalink to this headline">¶</a></h2>
+<p>Takes a folder with audio file structure that looks like this:
+<a href="#id1"><span class="problematic" id="id2">``</span></a><a href="#id3"><span class="problematic" id="id4">`</span></a></p>
+<blockquote>
+<div><dl>
+<dt>folder_input/</dt><dd><dl class="simple">
+<dt>mixture_one_name/</dt><dd><p>vocals.wav
+bass.wav
+drums.wav
+other.wav</p>
+</dd>
+<dt>mixture_two_name/</dt><dd><p>vocals.wav
+bass.wav
+drums.wav
+other.wav</p>
+</dd>
+</dl>
+<p>…</p>
+</dd>
+</dl>
+</div></blockquote>
+<p><a href="#id5"><span class="problematic" id="id6">``</span></a><a href="#id7"><span class="problematic" id="id8">`</span></a></p>
+<p>and reorganizes it to a different folder like so:
+<a href="#id9"><span class="problematic" id="id10">``</span></a><a href="#id11"><span class="problematic" id="id12">`</span></a></p>
+<blockquote>
+<div><dl class="simple">
+<dt>folder_output/</dt><dd><dl class="simple">
+<dt>vocals/</dt><dd><p>mixture_one_name.wav
+mixture_two_name.wav
+…</p>
+</dd>
+<dt>bass/</dt><dd><p>mixture_one_name.wav
+mixture_two_name.wav
+…</p>
+</dd>
+<dt>drums/</dt><dd><p>mixture_one_name.wav
+mixture_two_name.wav
+…</p>
+</dd>
+<dt>other/</dt><dd><p>mixture_one_name.wav
+mixture_two_name.wav
+…</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+<p><a href="#id13"><span class="problematic" id="id14">``</span></a><a href="#id15"><span class="problematic" id="id16">`</span></a></p>
+<p>so that it can be processed easily by Scaper. Notably, MUSDB has this folder structure.</p>
+<dl class="function">
+<dt id="scripts.reorganize.main">
+<code class="sig-prename descclassname">scripts.reorganize.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param">path_to_yml_file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/reorganize.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.reorganize.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="scripts.reorganize.split_folder_by_class">
+<code class="sig-prename descclassname">scripts.reorganize.</code><code class="sig-name descname">split_folder_by_class</code><span class="sig-paren">(</span><em class="sig-param">path_to_file</em>, <em class="sig-param">output_directory</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/reorganize.html#split_folder_by_class"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.reorganize.split_folder_by_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>Splits a folder by class which is indicated by the name of the file.</p>
+<p>The mixture name is the name of the parent directory to the file. This function
+is used to organize datasets like musdb for consumption by Scaper for mixing
+new datasets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_to_file</strong> – Path to the audio file that will be reorganized. Has form
+/path/to/mixture_name/source_name.ext</p></li>
+<li><p><strong>output_directory</strong> – Where the file after swapping the mixture_name and source_name
+will be copied to.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-scripts.resample">
+<span id="scripts-resample-module"></span><h2>scripts.resample module<a class="headerlink" href="#module-scripts.resample" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="scripts.resample.ig_f">
+<code class="sig-prename descclassname">scripts.resample.</code><code class="sig-name descname">ig_f</code><span class="sig-paren">(</span><em class="sig-param">dir</em>, <em class="sig-param">files</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/resample.html#ig_f"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.resample.ig_f" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="scripts.resample.main">
+<code class="sig-prename descclassname">scripts.resample.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param">path_to_yml_file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/resample.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.resample.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="scripts.resample.resample_audio_file">
+<code class="sig-prename descclassname">scripts.resample.</code><code class="sig-name descname">resample_audio_file</code><span class="sig-paren">(</span><em class="sig-param">original_path</em>, <em class="sig-param">resample_path</em>, <em class="sig-param">sample_rate</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/resample.html#resample_audio_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.resample.resample_audio_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-scripts.run_in_docker">
+<span id="scripts-run-in-docker-module"></span><h2>scripts.run_in_docker module<a class="headerlink" href="#module-scripts.run_in_docker" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-scripts.sweep_experiment">
+<span id="scripts-sweep-experiment-module"></span><h2>scripts.sweep_experiment module<a class="headerlink" href="#module-scripts.sweep_experiment" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="scripts.sweep_experiment.create_pipeline">
+<code class="sig-prename descclassname">scripts.sweep_experiment.</code><code class="sig-name descname">create_pipeline</code><span class="sig-paren">(</span><em class="sig-param">path_to_yml_files</em>, <em class="sig-param">script_name</em>, <em class="sig-param">num_jobs=1</em>, <em class="sig-param">num_gpus=0</em>, <em class="sig-param">run_in='container'</em>, <em class="sig-param">blocking=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/sweep_experiment.html#create_pipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.sweep_experiment.create_pipeline" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="scripts.sweep_experiment.nested_set">
+<code class="sig-prename descclassname">scripts.sweep_experiment.</code><code class="sig-name descname">nested_set</code><span class="sig-paren">(</span><em class="sig-param">element</em>, <em class="sig-param">value</em>, <em class="sig-param">*keys</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/sweep_experiment.html#nested_set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.sweep_experiment.nested_set" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="scripts.sweep_experiment.replace_item">
+<code class="sig-prename descclassname">scripts.sweep_experiment.</code><code class="sig-name descname">replace_item</code><span class="sig-paren">(</span><em class="sig-param">obj</em>, <em class="sig-param">key</em>, <em class="sig-param">replace_value</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/sweep_experiment.html#replace_item"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.sweep_experiment.replace_item" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="scripts.sweep_experiment.sweep_experiment">
+<code class="sig-prename descclassname">scripts.sweep_experiment.</code><code class="sig-name descname">sweep_experiment</code><span class="sig-paren">(</span><em class="sig-param">path_to_yml_file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/sweep_experiment.html#sweep_experiment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.sweep_experiment.sweep_experiment" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="scripts.sweep_experiment.update_config_with_sweep">
+<code class="sig-prename descclassname">scripts.sweep_experiment.</code><code class="sig-name descname">update_config_with_sweep</code><span class="sig-paren">(</span><em class="sig-param">config</em>, <em class="sig-param">sweep</em>, <em class="sig-param">combo</em>, <em class="sig-param">logging_str</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/sweep_experiment.html#update_config_with_sweep"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.sweep_experiment.update_config_with_sweep" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-scripts.train">
+<span id="scripts-train-module"></span><h2>scripts.train module<a class="headerlink" href="#module-scripts.train" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="scripts.train.main">
+<code class="sig-prename descclassname">scripts.train.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param">path_to_yml_file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/train.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.train.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-scripts">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-scripts" title="Permalink to this headline">¶</a></h2>
+<p># Scripts</p>
+<p>All of the code you write should always be run via a script. Scripts in this
+project take a special form for the purposes of reproducibility. Scripts always
+taken in a YAML file which contains all the information needed to run the
+script. For example, <cite>scripts/resample.py</cite> takes in YAML file as follows:</p>
+<p><code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">..</span> <span class="pre">include::</span> <span class="pre">../data_prep/musdb/resample.yml</span>
+<span class="pre">`</span></code></p>
+<p>This YAML File is processed by the script to resample two datasets. A special
+key called <cite>jobs</cite> can be used to run the script multiple times (once for each job).
+The file above contains two jobs, one which resamples the train data and the other
+which resamples the test data.</p>
+<p>You must write a corresponding YAML file for each script that you write and execute.
+This is to reduce dependence on “magic terminal commands” that become undocumented and
+unmentioned as project complexity grows. Finally, reproducing an experiment then just
+becomes executing a sequence of YAML files.</p>
+<p>The scripts here contain</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="src.html" class="btn btn-neutral float-right" title="src package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="runners.html" class="btn btn-neutral float-left" title="runners package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Prem Seetharaman
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
