@@ -82,7 +82,10 @@ This is the name of the Docker image that is used to run
 all of the experiments. Usually it's named with your name
 before the / and some identifier after (e.g. your_name/your_project).
 You can optionally add a tag afterwards, like 
-your_name/your_project:latest.
+your_name/your_project:latest. The default is `pseeth/nussl:latest`. 
+If you don't change this, it'll just pull the image from DockerHub so you
+don't need to build it yourself. But if you add new requirements, you'll 
+likely want to build your own image with your own image name.
 
 ```export CACHE_DIRECTORY="/path/to/cache"```
 
@@ -217,7 +220,9 @@ dashboard for a project looks like this.
 ### Setting up Docker
 
 Now, let's set up Docker. If you've followed all the steps so far, this should just 
-require you to run `make docker`.
+require you to run `make docker`. Remember that if the docker image name and tag
+are unchanged, it'll just pull the image from the remote repository rather than
+building it locally.
 
 ## The Makefile
 

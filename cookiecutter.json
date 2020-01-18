@@ -2,7 +2,7 @@
     "repo_name": "nussl-testbed",
     "help1": "The next few prompts will ask about settings for environment variables you want. Descriptions of these are in the Getting Started guide. If you don't know what to set a variable to, just hit enter. You can edit it later at setup/environment/[machine_name]_local.sh. Press enter to continue...",
     "machine_name": "default",
-    "DOCKER_IMAGE_NAME": "user/image:tag",
+    "DOCKER_IMAGE_NAME": "pseeth/nussl:latest",
     "CACHE_DIRECTORY": "/path/to/cache",
     "ARTIFACTS_DIRECTORY": "/path/to/where/models/get/saved",
     "DATA_DIRECTORY": "/path/to/where/your/data/lives",

@@ -262,7 +262,10 @@ replaced in the file automatically.</p>
 all of the experiments. Usually it’s named with your name
 before the / and some identifier after (e.g. your_name/your_project).
 You can optionally add a tag afterwards, like
-your_name/your_project:latest.</p>
+your_name/your_project:latest. The default is <code class="docutils literal notranslate"><span class="pre">pseeth/nussl:latest</span></code>.
+If you don’t change this, it’ll just pull the image from DockerHub so you
+don’t need to build it yourself. But if you add new requirements, you’ll
+likely want to build your own image with your own image name.</p>
 <p><code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">CACHE_DIRECTORY=&quot;/path/to/cache&quot;</span></code></p>
 <p>The training scripts generate a cache of input/output pairs
 for the network. These caches are zarr files that contain
@@ -370,7 +373,9 @@ dashboard for a project looks like this.</p>
 <div class="section" id="setting-up-docker">
 <h3>Setting up Docker<a class="headerlink" href="#setting-up-docker" title="Permalink to this headline">¶</a></h3>
 <p>Now, let’s set up Docker. If you’ve followed all the steps so far, this should just
-require you to run <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">docker</span></code>.</p>
+require you to run <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">docker</span></code>. Remember that if the docker image name and tag
+are unchanged, it’ll just pull the image from the remote repository rather than
+building it locally.</p>
 </div>
 </div>
 <div class="section" id="the-makefile">

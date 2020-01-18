@@ -13,9 +13,15 @@ if [[ -z "${DOCKER_IMAGE_NAME}" ]]; then
   exit 1
 fi
 
-docker build \
-    --build-arg user_id=$UID \
-    --build-arg user_name=`whoami` \
-    --build-arg jupyter_password_hash=$JUPYTER_PASSWORD_HASH \
-    -t $DOCKER_IMAGE_NAME \
-    -f Dockerfile .
+if [ "${DOCKER_IMAGE_NAME}" == "pseeth/nussl:latest" ]; then
+    echo "DOCKER_IMAGE_NAME is set to pseeth/nussl:latest...pulling container from docker.io"
+    docker pull ${DOCKER_IMAGE_NAME}
+else
+  docker build \
+      --build-arg user_id=$UID \
+      --build-arg user_name=`whoami` \
+      --build-arg jupyter_password_hash=$JUPYTER_PASSWORD_HASH \
+      -t $DOCKER_IMAGE_NAME \
+      -f Dockerfile .
+fi
+
