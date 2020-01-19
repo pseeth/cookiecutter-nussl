@@ -6,7 +6,7 @@ A boilerplate for reproducible and transparent computer audition research that l
 project provides boilerplate code for training neural network models to separate mixtures
 containing multiple speakers, music, and environmental sounds. It is easy to add and
 train new models or datasets (GPU sold separately). The goal of this project is to enable
-further reproduceability within the source separation community.
+further reproducibility within the source separation community.
 
 Documentation
 -------------
