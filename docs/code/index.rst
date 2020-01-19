@@ -22,6 +22,7 @@ Making your own datasets
    :maxdepth: 1
 
    using_scaper
+   experiments
 
 
 API documentation

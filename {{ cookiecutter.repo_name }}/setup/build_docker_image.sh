@@ -9,11 +9,11 @@ if [ $? -ne 0 ]; then
 fi
 
 if [[ -z "${DOCKER_IMAGE_NAME}" ]]; then
-  echo "DOCKER_IMAGE_NAME environment variable is not set! Create, configure and run set_environment_local.sh using set_environment_default.sh as the template."
+  echo "DOCKER_IMAGE_NAME environment variable is not set! Create, configure and run [your_env].sh using default.sh as the template."
   exit 1
 fi
 
-if [ "${DOCKER_IMAGE_NAME}" == "pseeth/nussl:latest" ]; then
+if [ "${DOCKER_IMAGE_NAME}" == "1pseeth/nussl:latest" ]; then
     echo "DOCKER_IMAGE_NAME is set to pseeth/nussl:latest...pulling container from docker.io"
     docker pull ${DOCKER_IMAGE_NAME}
 else
