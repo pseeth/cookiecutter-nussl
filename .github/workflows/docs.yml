@@ -14,3 +14,7 @@ jobs:
         cd docs/code
         pip install -r requirements.txt --ignore-installed
         make github
+        cd ../..
+        git add .
+        git commit -am "DOCS: updating documentation"
+        git push origin master
