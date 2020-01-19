@@ -8,15 +8,14 @@ jobs:
     container: pseeth/nussl:latest
     
     steps:
-    - uses: actions/checkout@v1
     - name: Building docs
+      uses: actions/checkout@v1
       run: |
         cd docs/code
         pip install -r requirements.txt --ignore-installed
         make github
     - name: Commit changes
         run: |
-          cd ../..
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add .
