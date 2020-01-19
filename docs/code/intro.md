@@ -8,6 +8,14 @@ containing multiple speakers, music, and environmental sounds. It is easy to add
 train new models or datasets (GPU sold separately). The goal of this project is to enable
 further reproducibility within the source separation community.
 
+Usage
+-----
+To start a new project:
+
+`cookiecutter gh:pseeth/cookiecutter-nussl` 
+
+<!-- **TODO: Make this nussl/cookiecutter-nussl** -->
+
 Documentation
 -------------
 
@@ -53,14 +61,6 @@ code)
 - Install [Anaconda or Miniconda](https://www.anaconda.com/distribution/)
 - Install [Docker](https://www.docker.com/) and [NVIDIA Docker](https://github.com/NVIDIA/nvidia-docker)
 - Install Poetry: https://poetry.eustace.io/docs/#installation (dependency management)
-
-Usage
------
-To start a new project:
-
-`cookiecutter gh:pseeth/cookiecutter-nussl` 
-
-<!-- **TODO: Make this nussl/cookiecutter-nussl** -->
 
 Guiding Principles
 -----------------
