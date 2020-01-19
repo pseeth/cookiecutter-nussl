@@ -21,6 +21,7 @@ github:
 	rsync -r --exclude code --delete _build/html/ ..
 	touch ../.nojekyll
 	cp intro.md ../../README.md
+	cp intro.md ../../\{\{\ cookiecutter.repo_name\ \}\}/README.md
 
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).

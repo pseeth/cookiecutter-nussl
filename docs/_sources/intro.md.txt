@@ -8,6 +8,12 @@ containing multiple speakers, music, and environmental sounds. It is easy to add
 train new models or datasets (GPU sold separately). The goal of this project is to enable
 further reproduceability within the source separation community.
 
+Documentation
+-------------
+
+The documentation is [here](https://pseeth.github.io/cookiecutter-nussl/). It includes
+guides for getting started, training models, creating datasets, and API documentation.
+
 Features
 ------------
 
@@ -86,10 +92,6 @@ pipeline you create in your experiment is easily reproducible by processing a se
 of `.yml` files with their associated scripts. This prevents "magic commands" with
 mysterious and long forgotten command-line arguments that you ran one time 3 months ago 
 from occurring. 
-
-Getting started
--------
-See the getting started guide after you create the cookiecutter.
 
 License
 -------
