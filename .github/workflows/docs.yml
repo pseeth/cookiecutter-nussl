@@ -15,11 +15,11 @@ jobs:
         pip install -r requirements.txt --ignore-installed
         make github
     - name: Commit changes
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add .
-          git commit -am "DOCS: updating documentation"
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add .
+        git commit -am "DOCS: updating documentation"
     - name: Push changes
-        run: |
-          git push origin master
+      run: |
+        git push origin master
