@@ -14,7 +14,13 @@ jobs:
         cd docs/code
         pip install -r requirements.txt --ignore-installed
         make github
-        cd ../..
-        git add .
-        git commit -am "DOCS: updating documentation"
-        git push origin master
+    - name: Commit changes
+        run: |
+          cd ../..
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -am "DOCS: updating documentation"
+    - name: Push changes
+        run: |
+          git push origin master
