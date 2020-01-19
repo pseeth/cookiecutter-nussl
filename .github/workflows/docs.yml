@@ -1,0 +1,17 @@
+name: Build and push docs
+
+on: [push]
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    container: pseeth/nussl:latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: Run a one-line script
+      run: echo Hello, world!
+    - name: Run a multi-line script
+      run: |
+        ls
+        ls cookiecutter-nussl
