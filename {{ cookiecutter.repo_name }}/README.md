@@ -14,7 +14,7 @@ To start a new project:
 
 `cookiecutter gh:pseeth/cookiecutter-nussl` 
 
-<!-- **TODO: Make this nussl/cookiecutter-nussl** -->
+<!-- **TODO: Make this nussl/cookiecutter*-->
 
 Documentation
 -------------
