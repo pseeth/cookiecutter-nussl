@@ -87,9 +87,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../experiments.html">Configuring an experiment</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../source/runners.html">runners package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../source/scripts.html">scripts package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../source/src.html">src package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/runners.html">runners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/scripts.html">scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/src.html">src</a></li>
 </ul>
 
             
@@ -137,6 +137,8 @@
         
           <li><a href="../index.html">Module code</a> &raquo;</li>
         
+          <li><a href="../scripts.html">scripts</a> &raquo;</li>
+        
       <li>scripts.reorganize</li>
     
     
@@ -153,115 +155,219 @@
            <div itemprop="articleBody">
             
   <h1>Source code for scripts.reorganize</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Takes a folder with audio file structure that looks like this:</span>
-<span class="sd">```</span>
-<span class="sd">    folder_input/</span>
-<span class="sd">        mixture_one_name/</span>
-<span class="sd">            vocals.wav</span>
-<span class="sd">            bass.wav</span>
-<span class="sd">            drums.wav</span>
-<span class="sd">            other.wav</span>
-<span class="sd">        mixture_two_name/</span>
-<span class="sd">            vocals.wav</span>
-<span class="sd">            bass.wav</span>
-<span class="sd">            drums.wav</span>
-<span class="sd">            other.wav</span>
-<span class="sd">        ...</span>
-<span class="sd">```</span>
+<span></span>import csv
+import os
+import shutil
+from src.utils.parallel import parallel_process
+from multiprocessing import cpu_count
+from runners.utils import load_yaml, parse_yaml
+from . import cmd, document_parser
+import glob
+import logging
+import argparse
+import yaml
+import sys
 
-<span class="sd">and reorganizes it to a different folder like so:</span>
-<span class="sd">```</span>
-<span class="sd">    folder_output/</span>
-<span class="sd">        vocals/</span>
-<span class="sd">            mixture_one_name.wav</span>
-<span class="sd">            mixture_two_name.wav</span>
-<span class="sd">            ...</span>
-<span class="sd">        bass/</span>
-<span class="sd">            mixture_one_name.wav</span>
-<span class="sd">            mixture_two_name.wav</span>
-<span class="sd">            ...</span>
-<span class="sd">        drums/</span>
-<span class="sd">            mixture_one_name.wav</span>
-<span class="sd">            mixture_two_name.wav</span>
-<span class="sd">            ...</span>
-<span class="sd">        other/</span>
-<span class="sd">            mixture_one_name.wav</span>
-<span class="sd">            mixture_two_name.wav</span>
-<span class="sd">            ...</span>
-<span class="sd">```</span>
-<span class="sd">    </span>
-<span class="sd">so that it can be processed easily by Scaper. Notably, MUSDB has this folder structure.</span>
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="split_urbansound_by_fold"><a class="viewcode-back" href="../../source/scripts.html#scripts.reorganize.split_urbansound_by_fold">[docs]</a>def split_urbansound_by_fold(path_to_file, output_directory, use_symlink=True, 
+    train_folds=[1, 2, 3, 4, 5, 6, 7, 8], val_folds=[9], test_folds=[10],
+    path_to_urbansound_csv=None):
+    &quot;&quot;&quot;
+    Reorganizes the urbansound dataset using the metadata/UrbanSound8K.csv to 
+    determine which fold each file belongs to. It makes symlinks in the corresponding
+    train, test, and val folders.
+    
+    Args:
+        path_to_file (str): Path to the audio file that will be reorganized. Has form
+            /path/to/mixture_name/source_name.ext
+        output_directory (str): Where the file after swapping the mixture_name and source_name
+            will be copied to.
+        use_symlink (bool, optional): Whether to use a symlink or to actually copy the file. 
+            Defaults to True.
+        train_folds (list, optional): Which folds belong to the train set. 
+            Defaults to [1, 2, 3, 4, 5, 6, 7, 8].
+        val_folds (list, optional): Which folds belong to the validation set. 
+            Defaults to [9].
+        test_folds (list, optional): Which folds belong to the test set. 
+            Defaults to [10].
+        path_to_urbansound_csv ([type]): Path to metadata/UrbanSound8k.csv. 
+            Defaults to None.
+    
+    Raises:
+        ValueError: raises an error if the path to the csv isn&#39;t given.
+    &quot;&quot;&quot;
+    raise NotImplementedError()
 
-<span class="kn">import</span> <span class="nn">csv</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">shutil</span>
-<span class="kn">from</span> <span class="nn">src.utils.parallel</span> <span class="kn">import</span> <span class="n">parallel_process</span>
-<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">cpu_count</span>
-<span class="kn">from</span> <span class="nn">runners.utils</span> <span class="kn">import</span> <span class="n">build_parser_for_yml_script</span><span class="p">,</span> <span class="n">parse_yaml</span>
-<span class="kn">import</span> <span class="nn">glob</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">argparse</span> <span class="kn">import</span> <span class="n">ArgumentParser</span>
-<span class="kn">import</span> <span class="nn">yaml</span>
+    if not path_to_urbansound_csv:
+        raise ValueError(&quot;Path to urban sound CSV must be specified!&quot;)
 
-<span class="n">audio_extensions</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;.wav&#39;</span><span class="p">,</span> <span class="s1">&#39;.mp3&#39;</span><span class="p">,</span> <span class="s1">&#39;.aac&#39;</span><span class="p">]</span>
+    # Below doesn&#39;t work yet, just copying from the old stuff.
+    for d in [&#39;train&#39;, &#39;validation&#39;, &#39;test&#39;]:
+        os.makedirs(
+            os.path.join(data_directory, &#39;data&#39;, d),
+            exist_ok=True)
 
-<div class="viewcode-block" id="split_folder_by_class"><a class="viewcode-back" href="../../source/scripts.html#scripts.reorganize.split_folder_by_class">[docs]</a><span class="k">def</span> <span class="nf">split_folder_by_class</span><span class="p">(</span><span class="n">path_to_file</span><span class="p">,</span> <span class="n">output_directory</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Splits a folder by class which is indicated by the name of the file. </span>
-<span class="sd">    </span>
-<span class="sd">    The mixture name is the name of the parent directory to the file. This function</span>
-<span class="sd">    is used to organize datasets like musdb for consumption by Scaper for mixing</span>
-<span class="sd">    new datasets.</span>
+    def copy_audio_to_folder_of_class(row):
+        target_directory = data_directory
+        class_name = row[&#39;class&#39;]
+        source_file = os.path.join(data_directory, &#39;audio&#39;, f&quot;fold{row[&#39;fold&#39;]}&quot;, row[&#39;slice_file_name&#39;])
+        if int(row[&#39;fold&#39;]) in train_folds:
+            target_directory = os.path.join(target_directory, &#39;train&#39;, class_name)
+        elif int(row[&#39;fold&#39;]) in val_folds:
+            target_directory = os.path.join(target_directory, &#39;validation&#39;, class_name)
+        else:
+            target_directory = os.path.join(target_directory, &#39;test&#39;, class_name)
 
-<span class="sd">    Args:</span>
-<span class="sd">        path_to_file: Path to the audio file that will be reorganized. Has form</span>
-<span class="sd">            /path/to/mixture_name/source_name.ext</span>
-<span class="sd">        output_directory: Where the file after swapping the mixture_name and source_name</span>
-<span class="sd">            will be copied to.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">head</span><span class="p">,</span> <span class="n">tail</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">path_to_file</span><span class="p">)</span>
-    <span class="n">class_name</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">tail</span><span class="p">)</span>
-    <span class="n">head</span><span class="p">,</span> <span class="n">mixture_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">head</span><span class="p">)</span>
+        os.makedirs(target_directory, exist_ok=True)
+        target_file = os.path.join(target_directory, row[&#39;slice_file_name&#39;])
 
-    <span class="n">output_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_directory</span><span class="p">,</span> <span class="n">class_name</span><span class="p">,</span> <span class="n">mixture_name</span> <span class="o">+</span> <span class="n">ext</span><span class="p">)</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_directory</span><span class="p">,</span> <span class="n">class_name</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        print(f&quot;Copying {source_file} w/ fold {row[&#39;fold&#39;]} to {target_file}&quot;, flush=True)
+        shutil.copyfile(source_file, target_file)
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_path</span><span class="p">):</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{path_to_file}</span><span class="s2"> -&gt; </span><span class="si">{output_path}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">path_to_file</span><span class="p">,</span> <span class="n">output_path</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../source/scripts.html#scripts.reorganize.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">path_to_yml_file</span><span class="p">):</span>
-    <span class="n">spec</span> <span class="o">=</span> <span class="n">parse_yaml</span><span class="p">(</span><span class="n">path_to_yml_file</span><span class="p">)</span>
+    with open(os.path.join(data_directory, &#39;metadata&#39;, &#39;UrbanSound8K.csv&#39;), &#39;r&#39;) as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)</div>
 
-    <span class="k">for</span> <span class="n">_spec</span> <span class="ow">in</span> <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;jobs&#39;</span><span class="p">]:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">_spec</span><span class="p">)</span>
-        <span class="n">data_directory</span> <span class="o">=</span> <span class="n">_spec</span><span class="p">[</span><span class="s1">&#39;input_path&#39;</span><span class="p">]</span>
-        <span class="n">output_directory</span> <span class="o">=</span> <span class="n">_spec</span><span class="p">[</span><span class="s1">&#39;output_path&#39;</span><span class="p">]</span>
+<div class="viewcode-block" id="split_folder_by_class"><a class="viewcode-back" href="../../source/scripts.html#scripts.reorganize.split_folder_by_class">[docs]</a>def split_folder_by_class(path_to_file, output_directory, use_symlink=True):
+    &quot;&quot;&quot;Splits a folder by class which is indicated by the name of the file. 
+    
+    The mixture name is the name of the parent directory to the file. This function
+    is used to organize datasets like musdb for consumption by Scaper for mixing
+    new datasets.
 
-        <span class="n">paths_to_files</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">audio_extensions</span><span class="p">:</span>
-            <span class="n">paths_to_files</span> <span class="o">+=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{data_directory}</span><span class="s1">/**/*</span><span class="si">{ext}</span><span class="s1">&#39;</span><span class="p">)</span>
+    Takes a folder with audio file structure that looks like this::
+    
+        folder_input/
+            mixture_one_name/
+                vocals.wav
+                bass.wav
+                drums.wav
+                other.wav
+            mixture_two_name/
+                vocals.wav
+                bass.wav
+                drums.wav
+                other.wav
+            ...
 
-        <span class="n">args</span> <span class="o">=</span> <span class="p">[{</span>
-            <span class="s1">&#39;path_to_file&#39;</span><span class="p">:</span> <span class="n">p</span><span class="p">,</span>
-            <span class="s1">&#39;output_directory&#39;</span><span class="p">:</span> <span class="n">output_directory</span>
-        <span class="p">}</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths_to_files</span><span class="p">]</span>
+    and reorganizes it to a different folder like so::
 
-        <span class="n">parallel_process</span><span class="p">(</span>
-            <span class="n">args</span><span class="p">,</span> 
-            <span class="n">split_folder_by_class</span><span class="p">,</span>
-            <span class="n">n_jobs</span><span class="o">=</span><span class="n">cpu_count</span><span class="p">(),</span> 
-            <span class="n">front_num</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> 
-            <span class="n">use_kwargs</span><span class="o">=</span><span class="kc">True</span>
-        <span class="p">)</span></div>
+        folder_output/
+            vocals/
+                mixture_one_name.wav
+                mixture_two_name.wav
+                ...
+            bass/
+                mixture_one_name.wav
+                mixture_two_name.wav
+                ...
+            drums/
+                mixture_one_name.wav
+                mixture_two_name.wav
+                ...
+            other/
+                mixture_one_name.wav
+                mixture_two_name.wav
+                ...
+        
+    so that it can be processed easily by Scaper. Notably, MUSDB has this folder 
+    structure. This reorganization is done via symlinks so that the entire dataset
+    is not copied.
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
-    <span class="n">parser</span> <span class="o">=</span> <span class="n">build_parser_for_yml_script</span><span class="p">()</span>
-    <span class="n">args</span> <span class="o">=</span> <span class="nb">vars</span><span class="p">(</span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">())</span>
-    <span class="n">main</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="s1">&#39;spec&#39;</span><span class="p">])</span>
+    Args:
+        path_to_file (str): Path to the audio file that will be reorganized. Has form
+            /path/to/mixture_name/source_name.ext
+        output_directory (str): Where the file after swapping the mixture_name and source_name
+            will be copied to.
+        use_symlink (bool): Whether to use a symlink or to actually copy the file. 
+            Defaults to True.
+    &quot;&quot;&quot;
+    head, tail = os.path.split(path_to_file)
+    class_name, ext = os.path.splitext(tail)
+    head, mixture_name = os.path.split(head)
+
+    output_path = os.path.join(output_directory, class_name, mixture_name + ext)
+    os.makedirs(os.path.join(output_directory, class_name), exist_ok=True)
+
+    if not os.path.exists(output_path):
+        logging.info(f&quot;{path_to_file} -&gt; {output_path}&quot;)
+        if use_symlink:
+            os.symlink(path_to_file, output_path)
+        else:
+            shutil.copyfile(path_to_file, output_path)</div>
+
+<div class="viewcode-block" id="reorganize"><a class="viewcode-back" href="../../source/scripts.html#scripts.reorganize.reorganize">[docs]</a>def reorganize(input_path, output_path, org_func, use_symlink=True, 
+               audio_extensions=[&#39;.wav&#39;, &#39;.mp3&#39;, &#39;.aac&#39;], **kwargs):
+    &quot;&quot;&quot;
+    Reorganizes the folders in the input path into the output path given an 
+    organization function, passed in by org_func.
+
+    Args:
+        input_path (str): Root of folder where all audio files will be reorganized.
+        output_path (str): Root of folder where the reorganized files will be placed. 
+        org_func (str): Organization function to use reorganize the dataset. Should 
+            correspond to the name of a function in reorganize.py.
+        use_symlink (bool): Whether to use a symlink or to actually copy the file. 
+            Defaults to True.
+        audio_extensions (list, optional): Audio extensions to look for in the 
+            input_path. Matching ones will be reorganize and placed into the output 
+            directory via a symlink.. Defaults to [&#39;.wav&#39;, &#39;.mp3&#39;, &#39;.aac&#39;].
+        kwargs (dict): Additional keyword arguments that are passed to the org_func
+            that is specified.
+    &quot;&quot;&quot;
+    paths_to_files = []
+    for ext in audio_extensions:
+        paths_to_files += glob.glob(f&#39;{input_path}/**/*{ext}&#39;)
+
+    args = [{
+        &#39;path_to_file&#39;: p,
+        &#39;output_directory&#39;: output_path,
+        &#39;use_symlink&#39;: use_symlink,
+        **kwargs
+    } for p in paths_to_files]
+
+    module = sys.modules[__name__]
+    org_func = getattr(module, org_func)
+
+    parallel_process(
+        args, 
+        org_func,
+        n_jobs=cpu_count(), 
+        front_num=1, 
+        use_kwargs=True
+    )</div>
+
+<div class="viewcode-block" id="build_parser"><a class="viewcode-back" href="../../source/scripts.html#scripts.reorganize.build_parser">[docs]</a>@document_parser(&#39;reorganize&#39;, &#39;scripts.reorganize.reorganize&#39;)
+def build_parser():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        &#39;--input_path&#39;, type=str, 
+        help=&quot;&quot;&quot;Root of folder where all audio files will be reorganized.&quot;&quot;&quot;
+    )
+    parser.add_argument(
+        &#39;--output_path&#39;, type=str, 
+        help=&quot;&quot;&quot;Root of folder where all reorganized files will be placed.&quot;&quot;&quot;
+    )
+    parser.add_argument(
+        &#39;--org_func&#39;, type=str,
+        help=&quot;&quot;&quot;Organization function to use reorganize the dataset. Should correspond
+        to the name of a function in reorganize.py.&quot;&quot;&quot;
+    )
+    parser.add_argument(
+        &#39;--use_symlink&#39;, type=bool, 
+        help=&quot;&quot;&quot;Whether to use a symlink or to actually copy the file.&quot;&quot;&quot;,
+        default=True
+    )
+    parser.add_argument(
+        &#39;--audio_extensions&#39;, nargs=&#39;+&#39;, 
+        help=&quot;&quot;&quot;Audio extensions to look for in the input_path. Matching ones will
+        be reorganize and placed into the output directory via a symlink.&quot;&quot;&quot;,
+        default=[&#39;.wav&#39;, &#39;.mp3&#39;, &#39;.aac&#39;]
+    )
+    return parser</div>
+
+if __name__ == &#39;__main__&#39;:
+    cmd(reorganize, build_parser)
 </pre></div>
 
            </div>

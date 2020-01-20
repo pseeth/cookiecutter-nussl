@@ -87,9 +87,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../experiments.html">Configuring an experiment</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../source/runners.html">runners package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../source/scripts.html">scripts package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../source/src.html">src package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../source/runners.html">runners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../source/scripts.html">scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../source/src.html">src</a></li>
 </ul>
 
             
@@ -153,17 +153,17 @@
            <div itemprop="articleBody">
             
   <h1>Source code for tests</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">comet_ml</span>
+<span></span>import comet_ml
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">pytest</span>
+import os
+import sys
+import pytest
 
-<span class="kn">from</span> <span class="nn">scripts.download_toy_data</span> <span class="kn">import</span> <span class="n">download_toy_data</span>
+from scripts.download_toy_data import download_toy_data
 
-<div class="viewcode-block" id="setup_tests"><a class="viewcode-back" href="../source/tests.html#tests.setup_tests">[docs]</a><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s2">&quot;session&quot;</span><span class="p">,</span> <span class="n">autouse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">setup_tests</span><span class="p">():</span>
-    <span class="n">download_toy_data</span><span class="p">(</span><span class="s1">&#39;tests/out/_test_data/&#39;</span><span class="p">)</span></div>
+<div class="viewcode-block" id="setup_tests"><a class="viewcode-back" href="../source/tests.html#tests.setup_tests">[docs]</a>@pytest.fixture(scope=&quot;session&quot;, autouse=True)
+def setup_tests():
+    download_toy_data(&#39;tests/out/_test_data/&#39;)</div>
 </pre></div>
 
            </div>

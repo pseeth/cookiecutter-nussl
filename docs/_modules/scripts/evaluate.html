@@ -87,9 +87,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../experiments.html">Configuring an experiment</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../source/runners.html">runners package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../source/scripts.html">scripts package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../source/src.html">src package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/runners.html">runners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/scripts.html">scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/src.html">src</a></li>
 </ul>
 
             
@@ -137,6 +137,8 @@
         
           <li><a href="../index.html">Module code</a> &raquo;</li>
         
+          <li><a href="../scripts.html">scripts</a> &raquo;</li>
+        
       <li>scripts.evaluate</li>
     
     
@@ -153,56 +155,98 @@
            <div itemprop="articleBody">
             
   <h1>Source code for scripts.evaluate</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">sys</span>
-<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">)</span>
+<span></span>from runners.experiment_utils import load_experiment, save_experiment
+from src import dataset, test, model
+from src.utils import loaders
+import logging
+from runners.utils import load_yaml
+from . import cmd, document_parser
+from argparse import ArgumentParser
+import os
 
-<span class="kn">from</span> <span class="nn">runners.experiment_utils</span> <span class="kn">import</span> <span class="n">load_experiment</span><span class="p">,</span> <span class="n">save_experiment</span>
-<span class="kn">from</span> <span class="nn">src</span> <span class="kn">import</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">test</span><span class="p">,</span> <span class="n">model</span>
-<span class="kn">from</span> <span class="nn">src.utils</span> <span class="kn">import</span> <span class="n">loaders</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">runners.utils</span> <span class="kn">import</span> <span class="n">build_parser_for_yml_script</span><span class="p">,</span> <span class="n">load_yaml</span>
-<span class="kn">from</span> <span class="nn">argparse</span> <span class="kn">import</span> <span class="n">ArgumentParser</span>
-<span class="kn">import</span> <span class="nn">os</span>
-
-<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../source/scripts.html#scripts.evaluate.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">path_to_yml_file</span><span class="p">):</span>
-    <span class="n">config</span><span class="p">,</span> <span class="n">exp</span><span class="p">,</span> <span class="n">path_to_yml_file</span> <span class="o">=</span> <span class="n">load_experiment</span><span class="p">(</span><span class="n">path_to_yml_file</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="s1">&#39;test&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;datasets&#39;</span><span class="p">]:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Test dataset must be specified!&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="evaluate"><a class="viewcode-back" href="../../source/scripts.html#scripts.evaluate.evaluate">[docs]</a>def evaluate(path_to_yml_file, eval_keys=[&#39;test&#39;]):
+    &quot;&quot;&quot;
+    Evaluates an experiment across all of the data for each key in eval_keys. The key
+    must correspond to a dataset included in the experiment configuration. This uses
+    :py:class:`src.test.EvaluationRunner` to evaluate the performance of the model on
+    each dataset.
     
-    <span class="n">test_classes</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;test_config&#39;</span><span class="p">][</span><span class="s1">&#39;testers&#39;</span><span class="p">]</span>
-    <span class="n">testers</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">test_classes</span><span class="p">:</span>
-        <span class="n">TestClass</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
-        <span class="n">args</span> <span class="o">=</span> <span class="n">test_classes</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-        <span class="n">testers</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">TestClass</span><span class="p">,</span> <span class="n">args</span><span class="p">))</span>
+    Args:
+        path_to_yml_file (str): Path to the yml file that defines the experiment. The
+            corresponding test configuration for the experiment will be used to evaluate
+            the experiment across all of the audio files in the test dataset.
+        eval_keys (list): All of the keys to be used to evaluate the experiment. Will
+            run the evaluation on each eval_key in sequence. Defaults to [&#39;test&#39;].
+    &quot;&quot;&quot;
+    config, exp, path_to_yml_file = load_experiment(path_to_yml_file)
 
-    <span class="n">_datasets</span> <span class="o">=</span> <span class="p">{}</span>
+    if &#39;test&#39; not in config[&#39;datasets&#39;]:
+        logging.error(&#39;Test dataset must be specified!&#39;)
+    
+    test_classes = config[&#39;test_config&#39;][&#39;testers&#39;]
+    testers = []
+    for key in test_classes:
+        TestClass = getattr(test, key)
+        args = test_classes[key]
+        testers.append((TestClass, args))
 
-    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">]:</span>
-        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;datasets&#39;</span><span class="p">]:</span>
-            <span class="n">_datasets</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">loaders</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span>
-                <span class="n">config</span><span class="p">[</span><span class="s1">&#39;datasets&#39;</span><span class="p">][</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;class&#39;</span><span class="p">],</span>
-                <span class="n">config</span><span class="p">[</span><span class="s1">&#39;datasets&#39;</span><span class="p">][</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;folder&#39;</span><span class="p">],</span>
-                <span class="n">config</span><span class="p">[</span><span class="s1">&#39;dataset_config&#39;</span><span class="p">]</span>
-            <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">_datasets</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    _datasets = {}
 
-    <span class="n">_tester</span> <span class="o">=</span> <span class="n">test</span><span class="o">.</span><span class="n">EvaluationRunner</span><span class="p">(</span>
-        <span class="n">testers</span><span class="p">,</span>
-        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;algorithm_config&#39;</span><span class="p">],</span>
-        <span class="n">_datasets</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">],</span>
-        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;info&#39;</span><span class="p">][</span><span class="s1">&#39;output_folder&#39;</span><span class="p">],</span>
-        <span class="n">max_workers</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;test_config&#39;</span><span class="p">][</span><span class="s1">&#39;num_workers&#39;</span><span class="p">],</span>
-        <span class="n">use_blocking_executor</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;test_config&#39;</span><span class="p">][</span><span class="s1">&#39;use_blocking_executor&#39;</span><span class="p">]</span>
-    <span class="p">)</span>
-    <span class="n">_tester</span><span class="o">.</span><span class="n">run</span><span class="p">()</span></div>
+    for key in eval_keys:
+        if key in config[&#39;datasets&#39;]:
+            _datasets[key] = loaders.load_dataset(
+                config[&#39;datasets&#39;][key][&#39;class&#39;],
+                config[&#39;datasets&#39;][key][&#39;folder&#39;],
+                config[&#39;dataset_config&#39;]
+            )
+        else:
+            _datasets[key] = None
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
-    <span class="n">parser</span> <span class="o">=</span> <span class="n">build_parser_for_yml_script</span><span class="p">()</span>
-    <span class="n">args</span> <span class="o">=</span> <span class="nb">vars</span><span class="p">(</span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">())</span>
-    <span class="n">main</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="s1">&#39;spec&#39;</span><span class="p">])</span>
+    for key in eval_keys:
+        _tester = test.EvaluationRunner(
+            testers,
+            config[&#39;algorithm_config&#39;],
+            _datasets[key],
+            config[&#39;info&#39;][&#39;output_folder&#39;],
+            max_workers=config[&#39;test_config&#39;][&#39;num_workers&#39;],
+            use_blocking_executor=config[&#39;test_config&#39;][&#39;use_blocking_executor&#39;]
+        )
+        _tester.run()</div>
+
+<div class="viewcode-block" id="build_parser"><a class="viewcode-back" href="../../source/scripts.html#scripts.evaluate.build_parser">[docs]</a>@document_parser(&#39;evaluate&#39;, &#39;scripts.evaluate.evaluate&#39;)
+def build_parser():
+    &quot;&quot;&quot;
+    Builds the parser for the evaluate script. See the arguments to 
+    :py:func:`scripts.evaluate.evaluate`.
+
+    Returns:
+        :class:`argparse.ArgumentParser`: The parser for this script.
+    &quot;&quot;&quot;
+    parser = ArgumentParser()
+    parser.add_argument(
+        &quot;-p&quot;,
+        &quot;--path_to_yml_file&quot;,
+        type=str,
+        required=True,
+        help=&quot;&quot;&quot;Path to the configuration for the experiment that is getting evaluated. The
+            corresponding test configuration for the experiment will be used to evaluate
+            the experiment across all of the audio files in the test dataset.
+        &quot;&quot;&quot;
+    )
+    parser.add_argument(
+        &quot;-e&quot;,
+        &quot;--eval_keys&quot;,
+        nargs=&#39;+&#39;,
+        type=str,
+        default=[&#39;test&#39;],
+        help=&quot;&quot;&quot;All of the keys to be used to evaluate the experiment. Will
+        run the evaluation on each eval_key in sequence. Defaults to [&#39;test&#39;].
+        &quot;&quot;&quot;
+    )
+    return parser</div>
+
+if __name__ == &#39;__main__&#39;:
+    cmd(evaluate, build_parser)
 </pre></div>
 
            </div>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>tests.test_pipeline &mdash; Cookiecutter for nussl  documentation</title>
+  <title>runners.run_in_docker &mdash; Cookiecutter for nussl  documentation</title>
   
 
   
@@ -137,9 +137,7 @@
         
           <li><a href="../index.html">Module code</a> &raquo;</li>
         
-          <li><a href="../tests.html">tests</a> &raquo;</li>
-        
-      <li>tests.test_pipeline</li>
+      <li>runners.run_in_docker</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -154,17 +152,52 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <h1>Source code for tests.test_pipeline</h1><div class="highlight"><pre>
-<span></span>from scripts import pipeline
+  <h1>Source code for runners.run_in_docker</h1><div class="highlight"><pre>
+<span></span>from . import DockerRunner
+from argparse import ArgumentParser
+import subprocess
 import os
-import pytest
 
-os.environ[&#39;DATA_DIRECTORY&#39;] = &#39;tests/out/_test_data/&#39;
+<div class="viewcode-block" id="run_in_docker"><a class="viewcode-back" href="../../source/runners.html#runners.run_in_docker.run_in_docker">[docs]</a>def run_in_docker():
+    &quot;&quot;&quot;
+    Runs a command in a Docker container. Can be configured to name the container and
+    give it GPUs. The configuration of the docker is controlled in :py:mod:`runners.config`.
 
-pipeline_ymls = [&#39;data_prep/musdb/pipeline.yml&#39;]
-<div class="viewcode-block" id="test_pipeline"><a class="viewcode-back" href="../../source/tests.html#tests.test_pipeline.test_pipeline">[docs]</a>@pytest.mark.parametrize(&quot;path_to_yml&quot;, pipeline_ymls, ids=pipeline_ymls)
-def test_pipeline(path_to_yml):
-    pipeline.main(path_to_yml)</div>
+    For example:
+
+    .. code-block:: bash
+
+       # Runs a Docker container with two GPUs.
+       python -m runners.run_in_docker nvidia-smi --name testing --gpus 0,1
+       # Simple command to ls the workspace in the Docker.
+       python -m runners.run_in_docker ls
+
+    or use the Makefile:
+
+    .. code-block:: bash
+
+       # Runs a Docker container with two GPUs.
+       make run_in_container command=&quot;nvidia-smi&quot; name=testing gpus=0,1
+       # Simple command to ls the workspace in the Docker.
+       make run_in_container command=&quot;ls&quot;
+
+    &quot;&quot;&quot;
+    parser = ArgumentParser()
+    parser.add_argument(&#39;command&#39;, type=str, nargs=&#39;+&#39;, help=&#39;command to run in docker&#39;)
+    parser.add_argument(&#39;--name&#39;, type=str, default=None)
+    parser.add_argument(&#39;--gpus&#39;, type=str, default=&#39;&#39;)
+    args = vars(parser.parse_args())
+    if len(args[&#39;command&#39;]) == 1:
+        args[&#39;command&#39;] = args[&#39;command&#39;][0].split(&#39; &#39;)
+
+    runner = DockerRunner()
+    gpus = os.getenv(&#39;CUDA_VISIBLE_DEVICES&#39;, &quot;&quot;)
+    name = os.getenv(&#39;NAME&#39;, &quot;&quot;)
+    name = runner.run(args[&#39;command&#39;], gpus, name)
+    subprocess.call([&#39;docker&#39;, &#39;logs&#39;, &#39;-f&#39;, name])</div>
+
+if __name__ == &#39;__main__&#39;:
+    run_in_docker()
 </pre></div>
 
            </div>

@@ -87,9 +87,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../experiments.html">Configuring an experiment</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../source/runners.html">runners package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../source/scripts.html">scripts package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../source/src.html">src package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/runners.html">runners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/scripts.html">scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/src.html">src</a></li>
 </ul>
 
             
@@ -153,127 +153,131 @@
            <div itemprop="articleBody">
             
   <h1>Source code for runners.script_runner_pool</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">cpu_count</span>
-<span class="kn">import</span> <span class="nn">GPUtil</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">threading</span>
-<span class="kn">from</span> <span class="nn">concurrent.futures</span> <span class="kn">import</span> <span class="n">ThreadPoolExecutor</span>
-<span class="kn">import</span> <span class="nn">random</span>
-<span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">prepare_script_args</span><span class="p">,</span> <span class="n">disp_script</span>
-<span class="kn">import</span> <span class="nn">subprocess</span>
+<span></span>from multiprocessing import cpu_count
+import GPUtil
+import logging
+import threading
+from concurrent.futures import ThreadPoolExecutor
+import random
+import time
+from .utils import prepare_script_args, disp_script
+import subprocess
 
-<div class="viewcode-block" id="job_runner"><a class="viewcode-back" href="../../source/runners.html#runners.script_runner_pool.job_runner">[docs]</a><span class="k">def</span> <span class="nf">job_runner</span><span class="p">(</span><span class="n">script</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Runs a single script in a subprocess. Uses the Makefile to run the script</span>
-<span class="sd">    (which is always a Python script). The Makefile can run things either in the</span>
-<span class="sd">    container or on the host.</span>
-<span class="sd">    </span>
-<span class="sd">    Args:</span>
-<span class="sd">        script (dict): Configuration for the script.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">disp_script</span><span class="p">(</span><span class="n">script</span><span class="p">)</span>
+<div class="viewcode-block" id="job_runner"><a class="viewcode-back" href="../../source/runners.html#runners.script_runner_pool.job_runner">[docs]</a>def job_runner(script):
+    &quot;&quot;&quot;
+    Runs a single script in a subprocess. Uses the Makefile to run the script
+    (which is always a Python script). The Makefile can run things either in the
+    container or on the host.
     
-    <span class="k">try</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">script</span><span class="p">[</span><span class="s1">&#39;run_in&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;container&#39;</span><span class="p">:</span>
-            <span class="n">target</span> <span class="o">=</span> <span class="s1">&#39;run_in_container&#39;</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">target</span> <span class="o">=</span> <span class="s1">&#39;run_in_host&#39;</span>
+    Args:
+        script (dict): Configuration for the script.
+    &quot;&quot;&quot;
+    disp_script(script)
+    
+    try:
+        if script[&#39;run_in&#39;] == &#39;container&#39;:
+            target = &#39;run_in_container&#39;
+        else:
+            target = &#39;run_in_host&#39;
         
-        <span class="n">command</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;python </span><span class="si">{script[&#39;script&#39;]}</span><span class="s2"> </span><span class="si">{script[&#39;config&#39;]}</span><span class="s2">&quot;</span>
-        <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
-            <span class="p">[</span>
-                <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">                make </span><span class="si">{target}</span><span class="s2"> command=&quot;</span><span class="si">{command}</span><span class="s2">&quot; gpus=</span><span class="si">{script[&#39;allocated_gpus&#39;]}</span><span class="s2"> </span>
-<span class="s2">                &quot;&quot;&quot;</span>
-            <span class="p">],</span> 
-            <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="p">)</span>
-    <span class="k">except</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s1">&#39;Got an exception running a script.&#39;</span><span class="p">)</span></div>
+        command = f&quot;python -m scripts.{script[&#39;script&#39;]} {script[&#39;config&#39;]}&quot;
+        print(command)
+        subprocess.run(
+            [
+                f&quot;&quot;&quot;
+                make {target} command=&quot;{command}&quot; gpus={script[&#39;allocated_gpus&#39;]} 
+                &quot;&quot;&quot;
+            ], 
+            shell=True,
+        )
+    except:
+        logging.exception(&#39;Got an exception running a script.&#39;)</div>
 
     
-<div class="viewcode-block" id="ScriptRunnerPool"><a class="viewcode-back" href="../../source/runners.html#runners.script_runner_pool.ScriptRunnerPool">[docs]</a><span class="k">class</span> <span class="nc">ScriptRunnerPool</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Class for launching scripts in sequence or parallel with corresponding </span>
-<span class="sd">    arguments. Keeps track of GPU resources for allocating jobs, takes care of</span>
-<span class="sd">    blocking on certain jobs (e.g. dataset generation), and so on. Called by</span>
-<span class="sd">    scripts/pipeline.yml or by &#39;make pipeline yml=path/to/.yml&#39;.</span>
-<span class="sd">    </span>
-<span class="sd">    Args:</span>
-<span class="sd">        max_workers (int, optional): Number of workers to use in the pool. </span>
-<span class="sd">            Controls how many jobs run at the same time. Defaults to 10.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="ScriptRunnerPool.__init__"><a class="viewcode-back" href="../../source/runners.html#runners.script_runner_pool.ScriptRunnerPool.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_workers</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>        
+<div class="viewcode-block" id="ScriptRunnerPool"><a class="viewcode-back" href="../../source/runners.html#runners.script_runner_pool.ScriptRunnerPool">[docs]</a>class ScriptRunnerPool(object):
+    &quot;&quot;&quot;
+    Class for launching scripts in sequence or parallel with corresponding 
+    arguments. Keeps track of GPU resources for allocating jobs, takes care of
+    blocking on certain jobs (e.g. dataset generation), and so on. Called by
+    scripts/pipeline.yml or by &#39;make pipeline yml=path/to/.yml&#39;.
+    
+    Args:
+        max_workers (int, optional): Number of workers to use in the pool. 
+            Controls how many jobs run at the same time. Defaults to 10.
+    &quot;&quot;&quot;
+    def __init__(self, max_workers=10):        
         
-        <span class="bp">self</span><span class="o">.</span><span class="n">gpus</span> <span class="o">=</span> <span class="n">GPUtil</span><span class="o">.</span><span class="n">getGPUs</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">executor</span> <span class="o">=</span> <span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="n">max_workers</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">blocking_executor</span> <span class="o">=</span> <span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">taken_gpus</span> <span class="o">=</span> <span class="p">[]</span></div>
+        self.gpus = GPUtil.getGPUs()
+        self.executor = ThreadPoolExecutor(max_workers=max_workers)
+        self.blocking_executor = ThreadPoolExecutor(max_workers=1)
+        self.taken_gpus = []
 
-<div class="viewcode-block" id="ScriptRunnerPool.submit"><a class="viewcode-back" href="../../source/runners.html#runners.script_runner_pool.ScriptRunnerPool.submit">[docs]</a>    <span class="k">def</span> <span class="nf">submit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scripts</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Takes in a list of scripts and allocates each of them to a ThreadPoolExecutor.</span>
-<span class="sd">        Each script is run via the Makefile, so each thread spawns a process by using</span>
-<span class="sd">        subprocess.run (see :py:meth:`runners.script_runner_pool.job_runner`)</span>
+<div class="viewcode-block" id="ScriptRunnerPool.submit"><a class="viewcode-back" href="../../source/runners.html#runners.script_runner_pool.ScriptRunnerPool.submit">[docs]</a>    def submit(self, scripts):
+        &quot;&quot;&quot;
+        Takes in a list of scripts and allocates each of them to a ThreadPoolExecutor.
+        Each script is run via the Makefile, so each thread spawns a process by using
+        subprocess.run (see :py:meth:`runners.script_runner_pool.job_runner`)
 
-<span class="sd">        The logic of this script is to go through every script in order. If the script</span>
-<span class="sd">        is blocking, then it will wait until the script finishes executing before</span>
-<span class="sd">        moving on to the next script. If the script requires GPU (num_gpus &gt; 0), it</span>
-<span class="sd">        will check the availability of GPUs using GPUtil and only schedule the job</span>
-<span class="sd">        to be run if there is an available GPU for it. If not, it will try again</span>
-<span class="sd">        every 5 seconds until all jobs have been scheduled.</span>
-<span class="sd">        </span>
-<span class="sd">        Args:</span>
-<span class="sd">            scripts (list): A list of configurations for scripts that get run. </span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">allocated_scripts</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">allocated_scripts</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">scripts</span><span class="p">):</span>
-            <span class="n">taken_gpus</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="n">num_gpus_allocated</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="k">for</span> <span class="n">script</span> <span class="ow">in</span> <span class="n">scripts</span><span class="p">:</span>
-                <span class="n">script</span> <span class="o">=</span> <span class="n">prepare_script_args</span><span class="p">(</span><span class="n">script</span><span class="p">)</span>
+        The logic of this script is to go through every script in order. If the script
+        is blocking, then it will wait until the script finishes executing before
+        moving on to the next script. If the script requires GPU (num_gpus &gt; 0), it
+        will check the availability of GPUs using GPUtil and only schedule the job
+        to be run if there is an available GPU for it. If not, it will try again
+        every 5 seconds until all jobs have been scheduled.
+        
+        Args:
+            scripts (list): A list of configurations for scripts that get run. 
+        &quot;&quot;&quot;
+        allocated_scripts = []
+        while len(allocated_scripts) &lt; len(scripts):
+            taken_gpus = []
+            num_gpus_allocated = 0
+            for script in scripts:
+                script = prepare_script_args(script)
 
-                <span class="k">if</span> <span class="n">script</span> <span class="ow">in</span> <span class="n">allocated_scripts</span><span class="p">:</span>
-                    <span class="k">continue</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Trying to allocate resources...&#39;</span><span class="p">)</span>
-                <span class="n">num_gpus</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">script</span><span class="p">[</span><span class="s1">&#39;num_gpus&#39;</span><span class="p">])</span>
+                if script in allocated_scripts:
+                    continue
+                logging.info(f&#39;Trying to allocate resources...&#39;)
+                num_gpus = int(script[&#39;num_gpus&#39;])
                 
-                <span class="n">available_gpus</span> <span class="o">=</span> <span class="n">GPUtil</span><span class="o">.</span><span class="n">getAvailable</span><span class="p">(</span>
-                    <span class="n">order</span> <span class="o">=</span> <span class="s1">&#39;first&#39;</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="n">num_gpus</span> <span class="o">+</span> <span class="n">num_gpus_allocated</span><span class="p">,</span>
-                    <span class="n">maxLoad</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span> <span class="n">maxMemory</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span> <span class="n">includeNan</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
-                    <span class="n">excludeID</span><span class="o">=</span><span class="p">[],</span> <span class="n">excludeUUID</span><span class="o">=</span><span class="p">[]</span>
-                <span class="p">)</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">&#39;Available GPUs: </span><span class="si">{available_gpus}</span><span class="s1">&#39;</span>
-                <span class="p">)</span>
-                <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">taken_gpus</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">available_gpus</span><span class="p">:</span>
-                        <span class="n">available_gpus</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">available_gpus</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">num_gpus</span><span class="p">:</span>
-                    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Found GPUs </span><span class="si">{available_gpus}</span><span class="s2"> for </span><span class="si">{script[&#39;config&#39;]}</span><span class="s2"> &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;which needed </span><span class="si">{num_gpus}</span><span class="s2"> GPUs&quot;</span>
-                    <span class="p">)</span>
-                    <span class="n">taken_gpus</span> <span class="o">+=</span> <span class="n">available_gpus</span>
-                    <span class="n">script</span><span class="p">[</span><span class="s1">&#39;allocated_gpus&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">available_gpus</span><span class="p">))</span>
+                available_gpus = GPUtil.getAvailable(
+                    order = &#39;first&#39;, limit=num_gpus + num_gpus_allocated,
+                    maxLoad = 0.05, maxMemory = 0.05, includeNan=False, 
+                    excludeID=[], excludeUUID=[]
+                )
+                logging.info(
+                    f&#39;Available GPUs: {available_gpus}&#39;
+                )
+                for t in taken_gpus:
+                    if t in available_gpus:
+                        available_gpus.remove(t)
+                if len(available_gpus) &gt;= num_gpus:
+                    logging.info(
+                        f&quot;Found GPUs {available_gpus} for {script[&#39;config&#39;]} &quot;
+                        f&quot;which needed {num_gpus} GPUs&quot;
+                    )
+                    taken_gpus += available_gpus
+                    script[&#39;allocated_gpus&#39;] = &#39;,&#39;.join(map(str, available_gpus))
 
-                    <span class="k">if</span> <span class="n">script</span><span class="p">[</span><span class="s1">&#39;blocking&#39;</span><span class="p">]:</span>
-                        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;Blocking requested. Submitting </span><span class="si">{script[&#39;config&#39;]}</span><span class="s2"> &quot;</span> 
-                            <span class="sa">f</span><span class="s2">&quot;to blocking executor.&quot;</span><span class="p">)</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">blocking_executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">job_runner</span><span class="p">,</span> <span class="n">script</span><span class="p">)</span>
-                        <span class="n">allocated_scripts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">script</span><span class="p">)</span>
-                        <span class="n">taken_gpus</span> <span class="o">=</span> <span class="p">[]</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">blocking_executor</span><span class="o">.</span><span class="n">shutdown</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">blocking_executor</span> <span class="o">=</span> <span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">job_runner</span><span class="p">,</span> <span class="n">script</span><span class="p">)</span>
-                        <span class="n">allocated_scripts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">script</span><span class="p">)</span>
-                        <span class="n">num_gpus_allocated</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">taken_gpus</span><span class="p">)</span>
+                    if script[&#39;blocking&#39;]:
+                        logging.info(
+                            f&quot;Blocking requested. Submitting {script[&#39;config&#39;]} &quot; 
+                            f&quot;to blocking executor.&quot;)
+                        self.blocking_executor.submit(job_runner, script)
+                        allocated_scripts.append(script)
+                        taken_gpus = []
+                        self.blocking_executor.shutdown(wait=True)
+                        self.blocking_executor = ThreadPoolExecutor(max_workers=1)
+                    else:
+                        self.executor.submit(job_runner, script)
+                        allocated_scripts.append(script)
+                        num_gpus_allocated = len(taken_gpus)
 
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">allocated_scripts</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">scripts</span><span class="p">):</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;{len(scripts)} scripts remaining. Trying again soon...&quot;</span><span class="p">)</span>
-                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+            if len(allocated_scripts) &lt; len(scripts):
+                logging.info(f&quot;{len(scripts)} scripts remaining. Trying again soon...&quot;)
+                time.sleep(5)
         
-        <span class="bp">self</span><span class="o">.</span><span class="n">executor</span><span class="o">.</span><span class="n">shutdown</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div></div>
+        self.executor.shutdown(wait=True)</div></div>
 </pre></div>
 
            </div>

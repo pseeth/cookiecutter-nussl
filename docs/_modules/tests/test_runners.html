@@ -87,9 +87,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../experiments.html">Configuring an experiment</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../source/runners.html">runners package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../source/scripts.html">scripts package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../source/src.html">src package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/runners.html">runners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/scripts.html">scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/src.html">src</a></li>
 </ul>
 
             
@@ -155,15 +155,15 @@
            <div itemprop="articleBody">
             
   <h1>Source code for tests.test_runners</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">runners</span> <span class="kn">import</span> <span class="n">DockerRunner</span>
-<span class="kn">from</span> <span class="nn">runners.script_runner_pool</span> <span class="kn">import</span> <span class="n">ScriptRunnerPool</span>
+<span></span>from runners import DockerRunner
+from runners.script_runner_pool import ScriptRunnerPool
 
-<div class="viewcode-block" id="test_docker_runner"><a class="viewcode-back" href="../../source/tests.html#tests.test_runners.test_docker_runner">[docs]</a><span class="k">def</span> <span class="nf">test_docker_runner</span><span class="p">():</span>
-    <span class="n">runner</span> <span class="o">=</span> <span class="n">DockerRunner</span><span class="p">()</span>
-    <span class="n">runner</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;ls&quot;</span><span class="p">,</span> <span class="n">gpus</span><span class="o">=</span><span class="s1">&#39;0&#39;</span><span class="p">)</span>
-    <span class="n">runner</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+<div class="viewcode-block" id="test_docker_runner"><a class="viewcode-back" href="../../source/tests.html#tests.test_runners.test_docker_runner">[docs]</a>def test_docker_runner():
+    runner = DockerRunner()
+    runner.run(&quot;ls&quot;, gpus=&#39;0&#39;)
+    runner.container.wait()
     
-    <span class="n">runner</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;ls&quot;</span><span class="p">,</span> <span class="n">gpus</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span></div>
+    runner.run(&quot;ls&quot;, gpus=&#39;&#39;)</div>
 </pre></div>
 
            </div>

@@ -87,9 +87,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../experiments.html">Configuring an experiment</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../source/runners.html">runners package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../source/scripts.html">scripts package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../source/src.html">src package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/runners.html">runners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/scripts.html">scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/src.html">src</a></li>
 </ul>
 
             
@@ -153,101 +153,102 @@
            <div itemprop="articleBody">
             
   <h1>Source code for runners.docker_runner</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">docker</span>
-<span class="kn">import</span> <span class="nn">GPUtil</span>
-<span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">volumes</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">logging</span>
+<span></span>import docker
+import GPUtil
+from .config import volumes
+import os
+import logging
 
-<div class="viewcode-block" id="DockerRunner"><a class="viewcode-back" href="../../source/runners.html#runners.docker_runner.DockerRunner">[docs]</a><span class="k">class</span> <span class="nc">DockerRunner</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This class just creates a Docker container from the given image and runs it.</span>
-<span class="sd">    If the image is not specified, it looks in the environment variable called</span>
-<span class="sd">    &#39;DOCKER_IMAGE_NAME&#39;. If that doesn&#39;t exist, it throws a warning.</span>
+<div class="viewcode-block" id="DockerRunner"><a class="viewcode-back" href="../../source/runners.html#runners.docker_runner.DockerRunner">[docs]</a>class DockerRunner(object):
+    &quot;&quot;&quot;
+    This class just creates a Docker container from the given image and runs it.
+    If the image is not specified, it looks in the environment variable called
+    &#39;DOCKER_IMAGE_NAME&#39;. If that doesn&#39;t exist, it throws a warning.
 
-<span class="sd">    If there are gpus available, it uses the NVIDIA docker runtime to access them</span>
-<span class="sd">    through GPU passthrough. If no GPUs are available, it uses the standard runtime.</span>
+    If there are gpus available, it uses the NVIDIA docker runtime to access them
+    through GPU passthrough. If no GPUs are available, it uses the standard runtime.
 
-<span class="sd">    The class mounts volumes in the host into the container at specified paths. These</span>
-<span class="sd">    paths are specified in config.py and are accessible via environment variables. </span>
+    The class mounts volumes in the host into the container at specified paths. These
+    paths are specified in config.py and are accessible via environment variables. 
 
-<span class="sd">    Args:</span>
-<span class="sd">        image (str): Image to use when running inside Docker. If not specified, it </span>
-<span class="sd">            uses whatever is in the environment variable DOCKER_IMAGE_NAME. If that</span>
-<span class="sd">            isn&#39;t specified, it throws a warning.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="DockerRunner.__init__"><a class="viewcode-back" href="../../source/runners.html#runners.docker_runner.DockerRunner.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">num_gpus</span> <span class="o">=</span> <span class="n">GPUtil</span><span class="o">.</span><span class="n">getAvailable</span><span class="p">(</span><span class="n">order</span> <span class="o">=</span> <span class="s1">&#39;first&#39;</span><span class="p">,</span> <span class="n">limit</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_gpus</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">runtime</span> <span class="o">=</span> <span class="s1">&#39;nvidia&#39;</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">runtime</span> <span class="o">=</span> <span class="s1">&#39;runc&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">container</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">volumes</span> <span class="o">=</span> <span class="n">volumes</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">docker</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;DOCKER_IMAGE_NAME&#39;</span><span class="p">,</span> <span class="n">image</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s1">&#39;image is None! Either DOCKER_IMAGE_NAME environment variable is not set &#39;</span>
-                <span class="s1">&#39;or image was not defined when instantiating DockerRunner.&#39;</span>
-            <span class="p">)</span></div>
+    Args:
+        image (str): Image to use when running inside Docker. If not specified, it 
+            uses whatever is in the environment variable DOCKER_IMAGE_NAME. If that
+            isn&#39;t specified, it throws a warning.
+    &quot;&quot;&quot;
+    def __init__(self, image=None):
+        self.num_gpus = GPUtil.getAvailable(order = &#39;first&#39;, limit = 1000)
+        if self.num_gpus:
+            self.runtime = &#39;nvidia&#39;
+        else:
+            self.runtime = &#39;runc&#39;
+        self.container = None
+        self.volumes = volumes
+        self.client = docker.from_env()
+        self.image = os.getenv(&#39;DOCKER_IMAGE_NAME&#39;, image)
+        if not self.image:
+            logging.debug(
+                &#39;image is None! Either DOCKER_IMAGE_NAME environment variable is not set &#39;
+                &#39;or image was not defined when instantiating DockerRunner.&#39;
+            )
 
-<div class="viewcode-block" id="DockerRunner.run"><a class="viewcode-back" href="../../source/runners.html#runners.docker_runner.DockerRunner.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">gpus</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">detach</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Run a given command in a Docker container. This detaches from the container</span>
-<span class="sd">        completely by default. </span>
+<div class="viewcode-block" id="DockerRunner.run"><a class="viewcode-back" href="../../source/runners.html#runners.docker_runner.DockerRunner.run">[docs]</a>    def run(self, command, gpus, name=None, detach=True):
+        &quot;&quot;&quot;
+        Run a given command in a Docker container. This detaches from the container
+        completely by default. 
 
-<span class="sd">        Args:</span>
-<span class="sd">            command (str): Command to run inside the container.</span>
-<span class="sd">            gpus (str): What GPUs to use. For example gpus=&#39;0,1,2&#39; will result in the</span>
-<span class="sd">                container having access to the first 3 GPUs on the system.</span>
-<span class="sd">            name (str): The container should be named something. If name is not provided</span>
-<span class="sd">                (default) then a name is chosen by parsing the command. Docker container</span>
-<span class="sd">                names must be unique.</span>
-<span class="sd">            detach (bool): Whether to detach from the container after launching (running</span>
-<span class="sd">                it in the background) or to stay attached to the container.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Running: </span><span class="si">{command}</span><span class="s1"> on GPUs: </span><span class="si">{gpus}</span><span class="s1">&#39;</span><span class="p">)</span>
+        Args:
+            command (str): Command to run inside the container.
+            gpus (str): What GPUs to use. For example gpus=&#39;0,1,2&#39; will result in the
+                container having access to the first 3 GPUs on the system.
+            name (str): The container should be named something. If name is not provided
+                (default) then a name is chosen by parsing the command. Docker container
+                names must be unique.
+            detach (bool): Whether to detach from the container after launching (running
+                it in the background) or to stay attached to the container.
+        &quot;&quot;&quot;
+        logging.info(f&#39;Running: {command} on GPUs: {gpus}&#39;)
 
-        <span class="n">ports</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">user</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;USER&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="p">:</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="n">command</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">command</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;experiments&#39;</span><span class="p">,</span> <span class="s1">&#39;exp&#39;</span><span class="p">)</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">)</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">)</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">)</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Docker container name: </span><span class="si">{name}</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">command</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;jupyter&#39;</span><span class="p">:</span>
-            <span class="c1">#forward a port</span>
-            <span class="n">external_port</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;JUPYTER_HOST_PORT&#39;</span><span class="p">,</span> <span class="mi">8888</span><span class="p">)</span>
-            <span class="n">ports</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;8888&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;0.0.0.0&#39;</span><span class="p">,</span> <span class="n">external_port</span><span class="p">)}</span>
-        <span class="k">elif</span> <span class="n">command</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;tensorboard&#39;</span><span class="p">:</span>
-            <span class="n">external_port</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;TENSORBOARD_HOST_PORT&#39;</span><span class="p">,</span> <span class="mi">6006</span><span class="p">)</span>
-            <span class="n">ports</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;6006&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;0.0.0.0&#39;</span><span class="p">,</span> <span class="n">external_port</span><span class="p">)}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">container</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">containers</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
-            <span class="n">image</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span>
-            <span class="n">auto_remove</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">runtime</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">runtime</span><span class="p">,</span>
-            <span class="n">ipc_mode</span><span class="o">=</span><span class="s1">&#39;host&#39;</span><span class="p">,</span>
-            <span class="n">command</span><span class="o">=</span><span class="n">command</span><span class="p">,</span>
-            <span class="n">working_dir</span><span class="o">=</span><span class="s2">&quot;/workspace&quot;</span><span class="p">,</span>
-            <span class="n">volumes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">volumes</span><span class="p">,</span>
-            <span class="n">entrypoint</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
-            <span class="n">ports</span><span class="o">=</span><span class="n">ports</span><span class="p">,</span>
-            <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
-            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
-            <span class="n">environment</span><span class="o">=</span><span class="p">[</span>
-                <span class="sa">f</span><span class="s2">&quot;NVIDIA_VISIBLE_DEVICES=</span><span class="si">{gpus}</span><span class="s2">&quot;</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;COMET_API_KEY={os.getenv(&#39;COMET_API_KEY&#39;)}&quot;</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;NUSSL_DIRECTORY={os.getenv(&#39;NUSSL_DIRECTORY&#39;)}&quot;</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;DATA_DIRECTORY={os.getenv(&#39;DATA_DIRECTORY&#39;)}&quot;</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;CACHE_DIRECTORY={os.getenv(&#39;CACHE_DIRECTORY&#39;)}&quot;</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;ARTIFACTS_DIRECTORY={os.getenv(&#39;ARTIFACTS_DIRECTORY&#39;)}&quot;</span><span class="p">,</span>
-            <span class="p">],</span>
-            <span class="n">detach</span><span class="o">=</span><span class="n">detach</span><span class="p">,</span>
-            <span class="n">stderr</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">stdout</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="n">name</span></div></div>
+        ports = None
+        user = os.getenv(&#39;USER&#39;)
+        if not name:
+            name = command[0] + command[-1].replace(&#39;experiments&#39;, &#39;exp&#39;)
+            name = name.replace(&#39;_&#39;, &#39;-&#39;)
+            name = name.replace(&#39; &#39;, &#39;-&#39;)
+            name = name.replace(&#39;/&#39;, &#39;.&#39;)
+            logging.info(f&#39;Docker container name: {name}&#39;)
+        if command[0] == &#39;jupyter&#39;:
+            #forward a port
+            external_port = os.getenv(&#39;JUPYTER_HOST_PORT&#39;, 8888)
+            ports = {&#39;8888&#39;: (&#39;0.0.0.0&#39;, external_port)}
+        elif command[0] == &#39;tensorboard&#39;:
+            external_port = os.getenv(&#39;TENSORBOARD_HOST_PORT&#39;, 6006)
+            ports = {&#39;6006&#39;: (&#39;0.0.0.0&#39;, external_port)}
+        self.container = self.client.containers.run(
+            image=self.image,
+            auto_remove=True,
+            runtime=self.runtime,
+            ipc_mode=&#39;host&#39;,
+            command=command,
+            working_dir=&quot;/workspace&quot;,
+            volumes=self.volumes,
+            entrypoint=&quot;&quot;,
+            ports=ports,
+            user=user,
+            name=name,
+            environment=[
+                f&quot;NVIDIA_VISIBLE_DEVICES={gpus}&quot;,
+                f&quot;COMET_API_KEY={os.getenv(&#39;COMET_API_KEY&#39;)}&quot;,
+                f&quot;NUSSL_DIRECTORY={os.getenv(&#39;NUSSL_DIRECTORY&#39;)}&quot;,
+                f&quot;DATA_DIRECTORY={os.getenv(&#39;DATA_DIRECTORY&#39;)}&quot;,
+                f&quot;CACHE_DIRECTORY={os.getenv(&#39;CACHE_DIRECTORY&#39;)}&quot;,
+                f&quot;ARTIFACTS_DIRECTORY={os.getenv(&#39;ARTIFACTS_DIRECTORY&#39;)}&quot;,
+            ],
+            detach=detach,
+            stderr=True,
+            stdout=True,
+        )
+        return name</div></div>
 </pre></div>
 
            </div>

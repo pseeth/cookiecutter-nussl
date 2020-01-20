@@ -1,5 +1,5 @@
-src.test package
-================
+src.test
+========
 
 Module contents
 ---------------

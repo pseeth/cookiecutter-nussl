@@ -87,9 +87,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../experiments.html">Configuring an experiment</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/runners.html">runners package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/scripts.html">scripts package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/src.html">src package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/runners.html">runners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/scripts.html">scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/src.html">src</a></li>
 </ul>
 
             
@@ -153,126 +153,126 @@
            <div itemprop="articleBody">
             
   <h1>Source code for nussl.separation.deep_mask_estimation</h1><div class="highlight"><pre>
-<span></span><span class="ch">#!/usr/bin/env python</span>
-<span class="c1"># -*- coding: utf-8 -*-</span>
-<span class="kn">import</span> <span class="nn">copy</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
+<span></span>#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+import copy
+import warnings
 
-<span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">import</span> <span class="nn">librosa</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+import torch
+import librosa
+import numpy as np
 
-<span class="kn">from</span> <span class="nn">..deep</span> <span class="kn">import</span> <span class="n">SeparationModel</span>
-<span class="kn">from</span> <span class="nn">..deep</span> <span class="kn">import</span> <span class="n">modules</span>
-<span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="kn">import</span> <span class="n">PCA</span>
-<span class="kn">from</span> <span class="nn">.mask_separation_base</span> <span class="kn">import</span> <span class="n">MaskSeparationBase</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">masks</span>
-<span class="kn">from</span> <span class="nn">.deep_mixin</span> <span class="kn">import</span> <span class="n">DeepMixin</span>
+from ..deep import SeparationModel
+from ..deep import modules
+from sklearn.decomposition import PCA
+from .mask_separation_base import MaskSeparationBase
+from . import masks
+from .deep_mixin import DeepMixin
 
 
-<div class="viewcode-block" id="DeepMaskEstimation"><a class="viewcode-back" href="../../../source/src.algorithms.html#src.algorithms.DeepMaskEstimation">[docs]</a><span class="k">class</span> <span class="nc">DeepMaskEstimation</span><span class="p">(</span><span class="n">MaskSeparationBase</span><span class="p">,</span> <span class="n">DeepMixin</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Implements deep source separation models using PyTorch&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="DeepMaskEstimation"><a class="viewcode-back" href="../../../source/src.algorithms.html#src.algorithms.DeepMaskEstimation">[docs]</a>class DeepMaskEstimation(MaskSeparationBase, DeepMixin):
+    &quot;&quot;&quot;Implements deep source separation models using PyTorch&quot;&quot;&quot;
 
-<div class="viewcode-block" id="DeepMaskEstimation.__init__"><a class="viewcode-back" href="../../../source/src.algorithms.html#src.algorithms.DeepMaskEstimation.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">input_audio_signal</span><span class="p">,</span>
-        <span class="n">model_path</span><span class="p">,</span>
-        <span class="n">extra_modules</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">mask_type</span><span class="o">=</span><span class="s1">&#39;soft&#39;</span><span class="p">,</span>
-        <span class="n">use_librosa_stft</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">use_cuda</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">):</span>
+    def __init__(
+        self,
+        input_audio_signal,
+        model_path,
+        extra_modules=None,
+        mask_type=&#39;soft&#39;,
+        use_librosa_stft=False,
+        use_cuda=True,
+    ):
 
-        <span class="nb">super</span><span class="p">(</span><span class="n">DeepMaskEstimation</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">input_audio_signal</span><span class="o">=</span><span class="n">input_audio_signal</span><span class="p">,</span>
-            <span class="n">mask_type</span><span class="o">=</span><span class="n">mask_type</span>
-        <span class="p">)</span>
+        super(DeepMaskEstimation, self).__init__(
+            input_audio_signal=input_audio_signal,
+            mask_type=mask_type
+        )
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span>
-            <span class="s1">&#39;cuda&#39;</span>
-            <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="ow">and</span> <span class="n">use_cuda</span>
-            <span class="k">else</span> <span class="s1">&#39;cpu&#39;</span>
-        <span class="p">)</span>
+        self.device = torch.device(
+            &#39;cuda&#39;
+            if torch.cuda.is_available() and use_cuda
+            else &#39;cpu&#39;
+        )
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">extra_modules</span><span class="o">=</span><span class="n">extra_modules</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">input_audio_signal</span><span class="o">.</span><span class="n">sample_rate</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;sample_rate&#39;</span><span class="p">]:</span>
-            <span class="n">input_audio_signal</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;sample_rate&#39;</span><span class="p">])</span>
+        self.model, self.metadata = self.load_model(model_path, extra_modules=extra_modules)
+        if input_audio_signal.sample_rate != self.metadata[&#39;sample_rate&#39;]:
+            input_audio_signal.resample(self.metadata[&#39;sample_rate&#39;])
 
-        <span class="n">input_audio_signal</span><span class="o">.</span><span class="n">stft_params</span><span class="o">.</span><span class="n">window_length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;n_fft&#39;</span><span class="p">]</span>
-        <span class="n">input_audio_signal</span><span class="o">.</span><span class="n">stft_params</span><span class="o">.</span><span class="n">n_fft_bins</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;n_fft&#39;</span><span class="p">]</span>
-        <span class="n">input_audio_signal</span><span class="o">.</span><span class="n">stft_params</span><span class="o">.</span><span class="n">hop_length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;hop_length&#39;</span><span class="p">]</span>
+        input_audio_signal.stft_params.window_length = self.metadata[&#39;n_fft&#39;]
+        input_audio_signal.stft_params.n_fft_bins = self.metadata[&#39;n_fft&#39;]
+        input_audio_signal.stft_params.hop_length = self.metadata[&#39;hop_length&#39;]
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">use_librosa_stft</span> <span class="o">=</span> <span class="n">use_librosa_stft</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_compute_spectrograms</span><span class="p">()</span></div>
+        self.use_librosa_stft = use_librosa_stft
+        self._compute_spectrograms()
 
-    <span class="k">def</span> <span class="nf">_compute_spectrograms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">stft</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">audio_signal</span><span class="o">.</span><span class="n">stft</span><span class="p">(</span>
-            <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">remove_reflection</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">use_librosa</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">use_librosa_stft</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">log_spectrogram</span> <span class="o">=</span> <span class="n">librosa</span><span class="o">.</span><span class="n">amplitude_to_db</span><span class="p">(</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stft</span><span class="p">),</span>
-            <span class="n">ref</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">max</span>
-        <span class="p">)</span>
+    def _compute_spectrograms(self):
+        self.stft = self.audio_signal.stft(
+            overwrite=True,
+            remove_reflection=True,
+            use_librosa=self.use_librosa_stft
+        )
+        self.log_spectrogram = librosa.amplitude_to_db(
+            np.abs(self.stft),
+            ref=np.max
+        )
 
-<div class="viewcode-block" id="DeepMaskEstimation.run"><a class="viewcode-back" href="../../../source/src.algorithms.html#src.algorithms.DeepMaskEstimation.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="DeepMaskEstimation.run"><a class="viewcode-back" href="../../../source/src.algorithms.html#src.algorithms.DeepMaskEstimation.run">[docs]</a>    def run(self):
+        &quot;&quot;&quot;
 
-<span class="sd">        Returns:</span>
+        Returns:
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">input_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preprocess</span><span class="p">()</span>
-        <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
-            <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="n">input_data</span><span class="p">)</span>
-            <span class="n">output</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">output</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">output</span><span class="p">}</span>
+        &quot;&quot;&quot;
+        input_data = self._preprocess()
+        with torch.no_grad():
+            output = self.model(input_data)
+            output = {k: output[k] for k in output}
 
-            <span class="k">if</span> <span class="s1">&#39;estimates&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">output</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;This model is not a mask estimation model!&quot;</span><span class="p">)</span>
+            if &#39;estimates&#39; not in output:
+                raise ValueError(&quot;This model is not a mask estimation model!&quot;)
 
-            <span class="n">_masks</span> <span class="o">=</span> <span class="p">(</span><span class="n">output</span><span class="p">[</span><span class="s1">&#39;estimates&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">input_data</span><span class="p">[</span><span class="s1">&#39;magnitude_spectrogram&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-            <span class="n">_masks</span> <span class="o">=</span> <span class="n">_masks</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-            <span class="n">_masks</span> <span class="o">=</span> <span class="n">_masks</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+            _masks = (output[&#39;estimates&#39;] / input_data[&#39;magnitude_spectrogram&#39;].unsqueeze(-1)).squeeze(0)
+            _masks = _masks.permute(3, 1, 0, 2)
+            _masks = _masks.cpu().data.numpy()
         
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">assignments</span> <span class="o">=</span> <span class="n">_masks</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">num_sources</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assignments</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">masks</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">assignments</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
-            <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assignments</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span>
-            <span class="n">mask</span> <span class="o">=</span> <span class="n">masks</span><span class="o">.</span><span class="n">SoftMask</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_type</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">BINARY_MASK</span><span class="p">:</span>
-                <span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span><span class="o">.</span><span class="n">mask_to_binary</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_sources</span><span class="p">))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">masks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+        self.assignments = _masks
+        self.num_sources = self.assignments.shape[0]
+        self.masks = []
+        for i in range(self.assignments.shape[-1]):
+            mask = self.assignments[i, :, :, :]
+            mask = masks.SoftMask(mask)
+            if self.mask_type == self.BINARY_MASK:
+                mask = mask.mask_to_binary(1 / len(self.num_sources))
+            self.masks.append(mask)
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">masks</span></div>
+        return self.masks</div>
 
-<div class="viewcode-block" id="DeepMaskEstimation.apply_mask"><a class="viewcode-back" href="../../../source/src.algorithms.html#src.algorithms.DeepMaskEstimation.apply_mask">[docs]</a>    <span class="k">def</span> <span class="nf">apply_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mask</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            Applies individual mask and returns audio_signal object</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">source</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">audio_signal</span><span class="p">)</span>
-        <span class="n">source</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">apply_mask</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
-        <span class="n">source</span><span class="o">.</span><span class="n">stft_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">audio_signal</span><span class="o">.</span><span class="n">stft_params</span>
-        <span class="n">source</span><span class="o">.</span><span class="n">istft</span><span class="p">(</span>
-            <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">truncate_to_length</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">audio_signal</span><span class="o">.</span><span class="n">signal_length</span>
-        <span class="p">)</span>
+<div class="viewcode-block" id="DeepMaskEstimation.apply_mask"><a class="viewcode-back" href="../../../source/src.algorithms.html#src.algorithms.DeepMaskEstimation.apply_mask">[docs]</a>    def apply_mask(self, mask):
+        &quot;&quot;&quot;
+            Applies individual mask and returns audio_signal object
+        &quot;&quot;&quot;
+        source = copy.deepcopy(self.audio_signal)
+        source = source.apply_mask(mask)
+        source.stft_params = self.audio_signal.stft_params
+        source.istft(
+            overwrite=True,
+            truncate_to_length=self.audio_signal.signal_length
+        )
 
-        <span class="k">return</span> <span class="n">source</span></div>
+        return source</div>
 
-<div class="viewcode-block" id="DeepMaskEstimation.make_audio_signals"><a class="viewcode-back" href="../../../source/src.algorithms.html#src.algorithms.DeepMaskEstimation.make_audio_signals">[docs]</a>    <span class="k">def</span> <span class="nf">make_audio_signals</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Applies each mask in self.masks and returns a list of audio_signal</span>
-<span class="sd">         objects for each source.</span>
-<span class="sd">        Returns:</span>
-<span class="sd">            self.sources (np.array): An array of audio_signal objects</span>
-<span class="sd">            containing each separated source</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sources</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">mask</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">masks</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">apply_mask</span><span class="p">(</span><span class="n">mask</span><span class="p">))</span>
+<div class="viewcode-block" id="DeepMaskEstimation.make_audio_signals"><a class="viewcode-back" href="../../../source/src.algorithms.html#src.algorithms.DeepMaskEstimation.make_audio_signals">[docs]</a>    def make_audio_signals(self):
+        &quot;&quot;&quot; Applies each mask in self.masks and returns a list of audio_signal
+         objects for each source.
+        Returns:
+            self.sources (np.array): An array of audio_signal objects
+            containing each separated source
+        &quot;&quot;&quot;
+        self.sources = []
+        for mask in self.masks:
+            self.sources.append(self.apply_mask(mask))
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span></div></div>
+        return self.sources</div></div>
 </pre></div>
 
            </div>

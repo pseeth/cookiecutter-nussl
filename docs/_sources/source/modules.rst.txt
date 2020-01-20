@@ -1,3 +1,6 @@
+{{ cookiecutter.repo_name }}
+============================
+
 .. toctree::
    :maxdepth: 4
 

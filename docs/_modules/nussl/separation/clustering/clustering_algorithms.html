@@ -87,9 +87,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../experiments.html">Configuring an experiment</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../../source/runners.html">runners package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../source/scripts.html">scripts package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../source/src.html">src package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../source/runners.html">runners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../source/scripts.html">scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../source/src.html">src</a></li>
 </ul>
 
             
@@ -153,227 +153,227 @@
            <div itemprop="articleBody">
             
   <h1>Source code for nussl.separation.clustering.clustering_algorithms</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">.clustering_separation_base</span> <span class="kn">import</span> <span class="n">ClusteringSeparationBase</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">import</span> <span class="nn">librosa</span>
-<span class="kn">from</span> <span class="nn">..deep_mixin</span> <span class="kn">import</span> <span class="n">DeepMixin</span>
-<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">FT2D</span><span class="p">,</span> <span class="n">Melodia</span><span class="p">,</span> <span class="n">HPSS</span><span class="p">,</span> <span class="n">Repet</span><span class="p">,</span> <span class="n">RepetSim</span><span class="p">,</span> <span class="n">MultichannelWienerFilter</span>
-<span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="kn">import</span> <span class="n">TruncatedSVD</span>
-<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">scale</span>
-<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+<span></span>from .clustering_separation_base import ClusteringSeparationBase
+import numpy as np
+import torch
+import librosa
+from ..deep_mixin import DeepMixin
+from .. import FT2D, Melodia, HPSS, Repet, RepetSim, MultichannelWienerFilter
+from sklearn.decomposition import TruncatedSVD
+from sklearn.preprocessing import scale
+from copy import deepcopy
 
-<span class="k">class</span> <span class="nc">SpatialClustering</span><span class="p">(</span><span class="n">ClusteringSeparationBase</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">extract_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">ipd</span><span class="p">,</span> <span class="n">ild</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">audio_signal</span><span class="o">.</span><span class="n">ipd_ild_features</span><span class="p">()</span>
-        <span class="n">num_channels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">audio_signal</span><span class="o">.</span><span class="n">num_channels</span>
+class SpatialClustering(ClusteringSeparationBase):
+    def extract_features(self):
+        ipd, ild = self.audio_signal.ipd_ild_features()
+        num_channels = self.audio_signal.num_channels
         
-        <span class="n">features</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="p">[</span><span class="n">ipd</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_channels</span><span class="p">)],</span>
-            <span class="p">[</span><span class="n">ild</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_channels</span><span class="p">)]</span>
-        <span class="p">]</span>
-        <span class="n">features</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">features</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>   
-        <span class="n">features</span> <span class="o">=</span> <span class="n">features</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">features</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>   
+        features = [
+            [ipd for i in range(num_channels)],
+            [ild for i in range(num_channels)]
+        ]
+        features = np.array(features).transpose(2, 3, 1, 0)   
+        features = features.reshape(-1, features.shape[-1])   
 
-        <span class="k">return</span> <span class="n">features</span>
+        return features
 
-<span class="k">class</span> <span class="nc">PrimitiveClustering</span><span class="p">(</span><span class="n">ClusteringSeparationBase</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> 
-        <span class="n">input_audio_signal</span><span class="p">,</span>
-        <span class="n">algorithms</span><span class="p">,</span>
-        <span class="n">num_cascades</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-        <span class="n">scale_features</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="o">**</span><span class="n">kwargs</span>
-    <span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">input_audio_signal</span><span class="p">,</span>
-            <span class="o">**</span><span class="n">kwargs</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">original_stft_params</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">audio_signal</span><span class="o">.</span><span class="n">stft_params</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">algorithms</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">algorithms</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">algorithm_parameters</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="p">{}</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">algorithms</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">algorithm_returns</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="k">else</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">algorithms</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">num_cascades</span> <span class="o">=</span> <span class="n">num_cascades</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">scale_features</span> <span class="o">=</span> <span class="n">scale_features</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">separators</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">setup_algorithms</span><span class="p">()</span>
+class PrimitiveClustering(ClusteringSeparationBase):
+    def __init__(
+        self, 
+        input_audio_signal,
+        algorithms,
+        num_cascades=1,
+        scale_features=False,
+        **kwargs
+    ):
+        super().__init__(
+            input_audio_signal,
+            **kwargs
+        )
+        self.original_stft_params = deepcopy(self.audio_signal.stft_params)
+        self.algorithms = [a[0] for a in algorithms]
+        self.algorithm_parameters = [a[1] if len(a) &gt; 1 else {} for a in algorithms]
+        self.algorithm_returns = [a[2] if len(a) &gt; 2 else [] for a in algorithms]
+        self.num_cascades = num_cascades
+        self.scale_features = scale_features
+        self.separators = self.setup_algorithms()
 
-    <span class="k">def</span> <span class="nf">setup_algorithms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">separators</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">mixture</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">audio_signal</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">algorithm</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">algorithms</span><span class="p">):</span>
-            <span class="n">stft_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithm_parameters</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;stft_params&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">stft_params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">mixture</span><span class="o">.</span><span class="n">stft_data</span> <span class="o">=</span> <span class="kc">None</span>
-                <span class="n">mixture</span><span class="o">.</span><span class="n">stft_params</span> <span class="o">=</span> <span class="n">stft_params</span>
+    def setup_algorithms(self):
+        separators = []
+        mixture = deepcopy(self.audio_signal)
+        for i, algorithm in enumerate(self.algorithms):
+            stft_params = self.algorithm_parameters[i].pop(&#39;stft_params&#39;, None)
+            if stft_params is not None:
+                mixture.stft_data = None
+                mixture.stft_params = stft_params
 
-            <span class="n">separator</span> <span class="o">=</span> <span class="n">algorithm</span><span class="p">(</span>
-                <span class="n">mixture</span><span class="p">,</span> 
-                <span class="n">use_librosa_stft</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">use_librosa_stft</span><span class="p">,</span> 
-                <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">algorithm_parameters</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-            <span class="p">)</span>
+            separator = algorithm(
+                mixture, 
+                use_librosa_stft=self.use_librosa_stft, 
+                **self.algorithm_parameters[i]
+            )
 
-            <span class="n">mixture</span><span class="o">.</span><span class="n">stft_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_stft_params</span>
-            <span class="n">separators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">separator</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">separators</span>
+            mixture.stft_params = self.original_stft_params
+            separators.append(separator)
+        return separators
 
-    <span class="k">def</span> <span class="nf">set_audio_signal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_audio_signal</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_audio_signal</span><span class="p">(</span><span class="n">new_audio_signal</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">setup_algorithms</span><span class="p">()</span>
+    def set_audio_signal(self, new_audio_signal):
+        super().set_audio_signal(new_audio_signal)
+        self.setup_algorithms()
 
-    <span class="k">def</span> <span class="nf">run_algorithm_on_signal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mixture</span><span class="p">,</span> <span class="n">level</span><span class="p">):</span>
-        <span class="n">separations</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">separator</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">separators</span><span class="p">):</span>
-            <span class="n">separator</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-            <span class="n">signals</span> <span class="o">=</span> <span class="n">separator</span><span class="o">.</span><span class="n">make_audio_signals</span><span class="p">()</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithm_returns</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
-                <span class="n">signals</span> <span class="o">=</span> <span class="p">[</span><span class="n">signals</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithm_returns</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
-            <span class="n">separations</span> <span class="o">+=</span> <span class="n">signals</span>
-        <span class="k">return</span> <span class="n">separations</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">separators</span>
+    def run_algorithm_on_signal(self, mixture, level):
+        separations = []
+        for i, separator in enumerate(self.separators):
+            separator.run()
+            signals = separator.make_audio_signals()
+            if self.algorithm_returns[i]:
+                signals = [signals[j] for j in self.algorithm_returns[i]]
+            separations += signals
+        return separations, self.separators
 
-    <span class="k">def</span> <span class="nf">extract_features_from_signals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signals</span><span class="p">):</span>
-        <span class="n">features</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">audio_signal</span><span class="o">.</span><span class="n">stft_data</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">audio_signal</span><span class="o">.</span><span class="n">stft_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_stft_params</span>
-        <span class="n">mix_stft</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">audio_signal</span><span class="o">.</span><span class="n">stft</span><span class="p">())</span>
-        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">signals</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">stft_data</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">stft_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_stft_params</span>
-            <span class="n">_stft</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">stft</span><span class="p">())</span>
-            <span class="n">_feature</span> <span class="o">=</span> <span class="n">_stft</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">_stft</span><span class="p">,</span> <span class="n">mix_stft</span> <span class="o">+</span> <span class="mf">1e-7</span><span class="p">)</span>
-            <span class="n">features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_feature</span><span class="p">)</span>
-        <span class="n">features</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">features</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">features</span>
+    def extract_features_from_signals(self, signals):
+        features = []
+        self.audio_signal.stft_data = None
+        self.audio_signal.stft_params = self.original_stft_params
+        mix_stft = np.abs(self.audio_signal.stft())
+        for s in signals:
+            s.stft_data = None
+            s.stft_params = self.original_stft_params
+            _stft = np.abs(s.stft())
+            _feature = _stft / np.maximum(_stft, mix_stft + 1e-7)
+            features.append(_feature)
+        features = np.array(features).transpose(1, 2, 3, 0)
+        return features
 
-    <span class="k">def</span> <span class="nf">extract_features_from_separators</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">separators</span><span class="p">):</span>
-        <span class="n">features</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">separators</span><span class="p">):</span>
-            <span class="n">masks</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">mask</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">result_masks</span><span class="p">]</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithm_returns</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
-                <span class="n">masks</span> <span class="o">=</span> <span class="p">[</span><span class="n">masks</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithm_returns</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
-            <span class="n">features</span> <span class="o">+=</span> <span class="n">masks</span>
-        <span class="n">features</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">features</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">features</span>
+    def extract_features_from_separators(self, separators):
+        features = []
+        for i, s in enumerate(separators):
+            masks = [m.mask for m in s.result_masks]
+            if self.algorithm_returns[i]:
+                masks = [masks[j] for j in self.algorithm_returns[i]]
+            features += masks
+        features = np.array(features).transpose(1, 2, 3, 0)
+        return features
 
-    <span class="k">def</span> <span class="nf">extract_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">features</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">current_signals</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">audio_signal</span><span class="p">]</span>
-        <span class="n">separators</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_cascades</span><span class="p">):</span>
-            <span class="n">separations</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">for</span> <span class="n">signal</span> <span class="ow">in</span> <span class="n">current_signals</span><span class="p">:</span>
-                <span class="n">_separations</span><span class="p">,</span> <span class="n">_separator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_algorithm_on_signal</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
-                <span class="n">separations</span> <span class="o">+=</span> <span class="n">_separations</span>
-                <span class="n">separators</span> <span class="o">+=</span> <span class="n">_separator</span>
-            <span class="n">current_signals</span> <span class="o">=</span> <span class="n">separations</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">separations</span> <span class="o">=</span> <span class="n">separations</span>
-        <span class="n">features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_features_from_separators</span><span class="p">(</span><span class="n">separators</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_compute_spectrograms</span><span class="p">()</span>
-        <span class="n">features</span> <span class="o">=</span> <span class="n">features</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">features</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_features</span><span class="p">:</span>
-            <span class="n">features</span> <span class="o">=</span> <span class="n">scale</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="c1">#features = scale(features, axis=0)</span>
-        <span class="k">return</span> <span class="n">features</span>
+    def extract_features(self):
+        features = []
+        current_signals = [self.audio_signal]
+        separators = []
+        for i in range(self.num_cascades):
+            separations = []
+            for signal in current_signals:
+                _separations, _separator = self.run_algorithm_on_signal(signal, i)
+                separations += _separations
+                separators += _separator
+            current_signals = separations
+        self.separations = separations
+        features = self.extract_features_from_separators(separators)
+        self._compute_spectrograms()
+        features = features.reshape(-1, features.shape[-1])
+        if self.scale_features:
+            features = scale(features, axis=0)
+        #features = scale(features, axis=0)
+        return features
 
-<div class="viewcode-block" id="DeepClustering"><a class="viewcode-back" href="../../../../source/src.algorithms.html#src.algorithms.DeepClustering">[docs]</a><span class="k">class</span> <span class="nc">DeepClustering</span><span class="p">(</span><span class="n">ClusteringSeparationBase</span><span class="p">,</span> <span class="n">DeepMixin</span><span class="p">):</span>
-<div class="viewcode-block" id="DeepClustering.__init__"><a class="viewcode-back" href="../../../../source/src.algorithms.html#src.algorithms.DeepClustering.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> 
-        <span class="n">input_audio_signal</span><span class="p">,</span>
-        <span class="n">model_path</span><span class="p">,</span>
-        <span class="n">metadata</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">extra_modules</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">use_cuda</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="o">**</span><span class="n">kwargs</span>
-    <span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span>
-            <span class="s1">&#39;cuda&#39;</span>
-            <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="ow">and</span> <span class="n">use_cuda</span>
-            <span class="k">else</span> <span class="s1">&#39;cpu&#39;</span>
-        <span class="p">)</span>
+<div class="viewcode-block" id="DeepClustering"><a class="viewcode-back" href="../../../../source/src.algorithms.html#src.algorithms.DeepClustering">[docs]</a>class DeepClustering(ClusteringSeparationBase, DeepMixin):
+    def __init__(
+        self, 
+        input_audio_signal,
+        model_path,
+        metadata=None,
+        extra_modules=None,
+        use_cuda=False,
+        **kwargs
+    ):
+        self.device = torch.device(
+            &#39;cuda&#39;
+            if torch.cuda.is_available() and use_cuda
+            else &#39;cpu&#39;
+        )
         
-        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">extra_modules</span><span class="o">=</span><span class="n">extra_modules</span><span class="p">)</span>
+        self.metadata = metadata
+        self.model, self.metadata = self.load_model(model_path, extra_modules=extra_modules)
 
-        <span class="n">input_audio_signal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_audio_signal</span><span class="p">(</span><span class="n">input_audio_signal</span><span class="p">)</span>
+        input_audio_signal = self.set_audio_signal(input_audio_signal)
 
-        <span class="n">sample_rate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;sample_rate&#39;</span><span class="p">]</span>
-        <span class="n">num_mels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="s1">&#39;mel_projection&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">num_mels</span>
-        <span class="n">num_frequencies</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;n_fft&#39;</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
-        <span class="n">filter_bank</span> <span class="o">=</span> <span class="kc">None</span>
+        sample_rate = self.metadata[&#39;sample_rate&#39;]
+        num_mels = self.model.layers[&#39;mel_projection&#39;].num_mels
+        num_frequencies = (self.metadata[&#39;n_fft&#39;] // 2) + 1
+        filter_bank = None
 
-        <span class="k">if</span> <span class="n">num_mels</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">weights</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="s1">&#39;mel_projection&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">weight</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
-            <span class="n">filter_bank</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="n">weights</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+        if num_mels &gt; 0:
+            weights = self.model.layers[&#39;mel_projection&#39;].transform.weight.data.cpu().numpy()
+            filter_bank = np.linalg.pinv(weights.T)
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">filter_bank</span> <span class="o">=</span> <span class="n">filter_bank</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">input_audio_signal</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+        self.filter_bank = filter_bank
+        super().__init__(input_audio_signal, **kwargs)
         
-<div class="viewcode-block" id="DeepClustering.set_audio_signal"><a class="viewcode-back" href="../../../../source/src.algorithms.html#src.algorithms.DeepClustering.set_audio_signal">[docs]</a>    <span class="k">def</span> <span class="nf">set_audio_signal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_audio_signal</span><span class="p">):</span>
-        <span class="n">input_audio_signal</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">new_audio_signal</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">input_audio_signal</span><span class="o">.</span><span class="n">sample_rate</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;sample_rate&#39;</span><span class="p">]:</span>
-            <span class="n">input_audio_signal</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;sample_rate&#39;</span><span class="p">])</span>
-        <span class="n">input_audio_signal</span><span class="o">.</span><span class="n">stft_params</span><span class="o">.</span><span class="n">window_length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;n_fft&#39;</span><span class="p">]</span>
-        <span class="n">input_audio_signal</span><span class="o">.</span><span class="n">stft_params</span><span class="o">.</span><span class="n">n_fft_bins</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;n_fft&#39;</span><span class="p">]</span>
-        <span class="n">input_audio_signal</span><span class="o">.</span><span class="n">stft_params</span><span class="o">.</span><span class="n">hop_length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;hop_length&#39;</span><span class="p">]</span>
-        <span class="n">input_audio_signal</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_audio_signal</span><span class="p">(</span><span class="n">input_audio_signal</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">input_audio_signal</span></div>
+<div class="viewcode-block" id="DeepClustering.set_audio_signal"><a class="viewcode-back" href="../../../../source/src.algorithms.html#src.algorithms.DeepClustering.set_audio_signal">[docs]</a>    def set_audio_signal(self, new_audio_signal):
+        input_audio_signal = deepcopy(new_audio_signal)
+        if input_audio_signal.sample_rate != self.metadata[&#39;sample_rate&#39;]:
+            input_audio_signal.resample(self.metadata[&#39;sample_rate&#39;])
+        input_audio_signal.stft_params.window_length = self.metadata[&#39;n_fft&#39;]
+        input_audio_signal.stft_params.n_fft_bins = self.metadata[&#39;n_fft&#39;]
+        input_audio_signal.stft_params.hop_length = self.metadata[&#39;hop_length&#39;]
+        input_audio_signal = super().set_audio_signal(input_audio_signal)
+        return input_audio_signal</div>
 
-<div class="viewcode-block" id="DeepClustering.postprocess"><a class="viewcode-back" href="../../../../source/src.algorithms.html#src.algorithms.DeepClustering.postprocess">[docs]</a>    <span class="k">def</span> <span class="nf">postprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assignments</span><span class="p">,</span> <span class="n">confidence</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_bank</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filter_bank</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stft</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-            <span class="n">assignments</span> <span class="o">=</span> <span class="n">assignments</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shape</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_sources</span><span class="p">,))</span>
-            <span class="n">confidence</span> <span class="o">=</span> <span class="n">confidence</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+<div class="viewcode-block" id="DeepClustering.postprocess"><a class="viewcode-back" href="../../../../source/src.algorithms.html#src.algorithms.DeepClustering.postprocess">[docs]</a>    def postprocess(self, assignments, confidence):
+        if self.filter_bank is not None:
+            shape = (self.filter_bank.shape[0], -1, self.stft.shape[-1])
+            assignments = assignments.reshape(shape + (self.num_sources,))
+            confidence = confidence.reshape(shape)
 
-            <span class="n">assignments</span> <span class="o">=</span> <span class="n">assignments</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
-            <span class="n">confidence</span> <span class="o">=</span> <span class="n">confidence</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+            assignments = assignments.transpose()
+            confidence = confidence.transpose()
                         
-            <span class="n">assignments</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">assignments</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_bank</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-6</span>
-            <span class="n">assignments</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">assignments</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span> 
-            <span class="n">assignments</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">assignments</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            assignments = np.dot(assignments, self.filter_bank) + 1e-6
+            assignments = np.clip(assignments, 0.0, 1.0) 
+            assignments /= np.sum(assignments, axis=0)
 
-            <span class="n">confidence</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">confidence</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_bank</span><span class="p">)</span>
-            <span class="n">confidence</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">confidence</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+            confidence = np.dot(confidence, self.filter_bank)
+            confidence += np.abs(confidence.min())
             
-            <span class="n">assignments</span> <span class="o">=</span> <span class="n">assignments</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
-            <span class="n">confidence</span> <span class="o">=</span> <span class="n">confidence</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
-            <span class="n">assignments</span> <span class="o">=</span> <span class="n">assignments</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">assignments</span><span class="p">,</span> <span class="n">confidence</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">postprocess</span><span class="p">(</span><span class="n">assignments</span><span class="p">,</span> <span class="n">confidence</span><span class="p">)</span>
+            assignments = assignments.transpose()
+            confidence = confidence.transpose()
+            assignments = assignments.transpose(3, 0, 1, 2)
+        else:
+            assignments, confidence = super().postprocess(assignments, confidence)
 
-        <span class="k">return</span> <span class="n">assignments</span><span class="p">,</span> <span class="n">confidence</span></div>
+        return assignments, confidence</div>
 
-<div class="viewcode-block" id="DeepClustering.project_data"><a class="viewcode-back" href="../../../../source/src.algorithms.html#src.algorithms.DeepClustering.project_data">[docs]</a>    <span class="k">def</span> <span class="nf">project_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="s1">&#39;mel_projection&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">num_mels</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s1">&#39;rnn&#39;</span><span class="p">)</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">project_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">clamp</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">data</span></div>
+<div class="viewcode-block" id="DeepClustering.project_data"><a class="viewcode-back" href="../../../../source/src.algorithms.html#src.algorithms.DeepClustering.project_data">[docs]</a>    def project_data(self, data):
+        if self.model.layers[&#39;mel_projection&#39;].num_mels &gt; 0:
+            data = self._format(data, &#39;rnn&#39;)
+            data = torch.from_numpy(data).to(self.device).float()
+            data = self.model.project_data(data, clamp=False)
+            data = data.squeeze(-1).permute(2, 1, 0)
+            data = (data &gt; 0).cpu().data.numpy().astype(bool)
+        return data</div>
 
-<div class="viewcode-block" id="DeepClustering.extract_features"><a class="viewcode-back" href="../../../../source/src.algorithms.html#src.algorithms.DeepClustering.extract_features">[docs]</a>    <span class="k">def</span> <span class="nf">extract_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">input_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preprocess</span><span class="p">()</span>
-        <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
-            <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="n">input_data</span><span class="p">)</span>
-            <span class="k">if</span> <span class="s1">&#39;embedding&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">output</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;This model is not a deep clustering model!&quot;</span><span class="p">)</span>
-            <span class="n">embedding</span> <span class="o">=</span> <span class="n">output</span><span class="p">[</span><span class="s1">&#39;embedding&#39;</span><span class="p">]</span>
-            <span class="n">embedding_size</span> <span class="o">=</span> <span class="n">embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-            <span class="n">embedding</span> <span class="o">=</span> <span class="n">embedding</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
-            <span class="n">embedding</span> <span class="o">=</span> <span class="n">embedding</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
-            <span class="n">embedding</span> <span class="o">=</span> <span class="n">embedding</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">embedding_size</span><span class="p">)</span>
-            <span class="n">embedding</span> <span class="o">=</span> <span class="n">embedding</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">embedding</span></div>
+<div class="viewcode-block" id="DeepClustering.extract_features"><a class="viewcode-back" href="../../../../source/src.algorithms.html#src.algorithms.DeepClustering.extract_features">[docs]</a>    def extract_features(self):
+        input_data = self._preprocess()
+        with torch.no_grad():
+            output = self.model(input_data)
+            if &#39;embedding&#39; not in output:
+                raise ValueError(&quot;This model is not a deep clustering model!&quot;)
+            embedding = output[&#39;embedding&#39;]
+            embedding_size = embedding.shape[-1]
+            embedding = embedding.squeeze(-2)
+            embedding = embedding.permute(2, 1, 0, 3)
+            embedding = embedding.reshape(-1, embedding_size)
+            embedding = embedding.data.cpu().numpy()
+        return embedding</div>
 
-<div class="viewcode-block" id="DeepClustering.make_audio_signals"><a class="viewcode-back" href="../../../../source/src.algorithms.html#src.algorithms.DeepClustering.make_audio_signals">[docs]</a>    <span class="k">def</span> <span class="nf">make_audio_signals</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">signals</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">make_audio_signals</span><span class="p">()</span>
-        <span class="n">residual</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">audio_signal</span> <span class="o">-</span> <span class="nb">sum</span><span class="p">(</span><span class="n">signals</span><span class="p">))</span><span class="o">.</span><span class="n">audio_data</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">signals</span><span class="p">))</span>
-        <span class="k">for</span> <span class="n">signal</span> <span class="ow">in</span> <span class="n">signals</span><span class="p">:</span>
-            <span class="n">signal</span><span class="o">.</span><span class="n">audio_data</span> <span class="o">+=</span> <span class="n">residual</span>
-            <span class="k">if</span> <span class="n">signal</span><span class="o">.</span><span class="n">sample_rate</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_sample_rate</span><span class="p">:</span>
-                <span class="n">signal</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">original_sample_rate</span><span class="p">)</span>
-            <span class="n">signal</span><span class="o">.</span><span class="n">truncate_samples</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">original_length</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">signals</span></div></div>
+<div class="viewcode-block" id="DeepClustering.make_audio_signals"><a class="viewcode-back" href="../../../../source/src.algorithms.html#src.algorithms.DeepClustering.make_audio_signals">[docs]</a>    def make_audio_signals(self):
+        signals = super().make_audio_signals()
+        residual = (self.audio_signal - sum(signals)).audio_data * (1 / len(signals))
+        for signal in signals:
+            signal.audio_data += residual
+            if signal.sample_rate != self.original_sample_rate:
+                signal.resample(self.original_sample_rate)
+            signal.truncate_samples(self.original_length)
+        return signals</div></div>
 </pre></div>
 
            </div>

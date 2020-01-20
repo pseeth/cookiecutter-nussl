@@ -1,5 +1,5 @@
-src.train package
-=================
+src.train
+=========
 
 Module contents
 ---------------

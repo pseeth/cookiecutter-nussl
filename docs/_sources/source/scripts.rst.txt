@@ -1,91 +1,75 @@
-scripts package
-===============
+scripts
+=======
 
 Submodules
 ----------
 
-scripts.analyze module
-----------------------
+scripts.analyze
+---------------
 
 .. automodule:: scripts.analyze
    :members:
    :undoc-members:
    :show-inheritance:
 
-scripts.download\_toy\_data module
-----------------------------------
+scripts.download\_toy\_data
+---------------------------
 
 .. automodule:: scripts.download_toy_data
    :members:
    :undoc-members:
    :show-inheritance:
 
-scripts.evaluate module
------------------------
+scripts.evaluate
+----------------
 
 .. automodule:: scripts.evaluate
    :members:
    :undoc-members:
    :show-inheritance:
 
-scripts.mix\_with\_scaper module
---------------------------------
+scripts.mix\_with\_scaper
+-------------------------
 
 .. automodule:: scripts.mix_with_scaper
    :members:
    :undoc-members:
    :show-inheritance:
 
-scripts.pipeline module
------------------------
+scripts.pipeline
+----------------
 
 .. automodule:: scripts.pipeline
    :members:
    :undoc-members:
    :show-inheritance:
 
-scripts.prepare\_urbansound module
-----------------------------------
-
-.. automodule:: scripts.prepare_urbansound
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-scripts.reorganize module
--------------------------
+scripts.reorganize
+------------------
 
 .. automodule:: scripts.reorganize
    :members:
    :undoc-members:
    :show-inheritance:
 
-scripts.resample module
------------------------
+scripts.resample
+----------------
 
 .. automodule:: scripts.resample
    :members:
    :undoc-members:
    :show-inheritance:
 
-scripts.run\_in\_docker module
-------------------------------
-
-.. automodule:: scripts.run_in_docker
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-scripts.sweep\_experiment module
---------------------------------
+scripts.sweep\_experiment
+-------------------------
 
 .. automodule:: scripts.sweep_experiment
    :members:
    :undoc-members:
    :show-inheritance:
 
-scripts.train module
---------------------
+scripts.train
+-------------
 
 .. automodule:: scripts.train
    :members:

@@ -87,9 +87,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../experiments.html">Configuring an experiment</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../source/runners.html">runners package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../source/scripts.html">scripts package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../source/src.html">src package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/runners.html">runners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/scripts.html">scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/src.html">src</a></li>
 </ul>
 
             
@@ -137,6 +137,8 @@
         
           <li><a href="../index.html">Module code</a> &raquo;</li>
         
+          <li><a href="../scripts.html">scripts</a> &raquo;</li>
+        
       <li>scripts.resample</li>
     
     
@@ -153,89 +155,141 @@
            <div itemprop="articleBody">
             
   <h1>Source code for scripts.resample</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">sys</span>
-<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">)</span>
+<span></span>import os
+from multiprocessing import cpu_count
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">cpu_count</span>
+from src.utils.parallel import parallel_process
+from nussl import AudioSignal
+import os
+import glob
+from multiprocessing import cpu_count
+from . import cmd, document_parser
+from argparse import ArgumentParser
 
-<span class="kn">from</span> <span class="nn">src.utils.parallel</span> <span class="kn">import</span> <span class="n">parallel_process</span>
-<span class="kn">from</span> <span class="nn">nussl</span> <span class="kn">import</span> <span class="n">AudioSignal</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">glob</span>
-<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">cpu_count</span>
-<span class="kn">from</span> <span class="nn">runners.utils</span> <span class="kn">import</span> <span class="n">build_parser_for_yml_script</span><span class="p">,</span> <span class="n">parse_yaml</span>
+import shutil
+import logging
 
-<span class="kn">from</span> <span class="nn">argparse</span> <span class="kn">import</span> <span class="n">ArgumentParser</span>
-<span class="kn">import</span> <span class="nn">shutil</span>
-<span class="kn">import</span> <span class="nn">yaml</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-
-<span class="n">audio_extensions</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;.wav&#39;</span><span class="p">,</span> <span class="s1">&#39;.mp3&#39;</span><span class="p">,</span> <span class="s1">&#39;.aac&#39;</span><span class="p">]</span>
-
-<div class="viewcode-block" id="resample_audio_file"><a class="viewcode-back" href="../../source/scripts.html#scripts.resample.resample_audio_file">[docs]</a><span class="k">def</span> <span class="nf">resample_audio_file</span><span class="p">(</span><span class="n">original_path</span><span class="p">,</span> <span class="n">resample_path</span><span class="p">,</span> <span class="n">sample_rate</span><span class="p">):</span>
-    <span class="n">audio_signal</span> <span class="o">=</span> <span class="n">AudioSignal</span><span class="p">(</span><span class="n">original_path</span><span class="p">)</span>
-    <span class="n">resample</span> <span class="o">=</span> <span class="kc">True</span>
-
-    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">resample_path</span><span class="p">):</span>
-        <span class="n">resampled_signal</span> <span class="o">=</span> <span class="n">AudioSignal</span><span class="p">(</span><span class="n">resample_path</span><span class="p">)</span>
-        <span class="n">resample</span> <span class="o">=</span> <span class="n">resampled_signal</span><span class="o">.</span><span class="n">sample_rate</span> <span class="o">!=</span> <span class="n">sample_rate</span>
+<div class="viewcode-block" id="resample_audio_file"><a class="viewcode-back" href="../../source/scripts.html#scripts.resample.resample_audio_file">[docs]</a>def resample_audio_file(original_path, resample_path, sample_rate):
+    &quot;&quot;&quot;
+    Resamples an audio file at one path and places it at another path at a specified
+    sample rate.
     
-    <span class="k">if</span> <span class="n">resample</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{original_path}</span><span class="s1"> @ </span><span class="si">{audio_signal.sample_rate}</span><span class="s1"> -&gt; </span><span class="si">{resample_path}</span><span class="s1"> @ </span><span class="si">{sample_rate}</span><span class="s1">&#39;</span>
-        <span class="p">)</span>
-        <span class="n">audio_signal</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="n">sample_rate</span><span class="p">)</span>
-        <span class="n">audio_signal</span><span class="o">.</span><span class="n">write_audio_to_file</span><span class="p">(</span><span class="n">resample_path</span><span class="p">)</span></div>
+    Args:
+        original_path (str): Path of audio file to be resampled.
+        resample_path (str): Path to save resampled audio file to.
+        sample_rate (int): Sample rate to resample audio file to.
+    &quot;&quot;&quot;
+    audio_signal = AudioSignal(original_path)
+    resample = True
 
-<div class="viewcode-block" id="ig_f"><a class="viewcode-back" href="../../source/scripts.html#scripts.resample.ig_f">[docs]</a><span class="k">def</span> <span class="nf">ig_f</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span> <span class="n">files</span><span class="p">):</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span> <span class="n">f</span><span class="p">))]</span></div>
+    if os.path.exists(resample_path):
+        resampled_signal = AudioSignal(resample_path)
+        resample = resampled_signal.sample_rate != sample_rate
+    
+    if resample:
+        logging.info(
+            f&#39;{original_path} @ {audio_signal.sample_rate} -&gt; {resample_path} @ {sample_rate}&#39;
+        )
+        audio_signal.resample(sample_rate)
+        audio_signal.write_audio_to_file(resample_path)</div>
 
-<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../source/scripts.html#scripts.resample.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">path_to_yml_file</span><span class="p">):</span>
-    <span class="n">spec</span> <span class="o">=</span> <span class="n">parse_yaml</span><span class="p">(</span><span class="n">path_to_yml_file</span><span class="p">)</span>
+<div class="viewcode-block" id="ig_f"><a class="viewcode-back" href="../../source/scripts.html#scripts.resample.ig_f">[docs]</a>def ig_f(dir, files):
+    &quot;&quot;&quot;
+    Filter for making sure something is a file.
+    
+    Args:
+        dir (str): Directory to filter to only look for files.
+        files (list): List of items to filter.
+    
+    Returns:
+        list: Filtered list.
+    &quot;&quot;&quot;
+    return [f for f in files if os.path.isfile(os.path.join(dir, f))]</div>
 
-    <span class="k">for</span> <span class="n">_spec</span> <span class="ow">in</span> <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;jobs&#39;</span><span class="p">]:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">shutil</span><span class="o">.</span><span class="n">copytree</span><span class="p">(</span>
-                <span class="n">_spec</span><span class="p">[</span><span class="s1">&#39;input_path&#39;</span><span class="p">],</span> 
-                <span class="n">_spec</span><span class="p">[</span><span class="s1">&#39;output_path&#39;</span><span class="p">],</span> 
-                <span class="n">ignore</span><span class="o">=</span><span class="n">ig_f</span>
-            <span class="p">)</span>
-        <span class="k">except</span><span class="p">:</span>
-            <span class="k">pass</span>
+<div class="viewcode-block" id="resample"><a class="viewcode-back" href="../../source/scripts.html#scripts.resample.resample">[docs]</a>def resample(input_path, output_path, sample_rate, num_workers=1, 
+             audio_extensions=[&#39;.wav&#39;, &#39;.mp3&#39;, &#39;.aac&#39;]):
+    &quot;&quot;&quot;
+    Resamples a folder of audio files into a copy of the same folder with the same 
+    structure but with every audio file replaced with a resampled version of that
+    audio file. Relative paths to the audio file from the root of the folder will be the
+    same.
+    
+    Args:
+        input_path (str): Root of folder where all audio files will be resampled.
+        output_path (str): Root of folder where all resampled files will be placed. Will match
+            the same structure as the input_path folder structure.
+        sample_rate (int): Sample rate to resample files to.
+        num_workers (int, optional): How many workers to use in parallel to resample files. 
+            Defaults to 1.
+        audio_extensions (list, optional): Audio extensions to look for in the input_path. 
+            Matching ones will be resampled and placed in the output_path at the 
+            same relative location. Defaults to [&#39;.wav&#39;, &#39;.mp3&#39;, &#39;.aac&#39;].
+    &quot;&quot;&quot;
+    try:
+        shutil.copytree(input_path, output_path, ignore=ig_f)
+    except:
+        pass
 
-        <span class="n">input_audio_files</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">audio_extensions</span><span class="p">:</span>
-            <span class="n">input_audio_files</span> <span class="o">+=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{_spec[&#39;input_path&#39;]}</span><span class="s2">/**/*</span><span class="si">{ext}</span><span class="s2">&quot;</span><span class="p">,</span> 
-                <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span>
-            <span class="p">)</span>
+    input_audio_files = []
+    for ext in audio_extensions:
+        input_audio_files += glob.glob(
+            f&quot;{input_path}/**/*{ext}&quot;, 
+            recursive=True
+        )
 
-        <span class="n">output_audio_files</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">x</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">_spec</span><span class="p">[</span><span class="s1">&#39;input_path&#39;</span><span class="p">],</span> <span class="n">_spec</span><span class="p">[</span><span class="s1">&#39;output_path&#39;</span><span class="p">])</span>
-            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">input_audio_files</span>
-        <span class="p">]</span>
-        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="p">{</span>
-                <span class="s1">&#39;original_path&#39;</span><span class="p">:</span> <span class="n">input_audio_files</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
-                <span class="s1">&#39;resample_path&#39;</span><span class="p">:</span> <span class="n">output_audio_files</span><span class="p">[</span><span class="n">i</span><span class="p">][:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;.wav&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;sample_rate&#39;</span><span class="p">:</span> <span class="n">_spec</span><span class="p">[</span><span class="s1">&#39;sample_rate&#39;</span><span class="p">],</span>
-            <span class="p">}</span> 
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">input_audio_files</span><span class="p">))</span>
-        <span class="p">]</span>
+    output_audio_files = [
+        x.replace(input_path, output_path)
+        for x in input_audio_files
+    ]
+    arguments = [
+        {
+            &#39;original_path&#39;: input_audio_files[i],
+            &#39;resample_path&#39;: output_audio_files[i][:-4] + &#39;.wav&#39;,
+            &#39;sample_rate&#39;: sample_rate
+        } 
+        for i in range(len(input_audio_files))
+    ]
 
-        <span class="n">parallel_process</span><span class="p">(</span>
-            <span class="n">arguments</span><span class="p">,</span> 
-            <span class="n">resample_audio_file</span><span class="p">,</span> 
-            <span class="n">n_jobs</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="n">_spec</span><span class="p">[</span><span class="s1">&#39;num_workers&#39;</span><span class="p">],</span> <span class="n">cpu_count</span><span class="p">()),</span>
-            <span class="n">front_num</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-            <span class="n">use_kwargs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="p">)</span></div>
+    parallel_process(
+        arguments, 
+        resample_audio_file, 
+        n_jobs=min(num_workers, cpu_count()),
+        front_num=1,
+        use_kwargs=True,
+    )</div>
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
-    <span class="n">parser</span> <span class="o">=</span> <span class="n">build_parser_for_yml_script</span><span class="p">()</span>
-    <span class="n">args</span> <span class="o">=</span> <span class="nb">vars</span><span class="p">(</span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">())</span>
-    <span class="n">main</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="s1">&#39;spec&#39;</span><span class="p">])</span>
+<div class="viewcode-block" id="build_parser"><a class="viewcode-back" href="../../source/scripts.html#scripts.resample.build_parser">[docs]</a>@document_parser(&#39;resample&#39;, &#39;scripts.resample.resample&#39;)
+def build_parser():
+    parser = ArgumentParser()
+    parser.add_argument(
+        &#39;--input_path&#39;, type=str, 
+        help=&quot;&quot;&quot;Root of folder where all audio files will be resampled.&quot;&quot;&quot;
+    )
+    parser.add_argument(
+        &#39;--output_path&#39;, type=str, 
+        help=&quot;&quot;&quot;Root of folder where all resampled files will be placed. Will match
+        the same structure as the input_path folder structure.&quot;&quot;&quot;
+    )
+    parser.add_argument(
+        &#39;--sample_rate&#39;, type=int, 
+        help=&quot;&quot;&quot;Sample rate to resample files to.&quot;&quot;&quot;
+    )
+    parser.add_argument(
+        &#39;--num_workers&#39;, type=int, 
+        help=&quot;&quot;&quot;How many workers to use in parallel to resample files.&quot;&quot;&quot;,
+        default=1
+    )
+    parser.add_argument(
+        &#39;--audio_extensions&#39;, nargs=&#39;+&#39;, 
+        help=&quot;&quot;&quot;Audio extensions to look for in the input_path. Matching ones will
+        be resampled and placed in the output_path at the same relative location.&quot;&quot;&quot;,
+        default=[&#39;.wav&#39;, &#39;.mp3&#39;, &#39;.aac&#39;]
+    )
+    return parser</div>
+
+
+if __name__ == &#39;__main__&#39;:
+    cmd(resample, build_parser)
 </pre></div>
 
            </div>

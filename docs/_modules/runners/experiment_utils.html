@@ -87,9 +87,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../experiments.html">Configuring an experiment</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../source/runners.html">runners package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../source/scripts.html">scripts package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../source/src.html">src package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/runners.html">runners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/scripts.html">scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/src.html">src</a></li>
 </ul>
 
             
@@ -153,105 +153,108 @@
            <div itemprop="articleBody">
             
   <h1>Source code for runners.experiment_utils</h1><div class="highlight"><pre>
-<span></span><span class="k">try</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">comet_ml</span> <span class="kn">import</span> <span class="n">Experiment</span><span class="p">,</span> <span class="n">ExistingExperiment</span>
-    <span class="n">comet_ml_imported</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="k">except</span><span class="p">:</span>
-    <span class="n">comet_ml_imported</span> <span class="o">=</span> <span class="kc">False</span>
+<span></span>try:
+    from comet_ml import Experiment, ExistingExperiment
+    comet_ml_imported = True
+except:
+    comet_ml_imported = False
 
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">load_yaml</span><span class="p">,</span> 
-    <span class="n">dump_yaml</span><span class="p">,</span>
-    <span class="n">make_random_string</span><span class="p">,</span> 
-    <span class="n">env_variables</span><span class="p">,</span> 
-    <span class="n">build_parser_for_yml_script</span><span class="p">,</span>
-    <span class="n">flatten</span>
-<span class="p">)</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">logging</span>
+from .utils import (
+    load_yaml, 
+    dump_yaml,
+    make_random_string, 
+    env_variables, 
+    flatten
+)
+import os
+import logging
 
-<div class="viewcode-block" id="save_experiment"><a class="viewcode-back" href="../../source/runners.html#runners.experiment_utils.save_experiment">[docs]</a><span class="k">def</span> <span class="nf">save_experiment</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">exp</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Saves a configuration of an experiment to an experiment directory. If </span>
-<span class="sd">    exp is defined, it is an Experiment object from comet.ml whose parameters will</span>
-<span class="sd">    be updated via config.</span>
+<div class="viewcode-block" id="save_experiment"><a class="viewcode-back" href="../../source/runners.html#runners.experiment_utils.save_experiment">[docs]</a>def save_experiment(config, exp=None):
+    &quot;&quot;&quot;
+    Saves a configuration of an experiment to an experiment directory. If 
+    exp is defined, it is an Experiment object from comet.ml whose parameters will
+    be updated via config.
 
-<span class="sd">    Args:</span>
-<span class="sd">        config (dict): A dictionary containing the experiment configuration. This</span>
-<span class="sd">            should have all necessary parameters needed to recreate the experiment given</span>
-<span class="sd">            the current codebase.</span>
-<span class="sd">        exp (Experiment): An Experiment object that is used by comet.ml. The settings in</span>
-<span class="sd">            the configuration dictionary are logged to the Experiment object.</span>
+    Args:
+        config (dict): A dictionary containing the experiment configuration. This
+            should have all necessary parameters needed to recreate the experiment given
+            the current codebase.
+        exp (Experiment): An Experiment object that is used by comet.ml. The settings in
+            the configuration dictionary are logged to the Experiment object.
 
-<span class="sd">    Returns:</span>
-<span class="sd">        str: Path to the yml file that the config was saved to.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creating experiment folder @ </span><span class="si">{config[&#39;info&#39;][&#39;output_folder&#39;]}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;info&#39;</span><span class="p">][</span><span class="s1">&#39;output_folder&#39;</span><span class="p">],</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    Returns:
+        str: Path to the yml file that the config was saved to.
+    &quot;&quot;&quot;
+    logging.info(f&quot;Creating experiment folder @ {config[&#39;info&#39;][&#39;output_folder&#39;]}&quot;)
+    os.makedirs(config[&#39;info&#39;][&#39;output_folder&#39;], exist_ok=True)
 
-    <span class="n">output_path_to_yml</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;info&#39;</span><span class="p">][</span><span class="s1">&#39;output_folder&#39;</span><span class="p">],</span> <span class="s1">&#39;config.yml&#39;</span><span class="p">)</span>
-    <span class="n">dump_yaml</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">output_path_to_yml</span><span class="p">)</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved config to @ </span><span class="si">{output_path_to_yml}</span><span class="s2">&quot;</span><span class="p">)</span>
+    output_path_to_yml = os.path.join(config[&#39;info&#39;][&#39;output_folder&#39;], &#39;config.yml&#39;)
+    dump_yaml(config, output_path_to_yml)
+    logging.info(f&quot;Saved config to @ {output_path_to_yml}&quot;)
 
-    <span class="k">if</span> <span class="n">exp</span><span class="p">:</span>
-        <span class="n">exp</span><span class="o">.</span><span class="n">log_parameters</span><span class="p">(</span><span class="n">flatten</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_path_to_yml</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">exp</span><span class="o">.</span><span class="n">set_code</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">output_path_to_yml</span></div>
+    if exp:
+        exp.log_parameters(flatten(config))
+        with open(output_path_to_yml, &#39;r&#39;) as f:
+            exp.set_code(f.read(), overwrite=True)
+    return output_path_to_yml</div>
 
-<div class="viewcode-block" id="load_experiment"><a class="viewcode-back" href="../../source/runners.html#runners.experiment_utils.load_experiment">[docs]</a><span class="k">def</span> <span class="nf">load_experiment</span><span class="p">(</span><span class="n">path_to_yml_file</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Loads an experiment given the path to the configuration file. If there is</span>
-<span class="sd">    no experiment key in the info dictionary in config, then this is an </span>
-<span class="sd">    experiment that should be instantiated. If comet is available, then the</span>
-<span class="sd">    experiment is instantiated by comet. If it is not available, then it is</span>
-<span class="sd">    instantiated by producing a directory with a random name. The name of</span>
-<span class="sd">    this directory is the experiment key used to keep track of artifacts, results, </span>
-<span class="sd">    and so on.</span>
-<span class="sd">    </span>
-<span class="sd">    Args:</span>
-<span class="sd">        path_to_yml_file (str): Path to the yml file containing the experiment </span>
-<span class="sd">            configuration.</span>
-<span class="sd">    </span>
-<span class="sd">    Returns:</span>
-<span class="sd">        tuple: 3-element tuple containing</span>
-
-<span class="sd">            - config (*dict*):  A dictionary containing the configuration of the experiment. </span>
-<span class="sd">            - exp (*Experiment*): An instantiated experiment if comet.ml is needed,  otherwise it is None.</span>
-<span class="sd">            - path_to_yml_file (*str*): The path to the saved yml file (will be different from the input path if the experiment in the input yml was not yet instantiated).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">config</span> <span class="o">=</span> <span class="n">load_yaml</span><span class="p">(</span><span class="n">path_to_yml_file</span><span class="p">)</span>
-    <span class="n">api_key</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;COMET_API_KEY&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="n">exp</span> <span class="o">=</span> <span class="kc">None</span>        
+<div class="viewcode-block" id="load_experiment"><a class="viewcode-back" href="../../source/runners.html#runners.experiment_utils.load_experiment">[docs]</a>def load_experiment(path_to_yml_file):
+    &quot;&quot;&quot;
+    Loads an experiment given the path to the configuration file. If there is
+    no experiment key in the info dictionary in config, then this is an 
+    experiment that should be instantiated. If comet is available, then the
+    experiment is instantiated by comet. If it is not available, then it is
+    instantiated by producing a directory with a random name. The name of
+    this directory is the experiment key used to keep track of artifacts, results, 
+    and so on.
     
-    <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;info&#39;</span><span class="p">][</span><span class="s1">&#39;experiment_key&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;$</span><span class="si">{EXPERIMENT_KEY}</span><span class="s1">&#39;</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">api_key</span> <span class="ow">and</span> <span class="n">comet_ml_imported</span><span class="p">:</span>
-            <span class="n">exp</span> <span class="o">=</span> <span class="n">Experiment</span><span class="p">(</span>
-                <span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">,</span> 
-                <span class="n">project_name</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;info&#39;</span><span class="p">][</span><span class="s1">&#39;project_name&#39;</span><span class="p">]</span>
-            <span class="p">)</span>
-            <span class="n">exp_key</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">get_key</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">exp_key</span> <span class="o">=</span> <span class="n">make_random_string</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+    Args:
+        path_to_yml_file (str): Path to the yml file containing the experiment 
+            configuration.
+    
+    Returns:
+        tuple: 3-element tuple containing
+
+            - config (*dict*):  A dictionary containing the configuration of the experiment. 
+            - exp (:class:`comet_ml.Experiment`): An instantiated experiment if comet.ml is needed,  
+              otherwise it is None.
+            - path_to_yml_file (*str*): The path to the saved yml file (will be different 
+              from the input path if the experiment in the input yml was not yet instantiated).
+    &quot;&quot;&quot;
+    config = load_yaml(path_to_yml_file)
+    api_key = os.getenv(&#39;COMET_API_KEY&#39;, None)
+    exp = None        
+    
+    if config[&#39;info&#39;][&#39;experiment_key&#39;] == &#39;${EXPERIMENT_KEY}&#39;:
+        if api_key and comet_ml_imported:
+            exp = Experiment(
+                api_key=api_key, 
+                project_name=config[&#39;info&#39;][&#39;project_name&#39;]
+            )
+            exp_key = exp.get_key()
+        else:
+            exp_key = make_random_string(20)
         
-        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;EXPERIMENT_KEY&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">exp_key</span>
+        os.environ[&#39;EXPERIMENT_KEY&#39;] = exp_key
 
-        <span class="n">_env_variables</span> <span class="o">=</span> <span class="n">env_variables</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;EXPERIMENT_KEY&#39;</span><span class="p">]</span>
-        <span class="n">config</span> <span class="o">=</span> <span class="n">load_yaml</span><span class="p">(</span><span class="n">path_to_yml_file</span><span class="p">,</span> <span class="n">_env_variables</span><span class="p">)</span>
-        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;info&#39;</span><span class="p">][</span><span class="s1">&#39;experiment_key&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">exp_key</span>
-        <span class="n">path_to_yml_file</span> <span class="o">=</span> <span class="n">save_experiment</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">exp</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Experiment is already set up @ </span><span class="si">{config[&#39;info&#39;][&#39;output_folder&#39;]}</span><span class="s2">!&quot;</span>
-        <span class="p">)</span>
-        <span class="k">if</span> <span class="n">comet_ml_imported</span> <span class="ow">and</span> <span class="n">api_key</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">exp</span> <span class="o">=</span> <span class="n">ExistingExperiment</span><span class="p">(</span>
-                    <span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">,</span>
-                    <span class="n">previous_experiment</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;info&#39;</span><span class="p">][</span><span class="s1">&#39;experiment_key&#39;</span><span class="p">]</span>
-                <span class="p">)</span>
-            <span class="k">except</span><span class="p">:</span>
-                <span class="k">pass</span>
+        _env_variables = env_variables + [&#39;EXPERIMENT_KEY&#39;]
+        config = load_yaml(path_to_yml_file, _env_variables)
+        config[&#39;info&#39;][&#39;experiment_key&#39;] = exp_key
+        path_to_yml_file = save_experiment(config, exp)
+    else:
+        logging.info(
+            f&quot;Experiment is already set up @ {config[&#39;info&#39;][&#39;output_folder&#39;]}!&quot;
+        )
+        if comet_ml_imported and api_key:
+            try:
+                exp = ExistingExperiment(
+                    api_key=api_key,
+                    previous_experiment=config[&#39;info&#39;][&#39;experiment_key&#39;]
+                )
+            except:
+                pass
     
-    <span class="k">return</span> <span class="n">config</span><span class="p">,</span> <span class="n">exp</span><span class="p">,</span> <span class="n">path_to_yml_file</span></div>
+    return config, exp, path_to_yml_file</div>
 </pre></div>
 
            </div>

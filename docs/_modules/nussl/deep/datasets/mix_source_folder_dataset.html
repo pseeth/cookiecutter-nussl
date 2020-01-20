@@ -87,9 +87,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../experiments.html">Configuring an experiment</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../../source/runners.html">runners package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../source/scripts.html">scripts package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../source/src.html">src package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../source/runners.html">runners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../source/scripts.html">scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../source/src.html">src</a></li>
 </ul>
 
             
@@ -153,130 +153,130 @@
            <div itemprop="articleBody">
             
   <h1>Source code for nussl.deep.datasets.mix_source_folder_dataset</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">.base_dataset</span> <span class="kn">import</span> <span class="n">BaseDataset</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">random</span>
+<span></span>from .base_dataset import BaseDataset
+import os
+import numpy as np
+import random
 
-<div class="viewcode-block" id="MixSourceFolder"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.MixSourceFolder">[docs]</a><span class="k">class</span> <span class="nc">MixSourceFolder</span><span class="p">(</span><span class="n">BaseDataset</span><span class="p">):</span>
-<div class="viewcode-block" id="MixSourceFolder.__init__"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.MixSourceFolder.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">folder</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;This dataset expects your data to be formatted in the following way:</span>
+<div class="viewcode-block" id="MixSourceFolder"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.MixSourceFolder">[docs]</a>class MixSourceFolder(BaseDataset):
+    def __init__(self, folder, options):
+        &quot;&quot;&quot;This dataset expects your data to be formatted in the following way:
 
-<span class="sd">            data/</span>
-<span class="sd">                mix/</span>
-<span class="sd">                    [file0].wav</span>
-<span class="sd">                    [file1].wav</span>
-<span class="sd">                    [file2].wav</span>
-<span class="sd">                    ...</span>
-<span class="sd">                s0/</span>
-<span class="sd">                    [file0].wav</span>
-<span class="sd">                    [file1].wav</span>
-<span class="sd">                    [file2].wav</span>
-<span class="sd">                    ...</span>
-<span class="sd">                s1/</span>
-<span class="sd">                    [file0].wav</span>
-<span class="sd">                    [file1].wav</span>
-<span class="sd">                    [file2].wav</span>
-<span class="sd">                    ...</span>
-<span class="sd">                s2/</span>
-<span class="sd">                    [file0].wav</span>
-<span class="sd">                    [file1].wav</span>
-<span class="sd">                    [file2].wav</span>
-<span class="sd">                    ...</span>
-<span class="sd">                ...</span>
-<span class="sd">        </span>
-<span class="sd">        Note that the the filenames match between the mix folder and each source folder.</span>
-<span class="sd">        The only protected folder name here is &#39;mix&#39;. The source folder names can be</span>
-<span class="sd">        whatever you want. Given a file in the &#39;mix&#39; folder, this dataset will look up</span>
-<span class="sd">        the corresponding files with the same name in the source folders. These are the</span>
-<span class="sd">        source audio files. The sum of the sources should equal the mixture. Each source</span>
-<span class="sd">        will be labeled according to the folder name it comes from.</span>
-<span class="sd">        </span>
-<span class="sd">        If no mix folder exists, then this class will use the files in the first source</span>
-<span class="sd">        folder and look for matching files in the other source folder. Then the mix</span>
-<span class="sd">        will be created by summing the sources on the fly. This can also happen</span>
-<span class="sd">        if there is a mix folder by setting self.options[&#39;sum_sources&#39;] = True.</span>
-
-<span class="sd">        Arguments:</span>
-<span class="sd">            folder: location where all the data lives that is in MixSourceFolder format.</span>
-<span class="sd">            options: the options for the dataset (see deep/config/defaults/dataset.json)</span>
-<span class="sd">                for more details.            </span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">MixSourceFolder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_mix</span><span class="p">:</span>
-            <span class="n">wav_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_folders</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">wav_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="p">,</span> <span class="s1">&#39;mix&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            data/
+                mix/
+                    [file0].wav
+                    [file1].wav
+                    [file2].wav
+                    ...
+                s0/
+                    [file0].wav
+                    [file1].wav
+                    [file2].wav
+                    ...
+                s1/
+                    [file0].wav
+                    [file1].wav
+                    [file2].wav
+                    ...
+                s2/
+                    [file0].wav
+                    [file1].wav
+                    [file2].wav
+                    ...
+                ...
         
-        <span class="n">mix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_audio_file</span><span class="p">(</span><span class="n">wav_file</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">channels_in_mix</span> <span class="o">=</span> <span class="n">mix</span><span class="o">.</span><span class="n">num_channels</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sum_sources</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;sum_sources&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="MixSourceFolder.get_files"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.MixSourceFolder.get_files">[docs]</a>    <span class="k">def</span> <span class="nf">get_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">folder</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">source_folders</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span>
-            <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span> 
-            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span> 
-            <span class="ow">and</span> <span class="s1">&#39;mix&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">x</span> <span class="ow">and</span> <span class="s1">&#39;cache&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">x</span>
-        <span class="p">])</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;source_labels&#39;</span><span class="p">]:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;source_labels&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_folders</span>
-
-        <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;group_sources&#39;</span><span class="p">]:</span>
-            <span class="n">group_name</span> <span class="o">=</span> <span class="s1">&#39;+&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;source_labels&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">group_name</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">num_sources</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source_folders</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="s1">&#39;mix&#39;</span><span class="p">)):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">create_mix</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="n">files</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="s1">&#39;mix&#39;</span><span class="p">))</span> <span class="k">if</span> <span class="s1">&#39;.wav&#39;</span> <span class="ow">in</span> <span class="n">x</span><span class="p">])</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">create_mix</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="n">files</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_folders</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="k">if</span> <span class="s1">&#39;.wav&#39;</span> <span class="ow">in</span> <span class="n">x</span><span class="p">])</span>
-        <span class="k">return</span> <span class="n">files</span></div>
-
-<div class="viewcode-block" id="MixSourceFolder.load_audio_files"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.MixSourceFolder.load_audio_files">[docs]</a>    <span class="k">def</span> <span class="nf">load_audio_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wav_file</span><span class="p">):</span>
-        <span class="n">channel_indices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels_in_mix</span><span class="p">))</span>
-        <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">channel_indices</span><span class="p">)</span>
-        <span class="n">channel_indices</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">channel_indices</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;num_channels&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
-        <span class="n">source_dict</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">classes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;source_labels&#39;</span><span class="p">]</span>
-
-        <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_folders</span><span class="p">:</span>
-            <span class="n">source_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">wav_file</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">source_path</span><span class="p">):</span>
-                <span class="n">source_signal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_audio_file</span><span class="p">(</span><span class="n">source_path</span><span class="p">)</span>
-                <span class="n">source_signal</span><span class="o">.</span><span class="n">audio_data</span> <span class="o">=</span> <span class="n">source_signal</span><span class="o">.</span><span class="n">audio_data</span><span class="p">[</span><span class="n">channel_indices</span><span class="p">]</span>
-                <span class="n">source_dict</span><span class="p">[</span><span class="n">source</span><span class="p">]</span> <span class="o">=</span> <span class="n">source_signal</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_mix</span><span class="p">:</span>
-            <span class="n">mix_signal</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">source_dict</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">source_dict</span><span class="p">])</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">mix_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="p">,</span> <span class="s1">&#39;mix&#39;</span><span class="p">,</span> <span class="n">wav_file</span><span class="p">)</span>
-            <span class="n">mix_signal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_audio_file</span><span class="p">(</span><span class="n">mix_path</span><span class="p">)</span>
-            <span class="n">mix_signal</span><span class="o">.</span><span class="n">audio_data</span> <span class="o">=</span> <span class="n">mix_signal</span><span class="o">.</span><span class="n">audio_data</span><span class="p">[</span><span class="n">channel_indices</span><span class="p">]</span>
-
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;group_sources&#39;</span><span class="p">]):</span>
-            <span class="n">combined</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">group</span><span class="p">:</span>
-                <span class="n">combined</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">source_dict</span><span class="p">[</span><span class="n">label</span><span class="p">])</span>
-                <span class="n">source_dict</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
-            <span class="n">group_name</span> <span class="o">=</span> <span class="s1">&#39;+&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
-            <span class="n">source_dict</span><span class="p">[</span><span class="n">group_name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">combined</span><span class="p">)</span>
-
-        <span class="n">sources</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">one_hots</span> <span class="o">=</span> <span class="p">[]</span>
-
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;source_labels&#39;</span><span class="p">]):</span>
-            <span class="k">if</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">source_dict</span><span class="p">:</span>
-                <span class="n">sources</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">source_dict</span><span class="p">[</span><span class="n">label</span><span class="p">])</span>
-                <span class="n">one_hot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">classes</span><span class="p">))</span>
-                <span class="n">one_hot</span><span class="p">[</span><span class="n">classes</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">label</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
-                <span class="n">one_hots</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">one_hot</span><span class="p">)</span>
+        Note that the the filenames match between the mix folder and each source folder.
+        The only protected folder name here is &#39;mix&#39;. The source folder names can be
+        whatever you want. Given a file in the &#39;mix&#39; folder, this dataset will look up
+        the corresponding files with the same name in the source folders. These are the
+        source audio files. The sum of the sources should equal the mixture. Each source
+        will be labeled according to the folder name it comes from.
         
-        <span class="n">one_hots</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">one_hots</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sum_sources</span><span class="p">:</span>
-            <span class="n">mix_signal</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">sources</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">mix_signal</span><span class="p">,</span> <span class="n">sources</span><span class="p">,</span> <span class="n">one_hots</span></div></div>
+        If no mix folder exists, then this class will use the files in the first source
+        folder and look for matching files in the other source folder. Then the mix
+        will be created by summing the sources on the fly. This can also happen
+        if there is a mix folder by setting self.options[&#39;sum_sources&#39;] = True.
+
+        Arguments:
+            folder: location where all the data lives that is in MixSourceFolder format.
+            options: the options for the dataset (see deep/config/defaults/dataset.json)
+                for more details.            
+        &quot;&quot;&quot;
+        super(MixSourceFolder, self).__init__(folder, options)
+        if self.create_mix:
+            wav_file = os.path.join(self.folder, self.source_folders[0], self.files[0])
+        else:
+            wav_file = os.path.join(self.folder, &#39;mix&#39;, self.files[0])
+        
+        mix = self._load_audio_file(wav_file)
+        self.channels_in_mix = mix.num_channels
+        self.sum_sources = self.options.pop(&#39;sum_sources&#39;, False)
+
+<div class="viewcode-block" id="MixSourceFolder.get_files"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.MixSourceFolder.get_files">[docs]</a>    def get_files(self, folder):
+        self.source_folders = sorted([
+            x for x in os.listdir(folder) 
+            if os.path.isdir(os.path.join(folder, x)) 
+            and &#39;mix&#39; not in x and &#39;cache&#39; not in x
+        ])
+        if not self.options[&#39;source_labels&#39;]:
+            self.options[&#39;source_labels&#39;] = self.source_folders
+
+        for group in self.options[&#39;group_sources&#39;]:
+            group_name = &#39;+&#39;.join(group)
+            self.options[&#39;source_labels&#39;].append(group_name)
+
+        self.num_sources = len(self.source_folders)
+        if os.path.exists(os.path.join(folder, &#39;mix&#39;)):
+            self.create_mix = False
+            files = sorted([x for x in os.listdir(os.path.join(folder, &#39;mix&#39;)) if &#39;.wav&#39; in x])
+        else:
+            self.create_mix = True
+            files = sorted([x for x in os.listdir(os.path.join(folder, self.source_folders[0])) if &#39;.wav&#39; in x])
+        return files</div>
+
+<div class="viewcode-block" id="MixSourceFolder.load_audio_files"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.MixSourceFolder.load_audio_files">[docs]</a>    def load_audio_files(self, wav_file):
+        channel_indices = list(range(1, self.channels_in_mix))
+        random.shuffle(channel_indices)
+        channel_indices = [0] + channel_indices[:self.options[&#39;num_channels&#39;] - 1]
+        source_dict = {}
+        classes = self.options[&#39;source_labels&#39;]
+
+        for source in self.source_folders:
+            source_path = os.path.join(self.folder, source, wav_file)
+            if os.path.isfile(source_path):
+                source_signal = self._load_audio_file(source_path)
+                source_signal.audio_data = source_signal.audio_data[channel_indices]
+                source_dict[source] = source_signal
+
+        if self.create_mix:
+            mix_signal = sum([source_dict[x] for x in source_dict])
+        else:
+            mix_path = os.path.join(self.folder, &#39;mix&#39;, wav_file)
+            mix_signal = self._load_audio_file(mix_path)
+            mix_signal.audio_data = mix_signal.audio_data[channel_indices]
+
+        for i, group in enumerate(self.options[&#39;group_sources&#39;]):
+            combined = []
+            for label in group:
+                combined.append(source_dict[label])
+                source_dict.pop(label)
+            group_name = &#39;+&#39;.join(group)
+            source_dict[group_name] = sum(combined)
+
+        sources = []
+        one_hots = []
+
+        for i, label in enumerate(self.options[&#39;source_labels&#39;]):
+            if label in source_dict:
+                sources.append(source_dict[label])
+                one_hot = np.zeros(len(classes))
+                one_hot[classes.index(label)] = 1
+                one_hots.append(one_hot)
+        
+        one_hots = np.stack(one_hots)
+        if self.sum_sources:
+            mix_signal = sum(sources)
+        return mix_signal, sources, one_hots</div></div>
 </pre></div>
 
            </div>

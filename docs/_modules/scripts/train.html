@@ -87,9 +87,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../experiments.html">Configuring an experiment</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../source/runners.html">runners package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../source/scripts.html">scripts package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../source/src.html">src package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/runners.html">runners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/scripts.html">scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/src.html">src</a></li>
 </ul>
 
             
@@ -137,6 +137,8 @@
         
           <li><a href="../index.html">Module code</a> &raquo;</li>
         
+          <li><a href="../scripts.html">scripts</a> &raquo;</li>
+        
       <li>scripts.train</li>
     
     
@@ -153,54 +155,73 @@
            <div itemprop="articleBody">
             
   <h1>Source code for scripts.train</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">sys</span>
-<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">)</span>
+<span></span>from runners.experiment_utils import load_experiment, save_experiment
+from src import dataset, train, model
+from src.utils import loaders
+import logging
+from runners.utils import load_yaml
+from . import cmd, document_parser
+from argparse import ArgumentParser
+import os
 
-<span class="kn">from</span> <span class="nn">runners.experiment_utils</span> <span class="kn">import</span> <span class="n">load_experiment</span><span class="p">,</span> <span class="n">save_experiment</span>
-<span class="kn">from</span> <span class="nn">src</span> <span class="kn">import</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">train</span><span class="p">,</span> <span class="n">model</span>
-<span class="kn">from</span> <span class="nn">src.utils</span> <span class="kn">import</span> <span class="n">loaders</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">runners.utils</span> <span class="kn">import</span> <span class="n">build_parser_for_yml_script</span><span class="p">,</span> <span class="n">load_yaml</span>
-<span class="kn">from</span> <span class="nn">argparse</span> <span class="kn">import</span> <span class="n">ArgumentParser</span>
-<span class="kn">import</span> <span class="nn">os</span>
-
-<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../source/scripts.html#scripts.train.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">path_to_yml_file</span><span class="p">):</span>
-    <span class="n">config</span><span class="p">,</span> <span class="n">exp</span><span class="p">,</span> <span class="n">path_to_yml_file</span> <span class="o">=</span> <span class="n">load_experiment</span><span class="p">(</span><span class="n">path_to_yml_file</span><span class="p">)</span>
+<div class="viewcode-block" id="train_experiment"><a class="viewcode-back" href="../../source/scripts.html#scripts.train.train_experiment">[docs]</a>def train_experiment(path_to_yml_file):
+    &quot;&quot;&quot;
+    Starts a training job for the experiment defined at the path specified. Fits the
+    model accordingly.
     
-    <span class="n">train_class</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;train_config&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;class&#39;</span><span class="p">)</span>
-    <span class="n">TrainerClass</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">train_class</span><span class="p">)</span>
+    Args:
+        path_to_yml_file (str): Path to the configuration for the experiment that 
+        is getting trained. The script will take the configuration and launch a 
+        training job for the experiment.
+    &quot;&quot;&quot;
+    config, exp, path_to_yml_file = load_experiment(path_to_yml_file)
+    
+    train_class = config[&#39;train_config&#39;].pop(&#39;class&#39;)
+    TrainerClass = getattr(train, train_class)
 
-    <span class="k">if</span> <span class="s1">&#39;train&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;datasets&#39;</span><span class="p">]:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Train dataset must be specified!&#39;</span><span class="p">)</span>
+    if &#39;train&#39; not in config[&#39;datasets&#39;]:
+        logging.error(&#39;Train dataset must be specified!&#39;)
 
-    <span class="n">_datasets</span> <span class="o">=</span> <span class="p">{}</span>
+    _datasets = {}
 
-    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">,</span> <span class="s1">&#39;val&#39;</span><span class="p">]:</span>
-        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;datasets&#39;</span><span class="p">]:</span>
-            <span class="n">_datasets</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">loaders</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span>
-                <span class="n">config</span><span class="p">[</span><span class="s1">&#39;datasets&#39;</span><span class="p">][</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;class&#39;</span><span class="p">],</span>
-                <span class="n">config</span><span class="p">[</span><span class="s1">&#39;datasets&#39;</span><span class="p">][</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;folder&#39;</span><span class="p">],</span>
-                <span class="n">config</span><span class="p">[</span><span class="s1">&#39;dataset_config&#39;</span><span class="p">]</span>
-            <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">_datasets</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    for key in [&#39;train&#39;, &#39;val&#39;]:
+        if key in config[&#39;datasets&#39;]:
+            _datasets[key] = loaders.load_dataset(
+                config[&#39;datasets&#39;][key][&#39;class&#39;],
+                config[&#39;datasets&#39;][key][&#39;folder&#39;],
+                config[&#39;dataset_config&#39;]
+            )
+        else:
+            _datasets[key] = None
 
-    <span class="n">_model</span> <span class="o">=</span> <span class="n">loaders</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;model_config&#39;</span><span class="p">])</span>
-    <span class="n">_trainer</span> <span class="o">=</span> <span class="n">TrainerClass</span><span class="p">(</span>
-        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;info&#39;</span><span class="p">][</span><span class="s1">&#39;output_folder&#39;</span><span class="p">],</span>
-        <span class="n">_datasets</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">],</span>
-        <span class="n">_model</span><span class="p">,</span>
-        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;train_config&#39;</span><span class="p">],</span>
-        <span class="n">validation_data</span><span class="o">=</span><span class="n">_datasets</span><span class="p">[</span><span class="s1">&#39;val&#39;</span><span class="p">],</span>
-        <span class="n">use_tensorboard</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;train_config&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;use_tensorboard&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
-        <span class="n">experiment</span><span class="o">=</span><span class="n">exp</span>
-    <span class="p">)</span>
-    <span class="n">_trainer</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span></div>
+    _model = loaders.load_model(config[&#39;model_config&#39;])
+    _trainer = TrainerClass(
+        config[&#39;info&#39;][&#39;output_folder&#39;],
+        _datasets[&#39;train&#39;],
+        _model,
+        config[&#39;train_config&#39;],
+        validation_data=_datasets[&#39;val&#39;],
+        use_tensorboard=config[&#39;train_config&#39;].pop(&#39;use_tensorboard&#39;, False),
+        experiment=exp
+    )
+    _trainer.fit()</div>
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
-    <span class="n">parser</span> <span class="o">=</span> <span class="n">build_parser_for_yml_script</span><span class="p">()</span>
-    <span class="n">args</span> <span class="o">=</span> <span class="nb">vars</span><span class="p">(</span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">())</span>
-    <span class="n">main</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="s1">&#39;spec&#39;</span><span class="p">])</span>
+<div class="viewcode-block" id="build_parser"><a class="viewcode-back" href="../../source/scripts.html#scripts.train.build_parser">[docs]</a>@document_parser(&#39;train_experiment&#39;, &#39;scripts.train.train&#39;)
+def build_parser():
+    parser = ArgumentParser()
+    parser.add_argument(
+        &quot;-p&quot;,
+        &quot;--path_to_yml_file&quot;,
+        type=str,
+        required=True,
+        help=&quot;&quot;&quot;Path to the configuration for the experiment that is getting trained. The
+        script will take the configuration and launch a training job for the experiment.
+        &quot;&quot;&quot;
+    )
+    return parser</div>
+
+if __name__ == &#39;__main__&#39;:
+    cmd(train_experiment, build_parser)
 </pre></div>
 
            </div>

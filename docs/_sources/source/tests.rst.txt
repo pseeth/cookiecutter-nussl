@@ -1,59 +1,59 @@
-tests package
-=============
+tests
+=====
 
 Submodules
 ----------
 
-tests.test\_data module
------------------------
+tests.test\_data
+----------------
 
 .. automodule:: tests.test_data
    :members:
    :undoc-members:
    :show-inheritance:
 
-tests.test\_experiment module
------------------------------
+tests.test\_experiment
+----------------------
 
 .. automodule:: tests.test_experiment
    :members:
    :undoc-members:
    :show-inheritance:
 
-tests.test\_experiment\_utils module
-------------------------------------
+tests.test\_experiment\_utils
+-----------------------------
 
 .. automodule:: tests.test_experiment_utils
    :members:
    :undoc-members:
    :show-inheritance:
 
-tests.test\_overfit module
---------------------------
+tests.test\_overfit
+-------------------
 
 .. automodule:: tests.test_overfit
    :members:
    :undoc-members:
    :show-inheritance:
 
-tests.test\_pipeline module
----------------------------
+tests.test\_pipeline
+--------------------
 
 .. automodule:: tests.test_pipeline
    :members:
    :undoc-members:
    :show-inheritance:
 
-tests.test\_runners module
---------------------------
+tests.test\_runners
+-------------------
 
 .. automodule:: tests.test_runners
    :members:
    :undoc-members:
    :show-inheritance:
 
-tests.test\_yaml module
------------------------
+tests.test\_yaml
+----------------
 
 .. automodule:: tests.test_yaml
    :members:

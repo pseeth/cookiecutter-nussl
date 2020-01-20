@@ -1,27 +1,27 @@
-src.utils package
-=================
+src.utils
+=========
 
 Submodules
 ----------
 
-src.utils.loaders module
-------------------------
+src.utils.loaders
+-----------------
 
 .. automodule:: src.utils.loaders
    :members:
    :undoc-members:
    :show-inheritance:
 
-src.utils.parallel module
--------------------------
+src.utils.parallel
+------------------
 
 .. automodule:: src.utils.parallel
    :members:
    :undoc-members:
    :show-inheritance:
 
-src.utils.seed module
----------------------
+src.utils.seed
+--------------
 
 .. automodule:: src.utils.seed
    :members:

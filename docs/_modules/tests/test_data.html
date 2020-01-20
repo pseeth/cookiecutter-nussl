@@ -87,9 +87,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../experiments.html">Configuring an experiment</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../source/runners.html">runners package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../source/scripts.html">scripts package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../source/src.html">src package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/runners.html">runners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/scripts.html">scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/src.html">src</a></li>
 </ul>
 
             
@@ -155,31 +155,31 @@
            <div itemprop="articleBody">
             
   <h1>Source code for tests.test_data</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">scripts</span> <span class="kn">import</span> <span class="n">mix_with_scaper</span><span class="p">,</span> <span class="n">reorganize</span><span class="p">,</span> <span class="n">resample</span>
-<span class="kn">from</span> <span class="nn">src</span> <span class="kn">import</span> <span class="n">logging</span>
-<span class="kn">from</span> <span class="nn">runners.utils</span> <span class="kn">import</span> <span class="n">load_yaml</span>
-<span class="kn">import</span> <span class="nn">os</span>
+<span></span>from scripts import mix_with_scaper, reorganize, resample
+from src import logging
+from runners.utils import load_yaml
+import os
 
-<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;DATA_DIRECTORY&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;tests/out/_test_data/&#39;</span>
+os.environ[&#39;DATA_DIRECTORY&#39;] = &#39;tests/out/_test_data/&#39;
 
-<div class="viewcode-block" id="test_data_musdb_reorganize"><a class="viewcode-back" href="../../source/tests.html#tests.test_data.test_data_musdb_reorganize">[docs]</a><span class="k">def</span> <span class="nf">test_data_musdb_reorganize</span><span class="p">():</span>
-    <span class="n">reorganize</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="s1">&#39;data_prep/musdb/reorganize.yml&#39;</span><span class="p">)</span>        </div>
+<div class="viewcode-block" id="test_data_musdb_reorganize"><a class="viewcode-back" href="../../source/tests.html#tests.test_data.test_data_musdb_reorganize">[docs]</a>def test_data_musdb_reorganize():
+    reorganize.main(&#39;data_prep/musdb/reorganize.yml&#39;)        </div>
 
-<div class="viewcode-block" id="test_data_musdb_resample"><a class="viewcode-back" href="../../source/tests.html#tests.test_data.test_data_musdb_resample">[docs]</a><span class="k">def</span> <span class="nf">test_data_musdb_resample</span><span class="p">():</span>
-    <span class="c1"># Run it once to make sure it resamples everything.</span>
-    <span class="n">resample</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="s1">&#39;data_prep/musdb/resample.yml&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="test_data_musdb_resample"><a class="viewcode-back" href="../../source/tests.html#tests.test_data.test_data_musdb_resample">[docs]</a>def test_data_musdb_resample():
+    # Run it once to make sure it resamples everything.
+    resample.main(&#39;data_prep/musdb/resample.yml&#39;)
 
-    <span class="c1"># Run it again to make sure it doesn&#39;t redo work if resampled file exists.</span>
-    <span class="n">resample</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="s1">&#39;data_prep/musdb/resample.yml&#39;</span><span class="p">)</span></div>
+    # Run it again to make sure it doesn&#39;t redo work if resampled file exists.
+    resample.main(&#39;data_prep/musdb/resample.yml&#39;)</div>
 
-<div class="viewcode-block" id="test_data_musdb_coherent"><a class="viewcode-back" href="../../source/tests.html#tests.test_data.test_data_musdb_coherent">[docs]</a><span class="k">def</span> <span class="nf">test_data_musdb_coherent</span><span class="p">():</span>
-    <span class="n">mix_with_scaper</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="s1">&#39;data_prep/musdb/coherent.yml&#39;</span><span class="p">)</span></div>
+<div class="viewcode-block" id="test_data_musdb_coherent"><a class="viewcode-back" href="../../source/tests.html#tests.test_data.test_data_musdb_coherent">[docs]</a>def test_data_musdb_coherent():
+    mix_with_scaper.main(&#39;data_prep/musdb/coherent.yml&#39;)</div>
 
-<div class="viewcode-block" id="test_data_musdb_incoherent"><a class="viewcode-back" href="../../source/tests.html#tests.test_data.test_data_musdb_incoherent">[docs]</a><span class="k">def</span> <span class="nf">test_data_musdb_incoherent</span><span class="p">():</span>
-    <span class="n">mix_with_scaper</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="s1">&#39;data_prep/musdb/incoherent.yml&#39;</span><span class="p">)</span></div>
+<div class="viewcode-block" id="test_data_musdb_incoherent"><a class="viewcode-back" href="../../source/tests.html#tests.test_data.test_data_musdb_incoherent">[docs]</a>def test_data_musdb_incoherent():
+    mix_with_scaper.main(&#39;data_prep/musdb/incoherent.yml&#39;)</div>
 
-<div class="viewcode-block" id="test_data_wsj_incoherent"><a class="viewcode-back" href="../../source/tests.html#tests.test_data.test_data_wsj_incoherent">[docs]</a><span class="k">def</span> <span class="nf">test_data_wsj_incoherent</span><span class="p">():</span>
-    <span class="n">mix_with_scaper</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="s1">&#39;data_prep/wsj/incoherent.yml&#39;</span><span class="p">)</span></div>
+<div class="viewcode-block" id="test_data_wsj_incoherent"><a class="viewcode-back" href="../../source/tests.html#tests.test_data.test_data_wsj_incoherent">[docs]</a>def test_data_wsj_incoherent():
+    mix_with_scaper.main(&#39;data_prep/wsj/incoherent.yml&#39;)</div>
 </pre></div>
 
            </div>

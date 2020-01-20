@@ -87,9 +87,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../experiments.html">Configuring an experiment</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/runners.html">runners package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/scripts.html">scripts package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/src.html">src package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/runners.html">runners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/scripts.html">scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/src.html">src</a></li>
 </ul>
 
             
@@ -153,217 +153,217 @@
            <div itemprop="articleBody">
             
   <h1>Source code for nussl.separation.ft2d</h1><div class="highlight"><pre>
-<span></span><span class="ch">#!/usr/bin/env python</span>
-<span class="c1"># -*- coding: utf-8 -*-</span>
+<span></span>#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">copy</span>
-<span class="kn">from</span> <span class="nn">scipy.ndimage.filters</span> <span class="kn">import</span> <span class="n">maximum_filter</span><span class="p">,</span> <span class="n">minimum_filter</span><span class="p">,</span> <span class="n">uniform_filter</span>
+import numpy as np
+import copy
+from scipy.ndimage.filters import maximum_filter, minimum_filter, uniform_filter
 
-<span class="kn">from</span> <span class="nn">..core.audio_signal</span> <span class="kn">import</span> <span class="n">AudioSignal</span>
-<span class="kn">from</span> <span class="nn">..core</span> <span class="kn">import</span> <span class="n">constants</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">mask_separation_base</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">masks</span>
+from ..core.audio_signal import AudioSignal
+from ..core import constants
+from . import mask_separation_base
+from . import masks
 
 
-<div class="viewcode-block" id="FT2D"><a class="viewcode-back" href="../../../source/src.algorithms.html#src.algorithms.FT2D">[docs]</a><span class="k">class</span> <span class="nc">FT2D</span><span class="p">(</span><span class="n">mask_separation_base</span><span class="o">.</span><span class="n">MaskSeparationBase</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Implements foreground/background separation using the 2D Fourier Transform</span>
+<div class="viewcode-block" id="FT2D"><a class="viewcode-back" href="../../../source/src.algorithms.html#src.algorithms.FT2D">[docs]</a>class FT2D(mask_separation_base.MaskSeparationBase):
+    &quot;&quot;&quot;Implements foreground/background separation using the 2D Fourier Transform
 
-<span class="sd">    Parameters:</span>
-<span class="sd">        input_audio_signal: (AudioSignal object) The AudioSignal object that has the</span>
-<span class="sd">                            audio data that REPET will be run on.</span>
-<span class="sd">        high_pass_cutoff: (Optional) (float) value (in Hz) for the high pass cutoff filter.</span>
-<span class="sd">        do_mono: (Optional) (bool) Flattens AudioSignal to mono before running the algorithm</span>
-<span class="sd">            (does not effect the input AudioSignal object)</span>
-<span class="sd">        use_librosa_stft: (Optional) (bool) Calls librosa&#39;s stft function instead of nussl&#39;s</span>
+    Parameters:
+        input_audio_signal: (AudioSignal object) The AudioSignal object that has the
+                            audio data that REPET will be run on.
+        high_pass_cutoff: (Optional) (float) value (in Hz) for the high pass cutoff filter.
+        do_mono: (Optional) (bool) Flattens AudioSignal to mono before running the algorithm
+            (does not effect the input AudioSignal object)
+        use_librosa_stft: (Optional) (bool) Calls librosa&#39;s stft function instead of nussl&#39;s
 
-<span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="FT2D.__init__"><a class="viewcode-back" href="../../../source/src.algorithms.html#src.algorithms.FT2D.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_audio_signal</span><span class="p">,</span> <span class="n">high_pass_cutoff</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span> <span class="n">neighborhood_size</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">25</span><span class="p">),</span>
-                 <span class="n">do_mono</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">use_librosa_stft</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">USE_LIBROSA_STFT</span><span class="p">,</span> <span class="n">quadrants_to_keep</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span>
-                 <span class="n">use_background_fourier_transform</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mask_alpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
-                 <span class="n">mask_type</span><span class="o">=</span><span class="n">mask_separation_base</span><span class="o">.</span><span class="n">MaskSeparationBase</span><span class="o">.</span><span class="n">SOFT_MASK</span><span class="p">,</span>
-                 <span class="n">filter_approach</span><span class="o">=</span><span class="s1">&#39;local_std&#39;</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">FT2D</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">input_audio_signal</span><span class="o">=</span><span class="n">input_audio_signal</span><span class="p">,</span> <span class="n">mask_type</span><span class="o">=</span><span class="n">mask_type</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">high_pass_cutoff</span> <span class="o">=</span> <span class="n">high_pass_cutoff</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">background</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">foreground</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">use_librosa_stft</span> <span class="o">=</span> <span class="n">use_librosa_stft</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">neighborhood_size</span> <span class="o">=</span> <span class="n">neighborhood_size</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">result_masks</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">quadrants_to_keep</span> <span class="o">=</span> <span class="n">quadrants_to_keep</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">use_background_fourier_transform</span> <span class="o">=</span> <span class="n">use_background_fourier_transform</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mask_alpha</span> <span class="o">=</span> <span class="n">mask_alpha</span>
+    &quot;&quot;&quot;
+    def __init__(self, input_audio_signal, high_pass_cutoff=100.0, neighborhood_size=(1, 25),
+                 do_mono=False, use_librosa_stft=constants.USE_LIBROSA_STFT, quadrants_to_keep=(0,1,2,3),
+                 use_background_fourier_transform=True, mask_alpha=1.0,
+                 mask_type=mask_separation_base.MaskSeparationBase.SOFT_MASK,
+                 filter_approach=&#39;local_std&#39;):
+        super(FT2D, self).__init__(input_audio_signal=input_audio_signal, mask_type=mask_type)
+        self.high_pass_cutoff = high_pass_cutoff
+        self.background = None
+        self.foreground = None
+        self.use_librosa_stft = use_librosa_stft
+        self.neighborhood_size = neighborhood_size
+        self.result_masks = None
+        self.quadrants_to_keep = quadrants_to_keep
+        self.use_background_fourier_transform = use_background_fourier_transform
+        self.mask_alpha = mask_alpha
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">stft</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">allowed_filter_approaches</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;original&#39;</span><span class="p">,</span> <span class="s1">&#39;local_std&#39;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">filter_approach</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">allowed_filter_approaches</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;filter approach must be one of </span><span class="si">{allowed_filter_approaches}</span><span class="s1">&#39;</span><span class="p">)</span>
+        self.stft = None
+        allowed_filter_approaches = [&#39;original&#39;, &#39;local_std&#39;]
+        if filter_approach not in allowed_filter_approaches:
+            raise ValueError(f&#39;filter approach must be one of {allowed_filter_approaches}&#39;)
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">filter_approach</span> <span class="o">=</span> <span class="n">filter_approach</span>
+        self.filter_approach = filter_approach
 
-        <span class="k">if</span> <span class="n">do_mono</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">audio_signal</span><span class="o">.</span><span class="n">to_mono</span><span class="p">(</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+        if do_mono:
+            self.audio_signal.to_mono(overwrite=True)
 
-<div class="viewcode-block" id="FT2D.run"><a class="viewcode-back" href="../../../source/src.algorithms.html#src.algorithms.FT2D.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="FT2D.run"><a class="viewcode-back" href="../../../source/src.algorithms.html#src.algorithms.FT2D.run">[docs]</a>    def run(self):
+        &quot;&quot;&quot;
 
-<span class="sd">        Returns:</span>
-<span class="sd">            background (AudioSignal): An AudioSignal object with repeating background in</span>
-<span class="sd">            background.audio_data</span>
-<span class="sd">            (to get the corresponding non-repeating foreground run self.make_audio_signals())</span>
+        Returns:
+            background (AudioSignal): An AudioSignal object with repeating background in
+            background.audio_data
+            (to get the corresponding non-repeating foreground run self.make_audio_signals())
 
-<span class="sd">        Example:</span>
-<span class="sd">             ::</span>
+        Example:
+             ::
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># High pass filter cutoff freq. (in # of freq. bins), +1 to match MATLAB implementation</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">high_pass_cutoff</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">high_pass_cutoff</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stft_params</span><span class="o">.</span><span class="n">n_fft_bins</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span>
-                                            <span class="bp">self</span><span class="o">.</span><span class="n">audio_signal</span><span class="o">.</span><span class="n">sample_rate</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span>
+        &quot;&quot;&quot;
+        # High pass filter cutoff freq. (in # of freq. bins), +1 to match MATLAB implementation
+        self.high_pass_cutoff = int(np.ceil(self.high_pass_cutoff * (self.stft_params.n_fft_bins - 1) /
+                                            self.audio_signal.sample_rate)) + 1
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_compute_spectrograms</span><span class="p">()</span>
+        self._compute_spectrograms()
 
-        <span class="c1"># separate the mixture background by masking</span>
-        <span class="n">background_masks</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">foreground_masks</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">audio_signal</span><span class="o">.</span><span class="n">num_channels</span><span class="p">):</span>
-            <span class="n">background_mask</span><span class="p">,</span> <span class="n">foreground_mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_ft2d_mask</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ft2d</span><span class="p">,</span> <span class="n">ch</span><span class="p">)</span>
-            <span class="n">background_mask</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">high_pass_cutoff</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># high-pass filter the foreground</span>
-            <span class="n">foreground_mask</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">high_pass_cutoff</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="n">background_masks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">background_mask</span><span class="p">)</span>
-            <span class="n">foreground_masks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">foreground_mask</span><span class="p">)</span>
+        # separate the mixture background by masking
+        background_masks = []
+        foreground_masks = []
+        for ch in range(self.audio_signal.num_channels):
+            background_mask, foreground_mask = self.compute_ft2d_mask(self.ft2d, ch)
+            background_mask[0:self.high_pass_cutoff, :] = 1  # high-pass filter the foreground
+            foreground_mask[0:self.high_pass_cutoff, :] = 0
+            background_masks.append(background_mask)
+            foreground_masks.append(foreground_mask)
 
-        <span class="n">background_masks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">background_masks</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float&#39;</span><span class="p">)</span>
-        <span class="n">foreground_masks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">foreground_masks</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float&#39;</span><span class="p">)</span>
+        background_masks = np.array(background_masks).transpose((1, 2, 0)).astype(&#39;float&#39;)
+        foreground_masks = np.array(foreground_masks).transpose((1, 2, 0)).astype(&#39;float&#39;)
 
-        <span class="n">_masks</span> <span class="o">=</span> <span class="p">[</span><span class="n">background_masks</span><span class="p">,</span> <span class="n">foreground_masks</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">result_masks</span> <span class="o">=</span> <span class="p">[]</span>
+        _masks = [background_masks, foreground_masks]
+        self.result_masks = []
 
-        <span class="k">for</span> <span class="n">mask</span> <span class="ow">in</span> <span class="n">_masks</span><span class="p">:</span>
-            <span class="n">mask</span> <span class="o">=</span> <span class="n">masks</span><span class="o">.</span><span class="n">SoftMask</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_type</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">BINARY_MASK</span><span class="p">:</span>
-                <span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span><span class="o">.</span><span class="n">mask_to_binary</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">result_masks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+        for mask in _masks:
+            mask = masks.SoftMask(mask)
+            if self.mask_type == self.BINARY_MASK:
+                mask = mask.mask_to_binary()
+            self.result_masks.append(mask)
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">result_masks</span></div>
+        return self.result_masks</div>
 
     
-    <span class="k">def</span> <span class="nf">_compute_spectrograms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">stft</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">audio_signal</span><span class="o">.</span><span class="n">stft</span><span class="p">(</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">remove_reflection</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                                           <span class="n">use_librosa</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">use_librosa_stft</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ft2d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft2</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stft</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]))</span>
-                              <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">audio_signal</span><span class="o">.</span><span class="n">num_channels</span><span class="p">)],</span> 
-                              <span class="n">axis</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    def _compute_spectrograms(self):
+        self.stft = self.audio_signal.stft(overwrite=True, remove_reflection=True,
+                                           use_librosa=self.use_librosa_stft)
+        self.ft2d = np.stack([np.fft.fft2(np.abs(self.stft[:, :, i]))
+                              for i in range(self.audio_signal.num_channels)], 
+                              axis = -1)
 
-<div class="viewcode-block" id="FT2D.filter_quadrants"><a class="viewcode-back" href="../../../source/src.algorithms.html#src.algorithms.FT2D.filter_quadrants">[docs]</a>    <span class="k">def</span> <span class="nf">filter_quadrants</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="c1"># 1: shape[0] // 2:, :shape[1] // 2</span>
-        <span class="c1"># 2: :shape[0] // 2, :shape[1] // 2</span>
-        <span class="c1"># 3: :shape[0] // 2, shape[1] // 2:</span>
-        <span class="c1"># 4: shape[0] // 2:, shape[1] // 2:</span>
-        <span class="n">shape</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span>
-        <span class="k">for</span> <span class="n">quadrant</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">quadrant</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">quadrants_to_keep</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">quadrant</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">data</span><span class="p">[</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span><span class="p">:,</span> <span class="p">:</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-                <span class="k">elif</span> <span class="n">quadrant</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                    <span class="n">data</span><span class="p">[:</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="p">:</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-                <span class="k">elif</span> <span class="n">quadrant</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-                    <span class="n">data</span><span class="p">[:</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span><span class="p">:]</span> <span class="o">=</span> <span class="mi">0</span>
-                <span class="k">elif</span> <span class="n">quadrant</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
-                    <span class="n">data</span><span class="p">[</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span><span class="p">:,</span> <span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span><span class="p">:]</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">return</span> <span class="n">data</span></div>
+<div class="viewcode-block" id="FT2D.filter_quadrants"><a class="viewcode-back" href="../../../source/src.algorithms.html#src.algorithms.FT2D.filter_quadrants">[docs]</a>    def filter_quadrants(self, data):
+        # 1: shape[0] // 2:, :shape[1] // 2
+        # 2: :shape[0] // 2, :shape[1] // 2
+        # 3: :shape[0] // 2, shape[1] // 2:
+        # 4: shape[0] // 2:, shape[1] // 2:
+        shape = data.shape
+        for quadrant in range(4):
+            if quadrant not in self.quadrants_to_keep:
+                if quadrant == 0:
+                    data[shape[0] // 2:, :shape[1] // 2] = 0
+                elif quadrant == 1:
+                    data[:shape[0] // 2, :shape[1] // 2] = 0
+                elif quadrant == 2:
+                    data[:shape[0] // 2, shape[1] // 2:] = 0
+                elif quadrant == 3:
+                    data[shape[0] // 2:, shape[1] // 2:] = 0
+        return data</div>
 
-<div class="viewcode-block" id="FT2D.compute_ft2d_mask"><a class="viewcode-back" href="../../../source/src.algorithms.html#src.algorithms.FT2D.compute_ft2d_mask">[docs]</a>    <span class="k">def</span> <span class="nf">compute_ft2d_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ft2d</span><span class="p">,</span> <span class="n">ch</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_approach</span> <span class="o">==</span> <span class="s1">&#39;original&#39;</span><span class="p">:</span>
-            <span class="n">bg_ft2d</span><span class="p">,</span> <span class="n">fg_ft2d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_local_maxima</span><span class="p">(</span><span class="n">ft2d</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">ch</span><span class="p">])</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_approach</span> <span class="o">==</span> <span class="s1">&#39;local_std&#39;</span><span class="p">:</span>
-            <span class="n">bg_ft2d</span><span class="p">,</span> <span class="n">fg_ft2d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_local_maxima_with_std</span><span class="p">(</span><span class="n">ft2d</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">ch</span><span class="p">])</span>
+<div class="viewcode-block" id="FT2D.compute_ft2d_mask"><a class="viewcode-back" href="../../../source/src.algorithms.html#src.algorithms.FT2D.compute_ft2d_mask">[docs]</a>    def compute_ft2d_mask(self, ft2d, ch):
+        if self.filter_approach == &#39;original&#39;:
+            bg_ft2d, fg_ft2d = self.filter_local_maxima(ft2d[:, :, ch])
+        elif self.filter_approach == &#39;local_std&#39;:
+            bg_ft2d, fg_ft2d = self.filter_local_maxima_with_std(ft2d[:, :, ch])
         
-        <span class="bp">self</span><span class="o">.</span><span class="n">bg_ft2d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_quadrants</span><span class="p">(</span><span class="n">bg_ft2d</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fg_ft2d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_quadrants</span><span class="p">(</span><span class="n">fg_ft2d</span><span class="p">)</span>
-        <span class="n">_stft</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stft</span><span class="p">)[:,</span> <span class="p">:,</span> <span class="n">ch</span><span class="p">]</span> <span class="o">+</span> <span class="mf">1e-7</span>
-        <span class="n">_stft</span> <span class="o">=</span> <span class="n">_stft</span>
+        self.bg_ft2d = self.filter_quadrants(bg_ft2d)
+        self.fg_ft2d = self.filter_quadrants(fg_ft2d)
+        _stft = np.abs(self.stft)[:, :, ch] + 1e-7
+        _stft = _stft
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_background_fourier_transform</span><span class="p">:</span>
-            <span class="n">ft2d_used</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bg_ft2d</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">ft2d_used</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fg_ft2d</span>
+        if self.use_background_fourier_transform:
+            ft2d_used = self.bg_ft2d
+        else:
+            ft2d_used = self.fg_ft2d
 
-        <span class="n">est_stft</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifft2</span><span class="p">(</span><span class="n">ft2d_used</span><span class="p">)),</span> <span class="n">_stft</span><span class="p">)</span>
-        <span class="n">est_mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">est_stft</span> <span class="o">/</span> <span class="n">_stft</span><span class="p">)</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_alpha</span>
-        <span class="n">est_mask</span> <span class="o">/=</span> <span class="p">(</span><span class="n">est_mask</span> <span class="o">+</span> <span class="mf">1e-7</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        est_stft = np.minimum(np.abs(np.fft.ifft2(ft2d_used)), _stft)
+        est_mask = (est_stft / _stft) ** self.mask_alpha
+        est_mask /= (est_mask + 1e-7).max()
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_background_fourier_transform</span><span class="p">:</span>
-            <span class="n">bg_mask</span> <span class="o">=</span> <span class="n">est_mask</span>
-            <span class="n">fg_mask</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">bg_mask</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">fg_mask</span> <span class="o">=</span> <span class="n">est_mask</span>
-            <span class="n">bg_mask</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">fg_mask</span>
+        if self.use_background_fourier_transform:
+            bg_mask = est_mask
+            fg_mask = 1 - bg_mask
+        else:
+            fg_mask = est_mask
+            bg_mask = 1 - fg_mask
         
-        <span class="k">return</span> <span class="n">bg_mask</span><span class="p">,</span> <span class="n">fg_mask</span></div>
+        return bg_mask, fg_mask</div>
 
-<div class="viewcode-block" id="FT2D.filter_local_maxima_with_std"><a class="viewcode-back" href="../../../source/src.algorithms.html#src.algorithms.FT2D.filter_local_maxima_with_std">[docs]</a>    <span class="k">def</span> <span class="nf">filter_local_maxima_with_std</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ft2d</span><span class="p">):</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftshift</span><span class="p">(</span><span class="n">ft2d</span><span class="p">))</span>
-        <span class="n">data</span> <span class="o">/=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-7</span><span class="p">)</span>
+<div class="viewcode-block" id="FT2D.filter_local_maxima_with_std"><a class="viewcode-back" href="../../../source/src.algorithms.html#src.algorithms.FT2D.filter_local_maxima_with_std">[docs]</a>    def filter_local_maxima_with_std(self, ft2d):
+        data = np.abs(np.fft.fftshift(ft2d))
+        data /= (np.max(data) + 1e-7)
 
-        <span class="n">data_max</span> <span class="o">=</span> <span class="n">maximum_filter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighborhood_size</span><span class="p">)</span>
-        <span class="n">data_min</span> <span class="o">=</span> <span class="n">minimum_filter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighborhood_size</span><span class="p">)</span>
-        <span class="n">data_mean</span> <span class="o">=</span> <span class="n">uniform_filter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighborhood_size</span><span class="p">)</span>
-        <span class="n">data_mean_sq</span> <span class="o">=</span> <span class="n">uniform_filter</span><span class="p">(</span><span class="n">data</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighborhood_size</span><span class="p">)</span>
-        <span class="n">data_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">data_mean_sq</span> <span class="o">-</span> <span class="n">data_mean</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-7</span>
+        data_max = maximum_filter(data, self.neighborhood_size)
+        data_min = minimum_filter(data, self.neighborhood_size)
+        data_mean = uniform_filter(data, self.neighborhood_size)
+        data_mean_sq = uniform_filter(data ** 2, self.neighborhood_size)
+        data_std = np.sqrt(data_mean_sq - data_mean ** 2) + 1e-7
 
-        <span class="n">maxima</span> <span class="o">=</span> <span class="p">((</span><span class="n">data_max</span> <span class="o">-</span> <span class="n">data_mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">data_std</span><span class="p">)</span>
-        <span class="n">fraction_of_local_max</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span> <span class="o">==</span> <span class="n">data_max</span><span class="p">)</span>
-        <span class="n">maxima</span> <span class="o">*=</span> <span class="n">fraction_of_local_max</span>
-        <span class="n">maxima</span> <span class="o">=</span> <span class="n">maxima</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
-        <span class="n">maxima</span> <span class="o">/=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">maxima</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-7</span><span class="p">)</span>
+        maxima = ((data_max - data_mean) / data_std)
+        fraction_of_local_max = (data == data_max)
+        maxima *= fraction_of_local_max
+        maxima = maxima.astype(float)
+        maxima /= (np.max(maxima) + 1e-7)
 
-        <span class="n">maxima</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">maxima</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">fliplr</span><span class="p">(</span><span class="n">maxima</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">flipud</span><span class="p">(</span><span class="n">maxima</span><span class="p">))</span>
-        <span class="n">maxima</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifftshift</span><span class="p">(</span><span class="n">maxima</span><span class="p">)</span>
+        maxima = np.maximum(maxima, np.fliplr(maxima), np.flipud(maxima))
+        maxima = np.fft.ifftshift(maxima)
         
-        <span class="n">background_ft2d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">maxima</span><span class="p">,</span> <span class="n">ft2d</span><span class="p">)</span>
-        <span class="n">foreground_ft2d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">maxima</span><span class="p">,</span> <span class="n">ft2d</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">background_ft2d</span><span class="p">,</span> <span class="n">foreground_ft2d</span></div>
+        background_ft2d = np.multiply(maxima, ft2d)
+        foreground_ft2d = np.multiply(1 - maxima, ft2d)
+        return background_ft2d, foreground_ft2d</div>
 
 
-<div class="viewcode-block" id="FT2D.filter_local_maxima"><a class="viewcode-back" href="../../../source/src.algorithms.html#src.algorithms.FT2D.filter_local_maxima">[docs]</a>    <span class="k">def</span> <span class="nf">filter_local_maxima</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ft2d</span><span class="p">):</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftshift</span><span class="p">(</span><span class="n">ft2d</span><span class="p">))</span>
-        <span class="n">data</span> <span class="o">/=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-7</span><span class="p">)</span>
-        <span class="n">threshold</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<div class="viewcode-block" id="FT2D.filter_local_maxima"><a class="viewcode-back" href="../../../source/src.algorithms.html#src.algorithms.FT2D.filter_local_maxima">[docs]</a>    def filter_local_maxima(self, ft2d):
+        data = np.abs(np.fft.fftshift(ft2d))
+        data /= (np.max(data) + 1e-7)
+        threshold = np.std(data)
         
-        <span class="n">data_max</span> <span class="o">=</span> <span class="n">maximum_filter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighborhood_size</span><span class="p">)</span>
-        <span class="n">maxima</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span> <span class="o">==</span> <span class="n">data_max</span><span class="p">)</span>
-        <span class="n">data_min</span> <span class="o">=</span> <span class="n">minimum_filter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighborhood_size</span><span class="p">)</span>
-        <span class="n">diff</span> <span class="o">=</span> <span class="p">((</span><span class="n">data_max</span> <span class="o">-</span> <span class="n">data_min</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">threshold</span><span class="p">)</span>
-        <span class="n">maxima</span><span class="p">[</span><span class="n">diff</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">maxima</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">maxima</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">fliplr</span><span class="p">(</span><span class="n">maxima</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">flipud</span><span class="p">(</span><span class="n">maxima</span><span class="p">))</span>
-        <span class="n">maxima</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifftshift</span><span class="p">(</span><span class="n">maxima</span><span class="p">)</span>
+        data_max = maximum_filter(data, self.neighborhood_size)
+        maxima = (data == data_max)
+        data_min = minimum_filter(data, self.neighborhood_size)
+        diff = ((data_max - data_min) &gt; threshold)
+        maxima[diff == 0] = 0
+        maxima = np.maximum(maxima, np.fliplr(maxima), np.flipud(maxima))
+        maxima = np.fft.ifftshift(maxima)
         
-        <span class="n">background_ft2d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">maxima</span><span class="p">,</span> <span class="n">ft2d</span><span class="p">)</span>
-        <span class="n">foreground_ft2d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">maxima</span><span class="p">,</span> <span class="n">ft2d</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">background_ft2d</span><span class="p">,</span> <span class="n">foreground_ft2d</span></div>
+        background_ft2d = np.multiply(maxima, ft2d)
+        foreground_ft2d = np.multiply(1 - maxima, ft2d)
+        return background_ft2d, foreground_ft2d</div>
 
-<div class="viewcode-block" id="FT2D.make_audio_signals"><a class="viewcode-back" href="../../../source/src.algorithms.html#src.algorithms.FT2D.make_audio_signals">[docs]</a>    <span class="k">def</span> <span class="nf">make_audio_signals</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Returns the background and foreground audio signals. You must have run FT2D.run() prior</span>
-<span class="sd">        to calling this function. This function will return None if run() has not been called.</span>
+<div class="viewcode-block" id="FT2D.make_audio_signals"><a class="viewcode-back" href="../../../source/src.algorithms.html#src.algorithms.FT2D.make_audio_signals">[docs]</a>    def make_audio_signals(self):
+        &quot;&quot;&quot; Returns the background and foreground audio signals. You must have run FT2D.run() prior
+        to calling this function. This function will return None if run() has not been called.
 
-<span class="sd">        Returns:</span>
-<span class="sd">            Audio Signals (List): 2 element list.</span>
+        Returns:
+            Audio Signals (List): 2 element list.
 
-<span class="sd">                * bkgd: Audio signal with the calculated background track</span>
-<span class="sd">                * fkgd: Audio signal with the calculated foreground track</span>
+                * bkgd: Audio signal with the calculated background track
+                * fkgd: Audio signal with the calculated foreground track
 
-<span class="sd">        EXAMPLE:</span>
-<span class="sd">             ::</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">sources</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">mask</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">result_masks</span><span class="p">:</span>
-            <span class="n">source</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">audio_signal</span><span class="o">.</span><span class="n">apply_mask</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
-            <span class="n">source</span><span class="o">.</span><span class="n">istft</span><span class="p">(</span>
-                <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="n">truncate_to_length</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">audio_signal</span><span class="o">.</span><span class="n">signal_length</span>
-            <span class="p">)</span>
-            <span class="n">sources</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">sources</span></div></div>
+        EXAMPLE:
+             ::
+        &quot;&quot;&quot;
+        sources = []
+        for mask in self.result_masks:
+            source = self.audio_signal.apply_mask(mask)
+            source.istft(
+                overwrite=True,
+                truncate_to_length=self.audio_signal.signal_length
+            )
+            sources.append(source)
+        return sources</div></div>
 </pre></div>
 
            </div>

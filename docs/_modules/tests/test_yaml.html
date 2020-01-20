@@ -87,9 +87,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../experiments.html">Configuring an experiment</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../source/runners.html">runners package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../source/scripts.html">scripts package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../source/src.html">src package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/runners.html">runners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/scripts.html">scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/src.html">src</a></li>
 </ul>
 
             
@@ -155,17 +155,17 @@
            <div itemprop="articleBody">
             
   <h1>Source code for tests.test_yaml</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">glob</span>
-<span class="kn">from</span> <span class="nn">runners.utils</span> <span class="kn">import</span> <span class="n">load_yaml</span>   
-<span class="kn">import</span> <span class="nn">pytest</span> 
+<span></span>import glob
+from runners.utils import load_yaml   
+import pytest 
 
-<div class="viewcode-block" id="test_yaml"><a class="viewcode-back" href="../../source/tests.html#tests.test_yaml.test_yaml">[docs]</a><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span>
-    <span class="s2">&quot;path_to_yml&quot;</span><span class="p">,</span>
-     <span class="nb">list</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;./**/*.yml&#39;</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)),</span>
-     <span class="n">ids</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;./**/*.yml&#39;</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
-<span class="p">)</span>
-<span class="k">def</span> <span class="nf">test_yaml</span><span class="p">(</span><span class="n">path_to_yml</span><span class="p">):</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">load_yaml</span><span class="p">(</span><span class="n">path_to_yml</span><span class="p">)</span></div>
+<div class="viewcode-block" id="test_yaml"><a class="viewcode-back" href="../../source/tests.html#tests.test_yaml.test_yaml">[docs]</a>@pytest.mark.parametrize(
+    &quot;path_to_yml&quot;,
+     list(glob.glob(&#39;./**/*.yml&#39;, recursive=True)),
+     ids=list(glob.glob(&#39;./**/*.yml&#39;, recursive=True))
+)
+def test_yaml(path_to_yml):
+    data = load_yaml(path_to_yml)</div>
 </pre></div>
 
            </div>

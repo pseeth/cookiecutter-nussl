@@ -87,9 +87,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../experiments.html">Configuring an experiment</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../../source/runners.html">runners package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../source/scripts.html">scripts package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../source/src.html">src package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../source/runners.html">runners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../source/scripts.html">scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../source/src.html">src</a></li>
 </ul>
 
             
@@ -153,657 +153,657 @@
            <div itemprop="articleBody">
             
   <h1>Source code for nussl.deep.datasets.base_dataset</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">Dataset</span>
-<span class="kn">import</span> <span class="nn">pickle</span>
-<span class="kn">import</span> <span class="nn">librosa</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">shutil</span>
-<span class="kn">import</span> <span class="nn">random</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span>
-<span class="kn">from</span> <span class="nn">...core</span> <span class="kn">import</span> <span class="n">AudioSignal</span><span class="p">,</span> <span class="n">jupyter_utils</span>
-<span class="kn">from</span> <span class="nn">...separation</span> <span class="kn">import</span> <span class="n">SoftMask</span>
-<span class="kn">from</span> <span class="nn">scipy.io</span> <span class="kn">import</span> <span class="n">wavfile</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">copy</span>
-<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
-<span class="kn">import</span> <span class="nn">zarr</span>
-<span class="kn">import</span> <span class="nn">numcodecs</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span></span>from torch.utils.data import Dataset
+import pickle
+import librosa
+import numpy as np
+import os
+import shutil
+import random
+from typing import Dict, Any, Optional, Tuple, List
+from ...core import AudioSignal, jupyter_utils
+from ...separation import SoftMask
+from scipy.io import wavfile
+import logging
+import copy
+from enum import Enum
+import zarr
+import numcodecs
+import matplotlib.pyplot as plt
 
-<div class="viewcode-block" id="BaseDataset"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset">[docs]</a><span class="k">class</span> <span class="nc">BaseDataset</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
-<div class="viewcode-block" id="BaseDataset.__init__"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">folder</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
-        <span class="sd">&quot;&quot;&quot;Implements a variety of methods for loading source separation</span>
-<span class="sd">        datasets such as WSJ0-[2,3]mix and datasets made with Scaper.</span>
+<div class="viewcode-block" id="BaseDataset"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset">[docs]</a>class BaseDataset(Dataset):
+    def __init__(self, folder: str, options: Dict[str, Any]):
+        &quot;&quot;&quot;Implements a variety of methods for loading source separation
+        datasets such as WSJ0-[2,3]mix and datasets made with Scaper.
 
-<span class="sd">        Arguments:</span>
-<span class="sd">            folder - Folder where dataset is contained.</span>
+        Arguments:
+            folder - Folder where dataset is contained.
 
-<span class="sd">        Keyword Arguments:</span>
-<span class="sd">            options - a dictionary containing the settings for the dataset</span>
-<span class="sd">                loader. See `config/defaults/metadata/dataset.json` for full</span>
-<span class="sd">                description.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        Keyword Arguments:
+            options - a dictionary containing the settings for the dataset
+                loader. See `config/defaults/metadata/dataset.json` for full
+                description.
+        &quot;&quot;&quot;
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">folder</span> <span class="o">=</span> <span class="n">folder</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">use_librosa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;use_librosa_stft&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dataset_tag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;dataset_tag&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">current_length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;min_length&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;length&#39;</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">excerpt_selection_strategy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;excerpt_selection_strategy&#39;</span><span class="p">,</span> <span class="s1">&#39;random&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">chunk_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;chunk_size&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        self.folder = folder
+        self.options = copy.deepcopy(options)
+        self.use_librosa = self.options.pop(&#39;use_librosa_stft&#39;, False)
+        self.dataset_tag = self.options.pop(&#39;dataset_tag&#39;, &#39;default&#39;)
+        self.current_length = self.options.pop(&#39;min_length&#39;, self.options[&#39;length&#39;])
+        self.excerpt_selection_strategy = self.options.pop(&#39;excerpt_selection_strategy&#39;, &#39;random&#39;)
+        self.chunk_size = self.options.pop(&#39;chunk_size&#39;, 1)
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_files</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="p">)</span>
-        <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cached_files</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">targets</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s1">&#39;log_spectrogram&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;magnitude_spectrogram&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;assignments&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;source_spectrograms&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;weights&#39;</span>
-        <span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">data_keys_for_training</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;data_keys_for_training&#39;</span><span class="p">,</span> <span class="p">[])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">targets</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_keys_for_training</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">targets</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">targets</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">setup_cache</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cache_populated</span> <span class="o">=</span> <span class="kc">False</span>
+        self.files = self.get_files(self.folder)
+        random.shuffle(self.files)
+        self.cached_files = []
+        self.targets = [
+            &#39;log_spectrogram&#39;,
+            &#39;magnitude_spectrogram&#39;,
+            &#39;assignments&#39;,
+            &#39;source_spectrograms&#39;,
+            &#39;weights&#39;
+        ]
+        self.data_keys_for_training = self.options.pop(&#39;data_keys_for_training&#39;, [])
+        self.targets += self.data_keys_for_training
+        self.targets = list(set(self.targets))
+        self.setup_cache()
+        self.cache_populated = False
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;fraction_of_dataset&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">:</span>
-            <span class="n">num_files</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
-                <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;fraction_of_dataset&#39;</span><span class="p">]</span>
-            <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">[:</span><span class="n">num_files</span><span class="p">]</span></div>
+        if self.options[&#39;fraction_of_dataset&#39;] &lt; 1.0:
+            num_files = int(
+                len(self.files) * self.options[&#39;fraction_of_dataset&#39;]
+            )
+            self.files = self.files[:num_files]
 
-<div class="viewcode-block" id="BaseDataset.setup_cache"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset.setup_cache">[docs]</a>    <span class="k">def</span> <span class="nf">setup_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Items generated by the dataset can be cached using zarr. Zarr is a</span>
-<span class="sd">        library for easily storing data in efficient and compressed structures. </span>
-<span class="sd">        Every time BaseDataset&#39;s __getitem__ method is called, it returns a </span>
-<span class="sd">        dictionary with keys and values (usually numpy arrays but they can be </span>
-<span class="sd">        anything). If self.options[&#39;cache&#39;] points to some place (is a string of</span>
-<span class="sd">        nonzero length), then a cache is created. The name of the cache follows </span>
-<span class="sd">        a specific format, allowing for cache reuse. It uses the dataset location</span>
-<span class="sd">        with underscores instead of /, and appends the dataset_tag, kept in </span>
-<span class="sd">        self.options[&#39;dataset_tag&#39;], and adds the extension &#39;.zarr&#39;. The location</span>
-<span class="sd">        will be printed by the logging.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;cache&#39;</span><span class="p">]:</span>
-            <span class="n">cache</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;cache&#39;</span><span class="p">]),</span>
-                <span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)),</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">dataset_tag</span> <span class="o">+</span> <span class="s1">&#39;.zarr&#39;</span>
-            <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">cache</span> <span class="o">=</span> <span class="n">cache</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">overwrite_cache</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;overwrite_cache&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Caching to: </span><span class="si">{self.cache}</span><span class="s1">&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="BaseDataset.setup_cache"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset.setup_cache">[docs]</a>    def setup_cache(self):
+        &quot;&quot;&quot;Items generated by the dataset can be cached using zarr. Zarr is a
+        library for easily storing data in efficient and compressed structures. 
+        Every time BaseDataset&#39;s __getitem__ method is called, it returns a 
+        dictionary with keys and values (usually numpy arrays but they can be 
+        anything). If self.options[&#39;cache&#39;] points to some place (is a string of
+        nonzero length), then a cache is created. The name of the cache follows 
+        a specific format, allowing for cache reuse. It uses the dataset location
+        with underscores instead of /, and appends the dataset_tag, kept in 
+        self.options[&#39;dataset_tag&#39;], and adds the extension &#39;.zarr&#39;. The location
+        will be printed by the logging.
+        &quot;&quot;&quot;
+        if self.options[&#39;cache&#39;]:
+            cache = os.path.join(
+                os.path.expanduser(self.options[&#39;cache&#39;]),
+                &#39;_&#39;.join(self.folder.split(&#39;/&#39;)),
+                self.dataset_tag + &#39;.zarr&#39;
+            )
+            self.cache = cache
+            self.overwrite_cache = self.options.pop(&#39;overwrite_cache&#39;, False)
+            logging.info(f&#39;Caching to: {self.cache}&#39;)
 
-            <span class="n">file_mode</span> <span class="o">=</span> <span class="s1">&#39;r&#39;</span>
-            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">):</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Cache location </span><span class="si">{self.cache}</span><span class="s1"> exists! Checking if overwrite. Otherwise, will use cache.&#39;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">overwrite_cache</span><span class="p">:</span>
-                    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Overwriting cache.&#39;</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">clear_cache</span><span class="p">()</span>
-                    <span class="n">file_mode</span> <span class="o">=</span> <span class="s1">&#39;w&#39;</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{self.cache}</span><span class="s1"> does not exist...creating a new cache&#39;</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">overwrite_cache</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">file_mode</span> <span class="o">=</span> <span class="s1">&#39;w&#39;</span>
+            file_mode = &#39;r&#39;
+            if os.path.exists(self.cache):
+                logging.info(f&#39;Cache location {self.cache} exists! Checking if overwrite. Otherwise, will use cache.&#39;)
+                if self.overwrite_cache:
+                    logging.info(&#39;Overwriting cache.&#39;)
+                    self.clear_cache()
+                    file_mode = &#39;w&#39;
+            else:
+                logging.info(f&#39;{self.cache} does not exist...creating a new cache&#39;)
+                self.overwrite_cache = True
+                file_mode = &#39;w&#39;
             
-            <span class="bp">self</span><span class="o">.</span><span class="n">cache_dataset</span> <span class="o">=</span> <span class="n">zarr</span><span class="o">.</span><span class="n">open</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">,</span> 
-                <span class="n">mode</span><span class="o">=</span><span class="n">file_mode</span><span class="p">,</span> 
-                <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">),),</span> 
-                <span class="n">chunks</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chunk_size</span><span class="p">,),</span>
-                <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">,</span> 
-                <span class="n">object_codec</span><span class="o">=</span><span class="n">numcodecs</span><span class="o">.</span><span class="n">Pickle</span><span class="p">(),</span>
-                <span class="n">synchronizer</span><span class="o">=</span><span class="n">zarr</span><span class="o">.</span><span class="n">ThreadSynchronizer</span><span class="p">(),</span>
-            <span class="p">)</span></div>
+            self.cache_dataset = zarr.open(
+                self.cache, 
+                mode=file_mode, 
+                shape=(len(self),), 
+                chunks=(self.chunk_size,),
+                dtype=object, 
+                object_codec=numcodecs.Pickle(),
+                synchronizer=zarr.ThreadSynchronizer(),
+            )</div>
 
-<div class="viewcode-block" id="BaseDataset.clear_cache"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset.clear_cache">[docs]</a>    <span class="k">def</span> <span class="nf">clear_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Deletes the cache.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Clearing cache: </span><span class="si">{self.cache}</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+<div class="viewcode-block" id="BaseDataset.clear_cache"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset.clear_cache">[docs]</a>    def clear_cache(self):
+        &quot;&quot;&quot;Deletes the cache.
+        &quot;&quot;&quot;
+        logging.info(f&#39;Clearing cache: {self.cache}&#39;)
+        shutil.rmtree(self.cache, ignore_errors=True)</div>
     
-<div class="viewcode-block" id="BaseDataset.populate_cache"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset.populate_cache">[docs]</a>    <span class="k">def</span> <span class="nf">populate_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Generates an example and puts it in the cache.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_example</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_keys_for_training</span><span class="p">:</span>
-            <span class="n">output</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="n">k</span><span class="p">:</span> <span class="n">output</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">output</span> 
-                <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_keys_for_training</span>
-            <span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">write_to_cache</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_target_length</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_length</span><span class="p">)</span></div>
+<div class="viewcode-block" id="BaseDataset.populate_cache"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset.populate_cache">[docs]</a>    def populate_cache(self, filename, i):
+        &quot;&quot;&quot;Generates an example and puts it in the cache.
+        &quot;&quot;&quot;
+        output = self._generate_example(filename)
+        if self.data_keys_for_training:
+            output = {
+                k: output[k] for k in output 
+                if k in self.data_keys_for_training
+            }
+        self.write_to_cache(output, i)
+        return self.get_target_length(output, self.current_length)</div>
 
-<div class="viewcode-block" id="BaseDataset.switch_to_cache"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset.switch_to_cache">[docs]</a>    <span class="k">def</span> <span class="nf">switch_to_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;In the first pass through the data, the cache is created on the fly. On</span>
-<span class="sd">        subsequent epochs, you should use `switch_to_cache` to switch to the cache.</span>
-<span class="sd">        This function closes and reopens the cache in read-only mode, and sets the </span>
-<span class="sd">        internal flag cache_populated to True. Now future reads are done via the</span>
-<span class="sd">        cache.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cache_dataset</span> <span class="o">=</span> <span class="n">zarr</span><span class="o">.</span><span class="n">open</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">,</span> 
-            <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> 
-            <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">),),</span> 
-            <span class="n">chunks</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chunk_size</span><span class="p">,),</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">,</span> 
-            <span class="n">object_codec</span><span class="o">=</span><span class="n">numcodecs</span><span class="o">.</span><span class="n">Pickle</span><span class="p">(),</span>
-            <span class="n">synchronizer</span><span class="o">=</span><span class="n">zarr</span><span class="o">.</span><span class="n">ThreadSynchronizer</span><span class="p">(),</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cache_populated</span> <span class="o">=</span> <span class="kc">True</span></div>
+<div class="viewcode-block" id="BaseDataset.switch_to_cache"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset.switch_to_cache">[docs]</a>    def switch_to_cache(self):
+        &quot;&quot;&quot;In the first pass through the data, the cache is created on the fly. On
+        subsequent epochs, you should use `switch_to_cache` to switch to the cache.
+        This function closes and reopens the cache in read-only mode, and sets the 
+        internal flag cache_populated to True. Now future reads are done via the
+        cache.
+        &quot;&quot;&quot;
+        self.cache_dataset = zarr.open(
+            self.cache, 
+            mode=&#39;r&#39;, 
+            shape=(len(self.files),), 
+            chunks=(self.chunk_size,),
+            dtype=object, 
+            object_codec=numcodecs.Pickle(),
+            synchronizer=zarr.ThreadSynchronizer(),
+        )
+        self.cache_populated = True</div>
 
-<div class="viewcode-block" id="BaseDataset.write_to_cache"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset.write_to_cache">[docs]</a>    <span class="k">def</span> <span class="nf">write_to_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_dict</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Writes a dictionary of keys and values to a location in the cache.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cache_dataset</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_dict</span></div>
+<div class="viewcode-block" id="BaseDataset.write_to_cache"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset.write_to_cache">[docs]</a>    def write_to_cache(self, data_dict, i):
+        &quot;&quot;&quot;Writes a dictionary of keys and values to a location in the cache.
+        &quot;&quot;&quot;
+        self.cache_dataset[i] = data_dict</div>
 
-<div class="viewcode-block" id="BaseDataset.load_from_cache"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset.load_from_cache">[docs]</a>    <span class="k">def</span> <span class="nf">load_from_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Reads the ith dictionary from the cache.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_dataset</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_target_length</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_length</span><span class="p">)</span></div>
+<div class="viewcode-block" id="BaseDataset.load_from_cache"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset.load_from_cache">[docs]</a>    def load_from_cache(self, i):
+        &quot;&quot;&quot;Reads the ith dictionary from the cache.
+        &quot;&quot;&quot;
+        data = self.cache_dataset[i]
+        return self.get_target_length(data, self.current_length)</div>
             
-<div class="viewcode-block" id="BaseDataset.get_files"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset.get_files">[docs]</a>    <span class="k">def</span> <span class="nf">get_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">folder</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;This function must be implemented by whatever class inherits BaseDataset.</span>
-<span class="sd">        It should return a list of files in the given folder, each of which is </span>
-<span class="sd">        processed by load_audio_files in some way to produce mixes, sources, class</span>
-<span class="sd">        labels, etc.</span>
+<div class="viewcode-block" id="BaseDataset.get_files"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset.get_files">[docs]</a>    def get_files(self, folder):
+        &quot;&quot;&quot;This function must be implemented by whatever class inherits BaseDataset.
+        It should return a list of files in the given folder, each of which is 
+        processed by load_audio_files in some way to produce mixes, sources, class
+        labels, etc.
 
-<span class="sd">        Args:</span>
-<span class="sd">            folder - location that should be processed to produce the list of files.</span>
+        Args:
+            folder - location that should be processed to produce the list of files.
 
-<span class="sd">        Returns:</span>
-<span class="sd">            list of files</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+        Returns:
+            list of files
+        &quot;&quot;&quot;
+        raise NotImplementedError()</div>
 
-<div class="viewcode-block" id="BaseDataset.load_audio_files"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset.load_audio_files">[docs]</a>    <span class="k">def</span> <span class="nf">load_audio_files</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span>
-            <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Each file returned by get_files is processed by this function. For example,</span>
-<span class="sd">        if each file is a json file containing the paths to the mixture and sources, </span>
-<span class="sd">        then this function should parse the json file and load the mixture and sources</span>
-<span class="sd">        and return them.</span>
+<div class="viewcode-block" id="BaseDataset.load_audio_files"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset.load_audio_files">[docs]</a>    def load_audio_files(
+            self,
+            filename: str
+        ) -&gt; Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        &quot;&quot;&quot;Each file returned by get_files is processed by this function. For example,
+        if each file is a json file containing the paths to the mixture and sources, 
+        then this function should parse the json file and load the mixture and sources
+        and return them.
 
-<span class="sd">        Exact behavior of this functionality is determined by implementation by subclass.</span>
+        Exact behavior of this functionality is determined by implementation by subclass.
 
-<span class="sd">        Args:</span>
-<span class="sd">            filename - name of file to load</span>
+        Args:
+            filename - name of file to load
 
-<span class="sd">        Returns:</span>
-<span class="sd">            Depends on sub-class. Should return at least the mixture and the constituent</span>
-<span class="sd">            sources.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+        Returns:
+            Depends on sub-class. Should return at least the mixture and the constituent
+            sources.
+        &quot;&quot;&quot;
+        raise NotImplementedError()</div>
 
-    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Gets number of examples&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">)</span>
+    def __len__(self) -&gt; int:
+        &quot;&quot;&quot;Gets number of examples&quot;&quot;&quot;
+        return len(self.files)
 
-    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Gets one item from dataset</span>
+    def __getitem__(self, i: int) -&gt; Dict[str, Any]:
+        &quot;&quot;&quot;Gets one item from dataset
 
-<span class="sd">        Args:</span>
-<span class="sd">            i - index of example to get</span>
+        Args:
+            i - index of example to get
 
-<span class="sd">        Returns:</span>
-<span class="sd">            one data point (an output dictionary containing the data comprising</span>
-<span class="sd">            one example)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_item_helper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+        Returns:
+            one data point (an output dictionary containing the data comprising
+            one example)
+        &quot;&quot;&quot;
+        return self._get_item_helper(self.files[i], self.cache, i)
 
-    <span class="k">def</span> <span class="nf">_get_item_helper</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">cache</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-        <span class="n">i</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Gets one item from dataset</span>
+    def _get_item_helper(
+        self,
+        filename: str,
+        cache: Optional[str],
+        i: int = -1,
+    ) -&gt; Dict[str, Any]:
+        &quot;&quot;&quot;Gets one item from dataset
 
-<span class="sd">        If `cache` is None, will generate an example (training|validation) from</span>
-<span class="sd">        scratch. If `cache` is not None, it will attempt to read from the path</span>
-<span class="sd">        given by `cache`. On failure it will write to the path given by `cache`</span>
-<span class="sd">        for subsequent reads.</span>
+        If `cache` is None, will generate an example (training|validation) from
+        scratch. If `cache` is not None, it will attempt to read from the path
+        given by `cache`. On failure it will write to the path given by `cache`
+        for subsequent reads.
 
-<span class="sd">        Args:</span>
-<span class="sd">            filename - name of file corresponding to current example</span>
-<span class="sd">            cache - `None` or path to cache folder</span>
-<span class="sd">            i - index of current example (used only in cache filename</span>
-<span class="sd">                generation). Defaults to -1 (should only be `-1` when `cache` is</span>
-<span class="sd">                `None`)</span>
+        Args:
+            filename - name of file corresponding to current example
+            cache - `None` or path to cache folder
+            i - index of current example (used only in cache filename
+                generation). Defaults to -1 (should only be `-1` when `cache` is
+                `None`)
 
-<span class="sd">        Returns:</span>
-<span class="sd">            one data point (an output dictionary containing the data comprising</span>
-<span class="sd">            one example)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_populated</span><span class="p">:</span>
-                <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_from_cache</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">populate_cache</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_example</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-            <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_target_length</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_length</span><span class="p">)</span>
+        Returns:
+            one data point (an output dictionary containing the data comprising
+            one example)
+        &quot;&quot;&quot;
+        if self.cache:
+            if self.cache_populated:
+                output = self.load_from_cache(i)
+            else:
+                output = self.populate_cache(filename, i)
+        else:
+            output = self._generate_example(filename)
+            output = self.get_target_length(output, self.current_length)
             
-        <span class="k">return</span> <span class="n">output</span>
+        return output
 
-    <span class="k">def</span> <span class="nf">_generate_example</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
-        <span class="sd">&quot;&quot;&quot;Generates one example (training|validation) from given filename</span>
+    def _generate_example(self, filename: str) -&gt; List[Dict[str, Any]]:
+        &quot;&quot;&quot;Generates one example (training|validation) from given filename
 
-<span class="sd">        Args:</span>
-<span class="sd">            filename - name of audio file from which to generate example</span>
+        Args:
+            filename - name of audio file from which to generate example
 
-<span class="sd">        Returns:</span>
-<span class="sd">            one data point (an output dictionary containing the data comprising</span>
-<span class="sd">            one example)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">mix</span><span class="p">,</span> <span class="n">sources</span><span class="p">,</span> <span class="n">classes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_audio_files</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">construct_input_output</span><span class="p">(</span><span class="n">mix</span><span class="p">,</span> <span class="n">sources</span><span class="p">)</span>
-        <span class="n">output</span><span class="p">[</span><span class="s1">&#39;weights&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_weights</span><span class="p">(</span>
-            <span class="n">output</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;weight_type&#39;</span><span class="p">]</span>
-        <span class="p">)</span>
-        <span class="n">output</span><span class="p">[</span><span class="s1">&#39;log_spectrogram&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">whiten</span><span class="p">(</span><span class="n">output</span><span class="p">[</span><span class="s1">&#39;log_spectrogram&#39;</span><span class="p">])</span>
-        <span class="n">output</span><span class="p">[</span><span class="s1">&#39;classes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">classes</span>
-        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transpose_pad_and_filter</span><span class="p">(</span>
-            <span class="n">output</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;length&#39;</span><span class="p">]</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="n">output</span>
+        Returns:
+            one data point (an output dictionary containing the data comprising
+            one example)
+        &quot;&quot;&quot;
+        mix, sources, classes = self.load_audio_files(filename)
+        output = self.construct_input_output(mix, sources)
+        output[&#39;weights&#39;] = self.get_weights(
+            output,
+            self.options[&#39;weight_type&#39;]
+        )
+        output[&#39;log_spectrogram&#39;] = self.whiten(output[&#39;log_spectrogram&#39;])
+        output[&#39;classes&#39;] = classes
+        output = self.transpose_pad_and_filter(
+            output,
+            self.options[&#39;length&#39;]
+        )
+        return output
 
-<div class="viewcode-block" id="BaseDataset.whiten"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset.whiten">[docs]</a>    <span class="k">def</span> <span class="nf">whiten</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Optionally preprocess the data in some way (e.g. make zero mean and unit </span>
-<span class="sd">        variance). In Base class, this function does nothing, but it can be overridden</span>
-<span class="sd">        by a subclass.</span>
+<div class="viewcode-block" id="BaseDataset.whiten"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset.whiten">[docs]</a>    def whiten(self, data):
+        &quot;&quot;&quot;Optionally preprocess the data in some way (e.g. make zero mean and unit 
+        variance). In Base class, this function does nothing, but it can be overridden
+        by a subclass.
 
-<span class="sd">        Args:</span>
-<span class="sd">            data - nparray containing the data</span>
+        Args:
+            data - nparray containing the data
 
-<span class="sd">        Returns:</span>
-<span class="sd">            Processed version of data.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">data</span></div>
+        Returns:
+            Processed version of data.
+        &quot;&quot;&quot;
+        return data</div>
 
-<div class="viewcode-block" id="BaseDataset.construct_input_output"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset.construct_input_output">[docs]</a>    <span class="k">def</span> <span class="nf">construct_input_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mix</span><span class="p">,</span> <span class="n">sources</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Given a mixture signal and source signals, each represented as AudioSignal</span>
-<span class="sd">        object, construct the input and the output for a neural network. This </span>
-<span class="sd">        implementation of this function is capable of computing many different types</span>
-<span class="sd">        of outputs, depending on the setting in self.options[&#39;output_type&#39;]:</span>
+<div class="viewcode-block" id="BaseDataset.construct_input_output"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset.construct_input_output">[docs]</a>    def construct_input_output(self, mix, sources):
+        &quot;&quot;&quot;Given a mixture signal and source signals, each represented as AudioSignal
+        object, construct the input and the output for a neural network. This 
+        implementation of this function is capable of computing many different types
+        of outputs, depending on the setting in self.options[&#39;output_type&#39;]:
 
-<span class="sd">            &#39;msa&#39;: Produces the magnitude spectrum approximation [1]. A network trained</span>
-<span class="sd">                   with this output will try to match the magnitudes of the ground </span>
-<span class="sd">                   truth source when masking the mixture.</span>
-<span class="sd">            &#39;psa&#39;: Produces the phase-sensitive spectrum approximation [1]. A network</span>
-<span class="sd">                   trained with this output will try to create a mask of the mixture</span>
-<span class="sd">                   that takes into account the phase information. This sometimes results</span>
-<span class="sd">                   in higher separation performance.</span>
+            &#39;msa&#39;: Produces the magnitude spectrum approximation [1]. A network trained
+                   with this output will try to match the magnitudes of the ground 
+                   truth source when masking the mixture.
+            &#39;psa&#39;: Produces the phase-sensitive spectrum approximation [1]. A network
+                   trained with this output will try to create a mask of the mixture
+                   that takes into account the phase information. This sometimes results
+                   in higher separation performance.
 
-<span class="sd">        The output of these is stored in dictionary key &#39;source_spectrograms&#39;.</span>
-<span class="sd">        </span>
-<span class="sd">        [1] Erdogan, Hakan, John R. Hershey, Shinji Watanabe, and Jonathan Le Roux. </span>
-<span class="sd">        &quot;Phase-sensitive and recognition-boosted speech separation using </span>
-<span class="sd">        deep recurrent neural networks.&quot; In 2015 IEEE International Conference </span>
-<span class="sd">        on Acoustics, Speech and Signal Processing (ICASSP), pp. 708-712. IEEE, </span>
-<span class="sd">        2015.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            mix - AudioSignal object containing the mixture.</span>
-<span class="sd">            sources - list of AudioSignal objects containing the sources that sum to</span>
-<span class="sd">                the mixture.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            A dictionary with four keys: </span>
-<span class="sd">                &#39;log_spectrogram&#39;: The log-magnitude spectrogram of the mixture.</span>
-<span class="sd">                &#39;magnitude_spectrogram&#39;: The magnitude spectrogram of the mixture.</span>
-<span class="sd">                &#39;source_spectrograms&#39;: A numpy array containing the spectrograms that</span>
-<span class="sd">                    the separation network should attempt to match. See &#39;psa&#39; and &#39;msa&#39;</span>
-<span class="sd">                    description above.</span>
-<span class="sd">                &#39;assignments&#39;: The binary assignments for each time-frequency point. </span>
-<span class="sd">                    Useful for training deep clustering networks.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">log_spectrogram</span><span class="p">,</span> <span class="n">mix_stft</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">mix</span><span class="p">)</span>
-        <span class="n">mix_magnitude</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">mix_stft</span><span class="p">)</span>
-        <span class="n">source_magnitudes</span> <span class="o">=</span> <span class="p">[]</span>
-
-        <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">sources</span><span class="p">:</span>
-            <span class="n">_</span><span class="p">,</span> <span class="n">source_stft</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
-            <span class="n">source_magnitude</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">source_stft</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;output_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;msa&#39;</span><span class="p">:</span>
-                <span class="n">source_magnitude</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">mix_magnitude</span><span class="p">,</span> <span class="n">source_magnitude</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;output_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;psa&#39;</span><span class="p">:</span>
-                <span class="n">mix_phase</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">mix_stft</span><span class="p">)</span>
-                <span class="n">source_phase</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">source_stft</span><span class="p">)</span>
-                <span class="n">source_magnitude</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span>
-                    <span class="mf">0.0</span><span class="p">,</span>
-                    <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span>
-                        <span class="n">mix_magnitude</span><span class="p">,</span>
-                        <span class="n">source_magnitude</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">source_phase</span> <span class="o">-</span> <span class="n">mix_phase</span><span class="p">),</span>
-                    <span class="p">)</span>
-                <span class="p">)</span>
-            <span class="n">source_magnitudes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">source_magnitude</span><span class="p">)</span>
-
-        <span class="n">source_magnitudes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">source_magnitudes</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">shape</span> <span class="o">=</span> <span class="n">source_magnitudes</span><span class="o">.</span><span class="n">shape</span>
-        <span class="n">assignments</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">source_magnitudes</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">source_magnitudes</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
-
-        <span class="n">source_db</span> <span class="o">=</span> <span class="n">librosa</span><span class="o">.</span><span class="n">amplitude_to_db</span><span class="p">(</span><span class="n">source_magnitudes</span><span class="p">,</span> <span class="n">ref</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">)</span>
-
-        <span class="n">output</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;log_spectrogram&#39;</span><span class="p">:</span> <span class="n">log_spectrogram</span><span class="p">,</span>
-            <span class="s1">&#39;magnitude_spectrogram&#39;</span><span class="p">:</span> <span class="n">mix_magnitude</span><span class="p">,</span>
-            <span class="s1">&#39;assignments&#39;</span><span class="p">:</span> <span class="n">assignments</span><span class="p">,</span>
-            <span class="s1">&#39;source_spectrograms&#39;</span><span class="p">:</span> <span class="n">source_magnitudes</span><span class="p">,</span>
-        <span class="p">}</span>
-
-        <span class="k">return</span> <span class="n">output</span></div>
+        The output of these is stored in dictionary key &#39;source_spectrograms&#39;.
         
-<div class="viewcode-block" id="BaseDataset.transpose_pad_and_filter"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset.transpose_pad_and_filter">[docs]</a>    <span class="k">def</span> <span class="nf">transpose_pad_and_filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_dict</span><span class="p">,</span> <span class="n">max_length</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;For training, each data point should be at least of some length, so that we</span>
-<span class="sd">        can extract an excerpt that is of &#39;max_length&#39;. The data is also transposed so</span>
-<span class="sd">        that the length of the sequence is on the first axis and the number of features </span>
-<span class="sd">        is on the second axis. This function also filters the data dictionary so that</span>
-<span class="sd">        keys that are not needed during training are not stored. For a key to be saved</span>
-<span class="sd">        during training, it should be in self.options[&#39;data_keys_for_training&#39;] </span>
-<span class="sd">        when initializing the dataset class. This is to reduce the size of the</span>
-<span class="sd">        cache (which can get very big if you&#39;re not careful.)</span>
+        [1] Erdogan, Hakan, John R. Hershey, Shinji Watanabe, and Jonathan Le Roux. 
+        &quot;Phase-sensitive and recognition-boosted speech separation using 
+        deep recurrent neural networks.&quot; In 2015 IEEE International Conference 
+        on Acoustics, Speech and Signal Processing (ICASSP), pp. 708-712. IEEE, 
+        2015.
 
-<span class="sd">        Args:</span>
-<span class="sd">            data_dict: dictionary containing keys and values which are numpy arrays.</span>
-<span class="sd">            max_length: The maximum length of a sequence you use during training.</span>
+        Args:
+            mix - AudioSignal object containing the mixture.
+            sources - list of AudioSignal objects containing the sources that sum to
+                the mixture.
 
-<span class="sd">        Returns:</span>
-<span class="sd">            Dictionary containing keys and values that are transposed, </span>
-<span class="sd">            padded to the max_length, and filtered for unnecessary keys.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">length</span> <span class="o">=</span> <span class="n">data_dict</span><span class="p">[</span><span class="s1">&#39;log_spectrogram&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-    
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">target</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">targets</span><span class="p">):</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">data_dict</span><span class="p">[</span><span class="n">target</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">data</span> <span class="o">=</span> <span class="n">data_dict</span><span class="p">[</span><span class="n">target</span><span class="p">]</span>
-                <span class="n">pad_length</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">max_length</span> <span class="o">-</span> <span class="n">length</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-                <span class="n">pad_tuple</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">))]</span>
-                <span class="n">pad_tuple</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">pad_length</span><span class="p">)</span>
-                <span class="n">data_dict</span><span class="p">[</span><span class="n">target</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pad_tuple</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;constant&#39;</span><span class="p">)</span>
+        Returns:
+            A dictionary with four keys: 
+                &#39;log_spectrogram&#39;: The log-magnitude spectrogram of the mixture.
+                &#39;magnitude_spectrogram&#39;: The magnitude spectrogram of the mixture.
+                &#39;source_spectrograms&#39;: A numpy array containing the spectrograms that
+                    the separation network should attempt to match. See &#39;psa&#39; and &#39;msa&#39;
+                    description above.
+                &#39;assignments&#39;: The binary assignments for each time-frequency point. 
+                    Useful for training deep clustering networks.
+        &quot;&quot;&quot;
+        log_spectrogram, mix_stft = self.transform(mix)
+        mix_magnitude = np.abs(mix_stft)
+        source_magnitudes = []
 
-        <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">targets</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_keys_for_training</span> <span class="ow">and</span> <span class="n">target</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_keys_for_training</span><span class="p">:</span>
-                <span class="n">data_dict</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">data_dict</span><span class="p">[</span><span class="n">target</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">data_dict</span><span class="p">[</span><span class="n">target</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="n">data_dict</span><span class="p">[</span><span class="n">target</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        for source in sources:
+            _, source_stft = self.transform(source)
+            source_magnitude = np.abs(source_stft)
+
+            if self.options[&#39;output_type&#39;] == &#39;msa&#39;:
+                source_magnitude = np.minimum(mix_magnitude, source_magnitude)
+            elif self.options[&#39;output_type&#39;] == &#39;psa&#39;:
+                mix_phase = np.angle(mix_stft)
+                source_phase = np.angle(source_stft)
+                source_magnitude = np.maximum(
+                    0.0,
+                    np.minimum(
+                        mix_magnitude,
+                        source_magnitude * np.cos(source_phase - mix_phase),
+                    )
+                )
+            source_magnitudes.append(source_magnitude)
+
+        source_magnitudes = np.stack(source_magnitudes, axis=-1)
+        shape = source_magnitudes.shape
+        assignments = (
+            source_magnitudes == np.amax(source_magnitudes, axis=-1, keepdims=True)
+        ).astype(float)
+
+        source_db = librosa.amplitude_to_db(source_magnitudes, ref=np.max)
+
+        output = {
+            &#39;log_spectrogram&#39;: log_spectrogram,
+            &#39;magnitude_spectrogram&#39;: mix_magnitude,
+            &#39;assignments&#39;: assignments,
+            &#39;source_spectrograms&#39;: source_magnitudes,
+        }
+
+        return output</div>
         
-        <span class="k">return</span> <span class="n">data_dict</span></div>
+<div class="viewcode-block" id="BaseDataset.transpose_pad_and_filter"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset.transpose_pad_and_filter">[docs]</a>    def transpose_pad_and_filter(self, data_dict, max_length):
+        &quot;&quot;&quot;For training, each data point should be at least of some length, so that we
+        can extract an excerpt that is of &#39;max_length&#39;. The data is also transposed so
+        that the length of the sequence is on the first axis and the number of features 
+        is on the second axis. This function also filters the data dictionary so that
+        keys that are not needed during training are not stored. For a key to be saved
+        during training, it should be in self.options[&#39;data_keys_for_training&#39;] 
+        when initializing the dataset class. This is to reduce the size of the
+        cache (which can get very big if you&#39;re not careful.)
+
+        Args:
+            data_dict: dictionary containing keys and values which are numpy arrays.
+            max_length: The maximum length of a sequence you use during training.
+
+        Returns:
+            Dictionary containing keys and values that are transposed, 
+            padded to the max_length, and filtered for unnecessary keys.
+        &quot;&quot;&quot;
+        length = data_dict[&#39;log_spectrogram&#39;].shape[1]
     
-<div class="viewcode-block" id="BaseDataset.set_current_length"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset.set_current_length">[docs]</a>    <span class="k">def</span> <span class="nf">set_current_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_length</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;The current length of sequences can be altered on the fly during training </span>
-<span class="sd">        via calls to this function. This is useful for implementing something like</span>
-<span class="sd">        curriculum learning. You can start with sequences of length 100 and then switch</span>
-<span class="sd">        to sequences of length 400 during training like so:</span>
+        for i, target in enumerate(self.targets):
+            if not np.ndim(data_dict[target]) == 0:
+                data = data_dict[target]
+                pad_length = max(max_length - length, 0)
+                pad_tuple = [(0, 0) for k in range(len(data.shape))]
+                pad_tuple[1] = (0, pad_length)
+                data_dict[target] = np.pad(data, pad_tuple, mode=&#39;constant&#39;)
 
-<span class="sd">            # dset is an initialized subclass of BaseDataset</span>
-<span class="sd">            dset.set_current_length(100)</span>
-<span class="sd">            # train for 20 epochs</span>
-<span class="sd">            dset.set_current_length(400)</span>
-<span class="sd">            # train at longer length</span>
+        for target in self.targets:
+            if self.data_keys_for_training and target not in self.data_keys_for_training:
+                data_dict.pop(target)
+            else:
+                if not np.ndim(data_dict[target]) == 0:
+                    data_dict[target] = np.swapaxes(data_dict[target], 0, 1)
+        
+        return data_dict</div>
+    
+<div class="viewcode-block" id="BaseDataset.set_current_length"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset.set_current_length">[docs]</a>    def set_current_length(self, current_length):
+        &quot;&quot;&quot;The current length of sequences can be altered on the fly during training 
+        via calls to this function. This is useful for implementing something like
+        curriculum learning. You can start with sequences of length 100 and then switch
+        to sequences of length 400 during training like so:
 
-<span class="sd">        Args:</span>
-<span class="sd">            current_length: length of training sequences.</span>
+            # dset is an initialized subclass of BaseDataset
+            dset.set_current_length(100)
+            # train for 20 epochs
+            dset.set_current_length(400)
+            # train at longer length
 
-<span class="sd">        Returns:</span>
-<span class="sd">            No effect. Sets self.current_length = current_length after some validation.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">current_length</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;length&#39;</span><span class="p">]:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;current_length=</span><span class="si">{current_length}</span><span class="s2"> exceeds original &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;set max length </span><span class="si">{self.options[&#39;length&#39;]}</span><span class="s2">. &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;Setting current_length to </span><span class="si">{self.options[&#39;length&#39;]}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">current_length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;length&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">current_length</span> <span class="o">=</span> <span class="n">current_length</span></div>
+        Args:
+            current_length: length of training sequences.
 
-<div class="viewcode-block" id="BaseDataset.get_target_length"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset.get_target_length">[docs]</a>    <span class="k">def</span> <span class="nf">get_target_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_dict</span><span class="p">,</span> <span class="n">target_length</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Extracts sequences from each key, val pair in data_dict that match a</span>
-<span class="sd">        given target_length. So if target_length is 400, all of the sequences will be</span>
-<span class="sd">        400 frames long. There are two strategies for selecting excerpts from the</span>
-<span class="sd">        training sequences:</span>
+        Returns:
+            No effect. Sets self.current_length = current_length after some validation.
+        &quot;&quot;&quot;
+        if current_length &gt; self.options[&#39;length&#39;]:
+            logging.warning(
+                f&quot;current_length={current_length} exceeds original &quot;
+                f&quot;set max length {self.options[&#39;length&#39;]}. &quot;
+                f&quot;Setting current_length to {self.options[&#39;length&#39;]}&quot;)
+            current_length = self.options[&#39;length&#39;]
+        self.current_length = current_length</div>
 
-<span class="sd">            &#39;random&#39;: Randomly select some offset between the start and the length of</span>
-<span class="sd">                the sequence - the target length.</span>
-<span class="sd">            &#39;balanced&#39;: First filter all possible offsets to points where both sources</span>
-<span class="sd">                are actually active. Then select randomly from this list. This is useful</span>
-<span class="sd">                if you have sparse mixtures where the sources are sometimes overlapping</span>
-<span class="sd">                in time and sometimes not. This strategy looks for when they are</span>
-<span class="sd">                overlapping in time and tries to only return those excerpts. This can be</span>
-<span class="sd">                important for training a separation algorithm.</span>
+<div class="viewcode-block" id="BaseDataset.get_target_length"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset.get_target_length">[docs]</a>    def get_target_length(self, data_dict, target_length):
+        &quot;&quot;&quot;Extracts sequences from each key, val pair in data_dict that match a
+        given target_length. So if target_length is 400, all of the sequences will be
+        400 frames long. There are two strategies for selecting excerpts from the
+        training sequences:
 
-<span class="sd">        Args:</span>
-<span class="sd">            data_dict: dictionary containing keys and values which are numpy arrays.</span>
-<span class="sd">            target_length: The length of a sequence you want.</span>
-<span class="sd">        </span>
-<span class="sd">        Returns:</span>
-<span class="sd">            A dictionary with each value trimmed to match the requested target_length.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">length</span> <span class="o">=</span> <span class="n">data_dict</span><span class="p">[</span><span class="s1">&#39;log_spectrogram&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">excerpt_selection_strategy</span> <span class="o">==</span> <span class="s1">&#39;random&#39;</span><span class="p">:</span>
-            <span class="n">offset</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">length</span> <span class="o">-</span> <span class="n">target_length</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">excerpt_selection_strategy</span> <span class="o">==</span> <span class="s1">&#39;balanced&#39;</span><span class="p">:</span>
-            <span class="n">_balance</span> <span class="o">=</span> <span class="n">data_dict</span><span class="p">[</span><span class="s1">&#39;assignments&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
-            <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">_balance</span> <span class="o">&gt;=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">_balance</span><span class="p">,</span> <span class="mi">50</span><span class="p">))[:,</span> <span class="mi">0</span><span class="p">]</span>
-            <span class="n">indices</span><span class="p">[</span><span class="n">indices</span> <span class="o">&gt;</span> <span class="n">length</span> <span class="o">-</span> <span class="n">target_length</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">length</span> <span class="o">-</span> <span class="n">target_length</span><span class="p">)</span>
-            <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
-            <span class="n">offset</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
+            &#39;random&#39;: Randomly select some offset between the start and the length of
+                the sequence - the target length.
+            &#39;balanced&#39;: First filter all possible offsets to points where both sources
+                are actually active. Then select randomly from this list. This is useful
+                if you have sparse mixtures where the sources are sometimes overlapping
+                in time and sometimes not. This strategy looks for when they are
+                overlapping in time and tries to only return those excerpts. This can be
+                important for training a separation algorithm.
+
+        Args:
+            data_dict: dictionary containing keys and values which are numpy arrays.
+            target_length: The length of a sequence you want.
+        
+        Returns:
+            A dictionary with each value trimmed to match the requested target_length.
+        &quot;&quot;&quot;
+        length = data_dict[&#39;log_spectrogram&#39;].shape[0]
+        if self.excerpt_selection_strategy == &#39;random&#39;:
+            offset = random.randint(0, length - target_length)
+        elif self.excerpt_selection_strategy == &#39;balanced&#39;:
+            _balance = data_dict[&#39;assignments&#39;].mean(axis=-3).prod(axis=-1)
+            indices = np.argwhere(_balance &gt;= np.percentile(_balance, 50))[:, 0]
+            indices[indices &gt; length - target_length] = max(0, length - target_length)
+            indices = np.unique(indices)
+            offset = random.choice(indices)
                 
-        <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">data_dict</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">target</span> <span class="o">!=</span> <span class="s1">&#39;classes&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">data_dict</span><span class="p">[</span><span class="n">target</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">data_dict</span><span class="p">[</span><span class="n">target</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_dict</span><span class="p">[</span><span class="n">target</span><span class="p">][</span>
-                    <span class="n">offset</span><span class="p">:</span><span class="n">offset</span> <span class="o">+</span> <span class="n">target_length</span><span class="p">,</span>
-                    <span class="p">:,</span>
-                    <span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;num_channels&#39;</span><span class="p">]</span>
-                <span class="p">]</span>
-        <span class="k">return</span> <span class="n">data_dict</span></div>
+        for target in data_dict:
+            if target != &#39;classes&#39; and not np.ndim(data_dict[target]) == 0:
+                data_dict[target] = data_dict[target][
+                    offset:offset + target_length,
+                    :,
+                    :self.options[&#39;num_channels&#39;]
+                ]
+        return data_dict</div>
 
-<div class="viewcode-block" id="BaseDataset.transform"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset.transform">[docs]</a>    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">audio_signal</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Uses nussl STFT to transform.</span>
+<div class="viewcode-block" id="BaseDataset.transform"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset.transform">[docs]</a>    def transform(self, audio_signal):
+        &quot;&quot;&quot;Uses nussl STFT to transform.
 
-<span class="sd">        Args:</span>
-<span class="sd">            audio_signal {[np.ndarray]} -- AudioSignal object</span>
+        Args:
+            audio_signal {[np.ndarray]} -- AudioSignal object
 
-<span class="sd">        Returns:</span>
-<span class="sd">            [tuple] -- (log_spec, stft). log_spec contains the</span>
-<span class="sd">            log_spectrogram, stft contains the complex spectrogram</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">audio_signal</span><span class="o">.</span><span class="n">stft_data</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">stft</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">audio_signal</span><span class="o">.</span><span class="n">stft</span><span class="p">(</span><span class="n">use_librosa</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">use_librosa</span><span class="p">)</span>
-        <span class="p">)</span>
-        <span class="n">log_spectrogram</span> <span class="o">=</span> <span class="n">librosa</span><span class="o">.</span><span class="n">amplitude_to_db</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">stft</span><span class="p">),</span> <span class="n">ref</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">log_spectrogram</span><span class="p">,</span> <span class="n">stft</span></div>
+        Returns:
+            [tuple] -- (log_spec, stft). log_spec contains the
+            log_spectrogram, stft contains the complex spectrogram
+        &quot;&quot;&quot;
+        audio_signal.stft_data = None
+        stft = (
+            audio_signal.stft(use_librosa=self.use_librosa)
+        )
+        log_spectrogram = librosa.amplitude_to_db(np.abs(stft), ref=np.max)
+        return log_spectrogram, stft</div>
 
 
-<div class="viewcode-block" id="BaseDataset.get_weights"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset.get_weights">[docs]</a>    <span class="k">def</span> <span class="nf">get_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_dict</span><span class="p">,</span> <span class="n">weight_type</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;During training, the loss for every time-frequency bin can be weighted in</span>
-<span class="sd">        different ways. There are several weighting schemes that are implemented in</span>
-<span class="sd">        this function. See the staticmethods below for more information.</span>
+<div class="viewcode-block" id="BaseDataset.get_weights"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset.get_weights">[docs]</a>    def get_weights(self, data_dict, weight_type):
+        &quot;&quot;&quot;During training, the loss for every time-frequency bin can be weighted in
+        different ways. There are several weighting schemes that are implemented in
+        this function. See the staticmethods below for more information.
 
-<span class="sd">        Arguments:</span>
-<span class="sd">            data_dict: dictionary containing keys and values which are numpy arrays.</span>
-<span class="sd">            weight_type: a list of weighting schemes that you want. Each set of weights</span>
-<span class="sd">                is multiplied against the other weights to combine them.</span>
-<span class="sd">        Returns:</span>
-<span class="sd">            The square root of the weights. This is to match the weighted </span>
-<span class="sd">            version of the deep clustering loss.</span>
+        Arguments:
+            data_dict: dictionary containing keys and values which are numpy arrays.
+            weight_type: a list of weighting schemes that you want. Each set of weights
+                is multiplied against the other weights to combine them.
+        Returns:
+            The square root of the weights. This is to match the weighted 
+            version of the deep clustering loss.
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">data_dict</span><span class="p">[</span><span class="s1">&#39;magnitude_spectrogram&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-        <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;magnitude&#39;</span> <span class="ow">in</span> <span class="n">weight_type</span><span class="p">):</span>
-            <span class="n">weights</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">magnitude_weights</span><span class="p">(</span>
-                <span class="n">data_dict</span><span class="p">[</span><span class="s1">&#39;magnitude_spectrogram&#39;</span><span class="p">]</span>
-            <span class="p">)</span>
-        <span class="k">elif</span> <span class="p">(</span><span class="s1">&#39;source_magnitude&#39;</span> <span class="ow">in</span> <span class="n">weight_type</span><span class="p">):</span>
-            <span class="n">weights</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_magnitude_weights</span><span class="p">(</span>
-                <span class="n">data_dict</span><span class="p">[</span><span class="s1">&#39;source_spectrograms&#39;</span><span class="p">]</span>
-            <span class="p">)</span>
-        <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;threshold&#39;</span> <span class="ow">in</span> <span class="n">weight_type</span><span class="p">):</span>
-            <span class="n">weights</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">threshold_weights</span><span class="p">(</span>
-                <span class="n">data_dict</span><span class="p">[</span><span class="s1">&#39;log_spectrogram&#39;</span><span class="p">],</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;weight_threshold&#39;</span><span class="p">]</span>
-            <span class="p">)</span>
-        <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;class&#39;</span> <span class="ow">in</span> <span class="n">weight_type</span><span class="p">):</span>
-            <span class="n">weights</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">class_weights</span><span class="p">(</span>
-                <span class="n">data_dict</span><span class="p">[</span><span class="s1">&#39;assignments&#39;</span><span class="p">],</span>
-            <span class="p">)</span>
-        <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;log&#39;</span> <span class="ow">in</span> <span class="n">weight_type</span><span class="p">):</span>
-            <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">weights</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span></div>
+        &quot;&quot;&quot;
+        weights = np.ones(data_dict[&#39;magnitude_spectrogram&#39;].shape)
+        if (&#39;magnitude&#39; in weight_type):
+            weights *= self.magnitude_weights(
+                data_dict[&#39;magnitude_spectrogram&#39;]
+            )
+        elif (&#39;source_magnitude&#39; in weight_type):
+            weights *= self.source_magnitude_weights(
+                data_dict[&#39;source_spectrograms&#39;]
+            )
+        if (&#39;threshold&#39; in weight_type):
+            weights *= self.threshold_weights(
+                data_dict[&#39;log_spectrogram&#39;],
+                self.options[&#39;weight_threshold&#39;]
+            )
+        if (&#39;class&#39; in weight_type):
+            weights *= self.class_weights(
+                data_dict[&#39;assignments&#39;],
+            )
+        if (&#39;log&#39; in weight_type):
+            weights = np.log10(weights + 1)
+        return np.sqrt(weights)</div>
 
-<div class="viewcode-block" id="BaseDataset.class_weights"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset.class_weights">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">class_weights</span><span class="p">(</span><span class="n">assignments</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;More common classes are weighted down while less common classes are weighted</span>
-<span class="sd">        up.</span>
+<div class="viewcode-block" id="BaseDataset.class_weights"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset.class_weights">[docs]</a>    @staticmethod
+    def class_weights(assignments):
+        &quot;&quot;&quot;More common classes are weighted down while less common classes are weighted
+        up.
 
-<span class="sd">        Args:</span>
-<span class="sd">            assignments: returned by construct_input_output, a matrix that indicates the</span>
-<span class="sd">                 assignment of every time-frequency point in the mixture spectrogram.</span>
-<span class="sd">        </span>
-<span class="sd">        Returns:</span>
-<span class="sd">            Weights based on class frequency.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">_shape</span> <span class="o">=</span> <span class="n">assignments</span><span class="o">.</span><span class="n">shape</span> 
-        <span class="n">assignments</span> <span class="o">=</span> <span class="n">assignments</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-
-        <span class="n">class_weights</span> <span class="o">=</span> <span class="n">assignments</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="n">class_weights</span> <span class="o">/=</span> <span class="p">(</span><span class="n">class_weights</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">+</span> <span class="mf">1e-7</span><span class="p">)</span>
-        <span class="n">class_weights</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">class_weights</span> <span class="o">+</span> <span class="mf">1e-4</span><span class="p">)</span>
-
-        <span class="n">weights</span> <span class="o">=</span> <span class="n">assignments</span> <span class="o">@</span> <span class="n">class_weights</span> 
-        <span class="n">weights</span> <span class="o">=</span> <span class="n">weights</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">_shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-        <span class="n">assignments</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">_shape</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">weights</span></div>
-
-<div class="viewcode-block" id="BaseDataset.magnitude_weights"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset.magnitude_weights">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">magnitude_weights</span><span class="p">(</span><span class="n">magnitude_spectrogram</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Loud points matter more than quiet points.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            magnitude_spectrogram: returned by construct_input_output, a matrix indicating</span>
-<span class="sd">                 magnitude (loudness) of each time-frequency bin.</span>
-<span class="sd">        </span>
-<span class="sd">        Returns:</span>
-<span class="sd">            Weights based on loudness </span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">weights</span> <span class="o">=</span> <span class="n">magnitude_spectrogram</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">magnitude_spectrogram</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-6</span><span class="p">)</span>
-        <span class="n">weights</span> <span class="o">*=</span> <span class="p">(</span>
-            <span class="n">magnitude_spectrogram</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">magnitude_spectrogram</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="n">weights</span></div>
-
-<div class="viewcode-block" id="BaseDataset.threshold_weights"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset.threshold_weights">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">threshold_weights</span><span class="p">(</span><span class="n">log_spectrogram</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=-</span><span class="mi">40</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Quiet points don&#39;t matter.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            log_spectrogram: returned by construct_input_output, a matrix indicating</span>
-<span class="sd">                 log magnitude (dB) of each time-frequency bin.</span>
-<span class="sd">            threshold: loudness threshold. Below this, weights will be 0.</span>
-<span class="sd">        </span>
-<span class="sd">        Returns:</span>
-<span class="sd">            Weights for time-frequency bins below a given threshold are 0. </span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">log_spectrogram</span> <span class="o">&gt;</span> <span class="n">threshold</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="BaseDataset.source_magnitude_weights"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset.source_magnitude_weights">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">source_magnitude_weights</span><span class="p">(</span><span class="n">source_spectrograms</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Loud points matter more than quiet points, but this time loudness is based</span>
-<span class="sd">        on each source magnitude.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            source_spectrograms: returned by construct_input_output, a matrix with </span>
-<span class="sd">                magnitude spectrograms for every source.</span>
-<span class="sd">        </span>
-<span class="sd">        Returns:</span>
-<span class="sd">            Weights based on loudness of each source. </span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">weights</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">magnitude_weights</span><span class="p">(</span><span class="n">source_spectrograms</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">i</span><span class="p">])</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">source_spectrograms</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-        <span class="p">]</span>
-        <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">source_weights</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">weights</span> <span class="o">=</span> <span class="n">source_weights</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">weights</span></div>
-
-    <span class="k">def</span> <span class="nf">_load_audio_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AudioSignal</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Loads audio file at given path. Uses wavfile.read if the extension is a wav</span>
-<span class="sd">        file as this is considerably faster than using librosa to load the audio file.</span>
-<span class="sd">        Otherwise, uses the nussl AudioSignal file loader, which just calls </span>
-<span class="sd">        librosa.load.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            file_path - relative or absolute path to file to load</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            AudioSignal object</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">file_path</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;.wav&#39;</span><span class="p">:</span>
-            <span class="n">rate</span><span class="p">,</span> <span class="n">audio</span> <span class="o">=</span> <span class="n">wavfile</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
-            <span class="n">audio</span> <span class="o">=</span> <span class="n">audio</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;C&#39;</span><span class="p">)</span> <span class="o">/</span> <span class="mf">32768.0</span>
-            <span class="n">audio_signal</span> <span class="o">=</span> <span class="n">AudioSignal</span><span class="p">(</span><span class="n">audio_data_array</span><span class="o">=</span><span class="n">audio</span><span class="p">,</span> <span class="n">sample_rate</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;sample_rate&#39;</span><span class="p">])</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">audio_signal</span> <span class="o">=</span> <span class="n">AudioSignal</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">sample_rate</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;sample_rate&#39;</span><span class="p">])</span>
-        <span class="n">audio_signal</span><span class="o">.</span><span class="n">path_to_input_file</span> <span class="o">=</span> <span class="n">file_path</span>
-        <span class="n">audio_signal</span><span class="o">.</span><span class="n">stft_params</span><span class="o">.</span><span class="n">window_length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;n_fft&#39;</span><span class="p">]</span>
-        <span class="n">audio_signal</span><span class="o">.</span><span class="n">stft_params</span><span class="o">.</span><span class="n">hop_length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;hop_length&#39;</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">audio_signal</span>
-
-<div class="viewcode-block" id="BaseDataset.inspect"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset.inspect">[docs]</a>    <span class="k">def</span> <span class="nf">inspect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Useful for inspecting if a dataset implementation is working inside of a </span>
-<span class="sd">        Jupyter notebook. It prints every AudioSignal object loaded by load_audio_files,</span>
-<span class="sd">        visualizes the output of the network, and embeds the audio files via </span>
-<span class="sd">        jupyter_utils.embed_audio.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            i: Index of the dataset to visualize.</span>
-<span class="sd">        </span>
-<span class="sd">        Returns:</span>
-<span class="sd">            None. Visualizes via plots and audio files.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_audio_files</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">construct_input_output</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">items</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-        <span class="n">output</span><span class="p">[</span><span class="s1">&#39;weights&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_weights</span><span class="p">(</span>
-            <span class="n">output</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;weight_type&#39;</span><span class="p">]</span>
-        <span class="p">)</span>
-
-        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        Args:
+            assignments: returned by construct_input_output, a matrix that indicates the
+                 assignment of every time-frequency point in the mixture spectrogram.
         
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Mixture + original sources&#39;</span><span class="p">)</span>
-        <span class="n">jupyter_utils</span><span class="o">.</span><span class="n">embed_audio</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">items</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
-            <span class="n">jupyter_utils</span><span class="o">.</span><span class="n">embed_audio</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        Returns:
+            Weights based on class frequency.
+        &quot;&quot;&quot;
+        _shape = assignments.shape 
+        assignments = assignments.reshape(-1, _shape[-1])
 
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Sources masked from mixture&#39;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">output</span><span class="p">[</span><span class="s1">&#39;assignments&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
-            <span class="n">mask</span> <span class="o">=</span> <span class="n">SoftMask</span><span class="p">(</span><span class="n">output</span><span class="p">[</span><span class="s1">&#39;assignments&#39;</span><span class="p">][:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="n">j</span><span class="p">])</span>
-            <span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">stft</span><span class="p">()</span>
-            <span class="n">signal</span> <span class="o">=</span> <span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">apply_mask</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
-            <span class="n">signal</span><span class="o">.</span><span class="n">istft</span><span class="p">(</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">truncate_to_length</span><span class="o">=</span><span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">signal_length</span><span class="p">)</span>
-            <span class="n">jupyter_utils</span><span class="o">.</span><span class="n">embed_audio</span><span class="p">(</span><span class="n">signal</span><span class="p">)</span>
+        class_weights = assignments.sum(axis=0)
+        class_weights /= (class_weights.sum() + 1e-7)
+        class_weights = 1 / np.sqrt(class_weights + 1e-4)
 
-        <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">211</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">output</span><span class="p">[</span><span class="s1">&#39;log_spectrogram&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Mixture spectrogram&#39;</span><span class="p">)</span>
+        weights = assignments @ class_weights 
+        weights = weights.reshape(_shape[:-1])
+        assignments.reshape(_shape)
+        return weights</div>
 
-        <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">212</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">output</span><span class="p">[</span><span class="s1">&#39;assignments&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Assignments&#39;</span><span class="p">)</span></div></div>
+<div class="viewcode-block" id="BaseDataset.magnitude_weights"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset.magnitude_weights">[docs]</a>    @staticmethod
+    def magnitude_weights(magnitude_spectrogram):
+        &quot;&quot;&quot;Loud points matter more than quiet points.
+
+        Args:
+            magnitude_spectrogram: returned by construct_input_output, a matrix indicating
+                 magnitude (loudness) of each time-frequency bin.
+        
+        Returns:
+            Weights based on loudness 
+        &quot;&quot;&quot;
+        weights = magnitude_spectrogram / (np.sum(magnitude_spectrogram) + 1e-6)
+        weights *= (
+            magnitude_spectrogram.shape[0] * magnitude_spectrogram.shape[1]
+        )
+        return weights</div>
+
+<div class="viewcode-block" id="BaseDataset.threshold_weights"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset.threshold_weights">[docs]</a>    @staticmethod
+    def threshold_weights(log_spectrogram, threshold=-40):
+        &quot;&quot;&quot;Quiet points don&#39;t matter.
+
+        Args:
+            log_spectrogram: returned by construct_input_output, a matrix indicating
+                 log magnitude (dB) of each time-frequency bin.
+            threshold: loudness threshold. Below this, weights will be 0.
+        
+        Returns:
+            Weights for time-frequency bins below a given threshold are 0. 
+        &quot;&quot;&quot;
+        return (log_spectrogram &gt; threshold).astype(float)</div>
+
+<div class="viewcode-block" id="BaseDataset.source_magnitude_weights"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset.source_magnitude_weights">[docs]</a>    @staticmethod
+    def source_magnitude_weights(source_spectrograms):
+        &quot;&quot;&quot;Loud points matter more than quiet points, but this time loudness is based
+        on each source magnitude.
+
+        Args:
+            source_spectrograms: returned by construct_input_output, a matrix with 
+                magnitude spectrograms for every source.
+        
+        Returns:
+            Weights based on loudness of each source. 
+        &quot;&quot;&quot;
+        weights = [
+            self.magnitude_weights(source_spectrograms[..., i])
+            for i in range(source_spectrograms.shape[-1])
+        ]
+        weights = np.stack(source_weights, axis=-1)
+        weights = source_weights.max(axis=-1)
+        return weights</div>
+
+    def _load_audio_file(self, file_path: str) -&gt; AudioSignal:
+        &quot;&quot;&quot;Loads audio file at given path. Uses wavfile.read if the extension is a wav
+        file as this is considerably faster than using librosa to load the audio file.
+        Otherwise, uses the nussl AudioSignal file loader, which just calls 
+        librosa.load.
+
+        Args:
+            file_path - relative or absolute path to file to load
+
+        Returns:
+            AudioSignal object
+        &quot;&quot;&quot;
+        if os.path.splitext(file_path)[-1] == &#39;.wav&#39;:
+            rate, audio = wavfile.read(file_path)
+            audio = audio.astype(np.float32, order=&#39;C&#39;) / 32768.0
+            audio_signal = AudioSignal(audio_data_array=audio, sample_rate=self.options[&#39;sample_rate&#39;])
+        else:
+            audio_signal = AudioSignal(file_path, sample_rate=self.options[&#39;sample_rate&#39;])
+        audio_signal.path_to_input_file = file_path
+        audio_signal.stft_params.window_length = self.options[&#39;n_fft&#39;]
+        audio_signal.stft_params.hop_length = self.options[&#39;hop_length&#39;]
+        return audio_signal
+
+<div class="viewcode-block" id="BaseDataset.inspect"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.BaseDataset.inspect">[docs]</a>    def inspect(self, i):
+        &quot;&quot;&quot;Useful for inspecting if a dataset implementation is working inside of a 
+        Jupyter notebook. It prints every AudioSignal object loaded by load_audio_files,
+        visualizes the output of the network, and embeds the audio files via 
+        jupyter_utils.embed_audio.
+
+        Args:
+            i: Index of the dataset to visualize.
+        
+        Returns:
+            None. Visualizes via plots and audio files.
+        &quot;&quot;&quot;
+        items = self.load_audio_files(self.files[i])
+        output = self.construct_input_output(items[0], items[1])
+        output[&#39;weights&#39;] = self.get_weights(
+            output,
+            self.options[&#39;weight_type&#39;]
+        )
+
+        for item in items:
+            print(item)
+        
+        print(&#39;Mixture + original sources&#39;)
+        jupyter_utils.embed_audio(items[0])
+        for s in items[1]:
+            jupyter_utils.embed_audio(s)
+
+        print(&#39;Sources masked from mixture&#39;)
+        for j in range(output[&#39;assignments&#39;].shape[-1]):
+            mask = SoftMask(output[&#39;assignments&#39;][:, :, :, j])
+            items[0].stft()
+            signal = items[0].apply_mask(mask)
+            signal.istft(overwrite=True, truncate_to_length=items[0].signal_length)
+            jupyter_utils.embed_audio(signal)
+
+        plt.subplot(211)
+        plt.grid(False)
+        plt.imshow(output[&#39;log_spectrogram&#39;].mean(axis=-1), origin=&#39;lower&#39;, aspect=&#39;auto&#39;)
+        plt.title(&#39;Mixture spectrogram&#39;)
+
+        plt.subplot(212)
+        plt.grid(False)
+        plt.imshow(np.argmax(output[&#39;assignments&#39;], axis=-1).mean(axis=-1), origin=&#39;lower&#39;, aspect=&#39;auto&#39;)
+        plt.title(&#39;Assignments&#39;)</div></div>
 </pre></div>
 
            </div>

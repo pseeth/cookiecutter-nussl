@@ -87,9 +87,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../experiments.html">Configuring an experiment</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/runners.html">runners package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/scripts.html">scripts package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/src.html">src package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/runners.html">runners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/scripts.html">scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/src.html">src</a></li>
 </ul>
 
             
@@ -153,43 +153,45 @@
            <div itemprop="articleBody">
             
   <h1>Source code for src.utils.loaders</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">model</span>
+<span></span>from .. import dataset, model
 
-<div class="viewcode-block" id="load_dataset"><a class="viewcode-back" href="../../../source/src.utils.html#src.utils.loaders.load_dataset">[docs]</a><span class="k">def</span> <span class="nf">load_dataset</span><span class="p">(</span><span class="n">dataset_class</span><span class="p">,</span> <span class="n">dataset_folder</span><span class="p">,</span> <span class="n">dataset_config</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;This is a helper function that looks in the </span>
-<span class="sd">    ::py:mod:`src.dataset` module.</span>
-<span class="sd">    </span>
-<span class="sd">    Args:</span>
-<span class="sd">        dataset_class (str): Name of the dataset class you want to</span>
-<span class="sd">        instantiate (e.g. Scaper, MixSourceFolder).</span>
+<div class="viewcode-block" id="load_dataset"><a class="viewcode-back" href="../../../source/src.utils.html#src.utils.loaders.load_dataset">[docs]</a>def load_dataset(dataset_class, dataset_folder, dataset_config):
+    &quot;&quot;&quot;
+    This is a helper function that looks in the 
+    ::py:mod:`src.dataset` module.
+    
+    Args:
+        dataset_class (str): Name of the dataset class you want to
+        instantiate (e.g. Scaper, MixSourceFolder).
 
-<span class="sd">        dataset_folder (str): Folder you want to load the data from.</span>
+        dataset_folder (str): Folder you want to load the data from.
 
-<span class="sd">        dataset_config (dict): Configuration of the dataset</span>
-<span class="sd">    </span>
-<span class="sd">    Returns:</span>
-<span class="sd">        DatasetClass: Instantiated DatasetClass given the parameters.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">DatasetClass</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">dataset_class</span><span class="p">)</span>
-    <span class="n">dataset_instance</span> <span class="o">=</span> <span class="n">DatasetClass</span><span class="p">(</span><span class="n">dataset_folder</span><span class="p">,</span> <span class="n">dataset_config</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">dataset_instance</span></div>
+        dataset_config (dict): Configuration of the dataset
+    
+    Returns:
+        DatasetClass: Instantiated DatasetClass given the parameters.
+    &quot;&quot;&quot;
+    DatasetClass = getattr(dataset, dataset_class)
+    dataset_instance = DatasetClass(dataset_folder, dataset_config)
+    return dataset_instance</div>
 
-<div class="viewcode-block" id="load_model"><a class="viewcode-back" href="../../../source/src.utils.html#src.utils.loaders.load_model">[docs]</a><span class="k">def</span> <span class="nf">load_model</span><span class="p">(</span><span class="n">model_config</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;[summary]</span>
-<span class="sd">    </span>
-<span class="sd">    Args:</span>
-<span class="sd">        model_config ([type]): [description]</span>
-<span class="sd">    </span>
-<span class="sd">    Returns:</span>
-<span class="sd">        [type]: [description]</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">model_class</span> <span class="o">=</span> <span class="n">model_config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;class&#39;</span><span class="p">,</span> <span class="s1">&#39;SeparationModel&#39;</span><span class="p">)</span>
-    <span class="n">ModelClass</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">model_class</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">model_class</span> <span class="o">==</span> <span class="s1">&#39;SeparationModel&#39;</span><span class="p">:</span>
-        <span class="n">model_instance</span> <span class="o">=</span> <span class="n">ModelClass</span><span class="p">(</span><span class="n">model_config</span><span class="p">,</span> <span class="n">extra_modules</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">extras</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">model_instance</span> <span class="o">=</span> <span class="n">ModelClass</span><span class="p">(</span><span class="n">model_config</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">model_instance</span></div>
+<div class="viewcode-block" id="load_model"><a class="viewcode-back" href="../../../source/src.utils.html#src.utils.loaders.load_model">[docs]</a>def load_model(model_config):
+    &quot;&quot;&quot;
+    [summary]
+    
+    Args:
+        model_config ([type]): [description]
+    
+    Returns:
+        [type]: [description]
+    &quot;&quot;&quot;
+    model_class = model_config.pop(&#39;class&#39;, &#39;SeparationModel&#39;)
+    ModelClass = getattr(model, model_class)
+    if model_class == &#39;SeparationModel&#39;:
+        model_instance = ModelClass(model_config, extra_modules=model.extras)
+    else:
+        model_instance = ModelClass(model_config)
+    return model_instance</div>
 </pre></div>
 
            </div>

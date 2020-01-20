@@ -1,5 +1,5 @@
-src.model package
-=================
+src.model
+=========
 
 Subpackages
 -----------

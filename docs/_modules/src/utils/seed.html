@@ -87,9 +87,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../experiments.html">Configuring an experiment</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/runners.html">runners package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/scripts.html">scripts package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/src.html">src package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/runners.html">runners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/scripts.html">scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/src.html">src</a></li>
 </ul>
 
             
@@ -153,32 +153,33 @@
            <div itemprop="articleBody">
             
   <h1>Source code for src.utils.seed</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">random</span>
-<span class="kn">import</span> <span class="nn">torch</span>
+<span></span>import numpy as np
+import random
+import torch
 
-<div class="viewcode-block" id="seed"><a class="viewcode-back" href="../../../source/src.utils.html#src.utils.seed.seed">[docs]</a><span class="k">def</span> <span class="nf">seed</span><span class="p">(</span><span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Seeds every possible random number generator</span>
-<span class="sd">    with a specific seed to guarantee the same</span>
-<span class="sd">    results with the same seed (hopefully). Currently</span>
-<span class="sd">    supported RNGs are::</span>
+<div class="viewcode-block" id="seed"><a class="viewcode-back" href="../../../source/src.utils.html#src.utils.seed.seed">[docs]</a>def seed(s=0):
+    &quot;&quot;&quot;
+    Seeds every possible random number generator
+    with a specific seed to guarantee the same
+    results with the same seed (hopefully). Currently
+    supported RNGs are::
 
-<span class="sd">        torch.manual_seed</span>
-<span class="sd">        torch.cuda.manual_seed</span>
-<span class="sd">        np.random.seed</span>
-<span class="sd">        random.seed</span>
+        torch.manual_seed
+        torch.cuda.manual_seed
+        np.random.seed
+        random.seed
 
-<span class="sd">    If you use RNGs outside of this list in your project,</span>
-<span class="sd">    then there&#39;s no guarantee of reproducibility.</span>
-<span class="sd">    </span>
-<span class="sd">    Args:</span>
-<span class="sd">        s (int, optional): Seed to use. Defaults to 0.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">torch</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">cudnn</span><span class="o">.</span><span class="n">benchmark</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-    <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-    <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">s</span><span class="p">)</span></div>
+    If you use RNGs outside of this list in your project,
+    then there&#39;s no guarantee of reproducibility.
+    
+    Args:
+        s (int, optional): Seed to use. Defaults to 0.
+    &quot;&quot;&quot;
+    torch.backends.cudnn.benchmark = True
+    torch.manual_seed(s)
+    torch.cuda.manual_seed(s)
+    np.random.seed(s)
+    random.seed(s)</div>
 </pre></div>
 
            </div>

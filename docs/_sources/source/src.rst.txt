@@ -1,5 +1,5 @@
-src package
-===========
+src
+===
 
 Subpackages
 -----------

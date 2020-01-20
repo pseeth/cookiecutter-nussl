@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>&lt;no title&gt; &mdash; Cookiecutter for nussl  documentation</title>
+  <title>{{ cookiecutter.repo_name }} &mdash; Cookiecutter for nussl  documentation</title>
   
 
   
@@ -87,9 +87,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../experiments.html">Configuring an experiment</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="runners.html">runners package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="scripts.html">scripts package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="src.html">src package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runners.html">runners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts.html">scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.html">src</a></li>
 </ul>
 
             
@@ -135,7 +135,7 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-      <li>&lt;no title&gt;</li>
+      <li>{{ cookiecutter.repo_name }}</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -154,64 +154,65 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="toctree-wrapper compound">
+  <div class="section" id="cookiecutter-repo-name">
+<h1>{{ cookiecutter.repo_name }}<a class="headerlink" href="#cookiecutter-repo-name" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="runners.html">runners package</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="runners.html">runners</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="runners.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="runners.html#module-runners.config">runners.config module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="runners.html#module-runners.docker_runner">runners.docker_runner module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="runners.html#module-runners.experiment_utils">runners.experiment_utils module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="runners.html#module-runners.script_runner_pool">runners.script_runner_pool module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="runners.html#module-runners.utils">runners.utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runners.html#module-runners.config">runners.config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runners.html#module-runners.docker_runner">runners.docker_runner</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runners.html#module-runners.experiment_utils">runners.experiment_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runners.html#module-runners.run_in_docker">runners.run_in_docker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runners.html#module-runners.script_runner_pool">runners.script_runner_pool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runners.html#module-runners.utils">runners.utils</a></li>
 <li class="toctree-l2"><a class="reference internal" href="runners.html#module-runners">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="scripts.html">scripts package</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="scripts.html">scripts</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="scripts.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="scripts.html#module-scripts.analyze">scripts.analyze module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="scripts.html#module-scripts.download_toy_data">scripts.download_toy_data module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="scripts.html#module-scripts.evaluate">scripts.evaluate module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="scripts.html#module-scripts.mix_with_scaper">scripts.mix_with_scaper module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="scripts.html#module-scripts.pipeline">scripts.pipeline module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="scripts.html#module-scripts.prepare_urbansound">scripts.prepare_urbansound module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="scripts.html#module-scripts.reorganize">scripts.reorganize module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="scripts.html#module-scripts.resample">scripts.resample module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="scripts.html#module-scripts.run_in_docker">scripts.run_in_docker module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="scripts.html#module-scripts.sweep_experiment">scripts.sweep_experiment module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="scripts.html#module-scripts.train">scripts.train module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scripts.html#module-scripts.analyze">scripts.analyze</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scripts.html#module-scripts.download_toy_data">scripts.download_toy_data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scripts.html#module-scripts.evaluate">scripts.evaluate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scripts.html#module-scripts.mix_with_scaper">scripts.mix_with_scaper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scripts.html#module-scripts.pipeline">scripts.pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scripts.html#module-scripts.reorganize">scripts.reorganize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scripts.html#module-scripts.resample">scripts.resample</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scripts.html#module-scripts.sweep_experiment">scripts.sweep_experiment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scripts.html#module-scripts.train">scripts.train</a></li>
 <li class="toctree-l2"><a class="reference internal" href="scripts.html#module-scripts">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="src.html">src package</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="src.html">src</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="src.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="src.algorithms.html">src.algorithms package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.algorithms.html">src.algorithms</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="src.algorithms.html#module-src.algorithms">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="src.dataset.html">src.dataset package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.dataset.html">src.dataset</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="src.dataset.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.dataset.html#module-src.dataset.scaper_mixer">src.dataset.scaper_mixer module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.dataset.html#module-src.dataset.scaper_mixer">src.dataset.scaper_mixer</a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.dataset.html#module-src.dataset">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="src.model.html">src.model package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.model.html">src.model</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="src.model.html#subpackages">Subpackages</a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.model.html#module-src.model">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="src.test.html">src.test package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.test.html">src.test</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="src.test.html#module-src.test">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="src.train.html">src.train package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.train.html">src.train</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="src.train.html#module-src.train">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="src.utils.html">src.utils package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.utils.html">src.utils</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.utils.html#module-src.utils.loaders">src.utils.loaders module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.utils.html#module-src.utils.parallel">src.utils.parallel module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.utils.html#module-src.utils.seed">src.utils.seed module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.html#module-src.utils.loaders">src.utils.loaders</a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.html#module-src.utils.parallel">src.utils.parallel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.html#module-src.utils.seed">src.utils.seed</a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.html#module-src.utils">Module contents</a></li>
 </ul>
 </li>
@@ -220,19 +221,20 @@
 <li class="toctree-l2"><a class="reference internal" href="src.html#module-src">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="tests.html">tests package</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="tests.html">tests</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="tests.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tests.html#module-tests.test_data">tests.test_data module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tests.html#module-tests.test_experiment">tests.test_experiment module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tests.html#module-tests.test_experiment_utils">tests.test_experiment_utils module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tests.html#module-tests.test_overfit">tests.test_overfit module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tests.html#module-tests.test_pipeline">tests.test_pipeline module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tests.html#module-tests.test_runners">tests.test_runners module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tests.html#module-tests.test_yaml">tests.test_yaml module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.html#module-tests.test_data">tests.test_data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.html#module-tests.test_experiment">tests.test_experiment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.html#module-tests.test_experiment_utils">tests.test_experiment_utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.html#module-tests.test_overfit">tests.test_overfit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.html#module-tests.test_pipeline">tests.test_pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.html#module-tests.test_runners">tests.test_runners</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.html#module-tests.test_yaml">tests.test_yaml</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tests.html#module-tests">Module contents</a></li>
 </ul>
 </li>
 </ul>
+</div>
 </div>
 
 

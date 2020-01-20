@@ -87,9 +87,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../experiments.html">Configuring an experiment</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../source/runners.html">runners package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../source/scripts.html">scripts package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../source/src.html">src package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/runners.html">runners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/scripts.html">scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/src.html">src</a></li>
 </ul>
 
             
@@ -137,6 +137,8 @@
         
           <li><a href="../index.html">Module code</a> &raquo;</li>
         
+          <li><a href="../scripts.html">scripts</a> &raquo;</li>
+        
       <li>scripts.analyze</li>
     
     
@@ -153,173 +155,239 @@
            <div itemprop="articleBody">
             
   <h1>Source code for scripts.analyze</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">sys</span>
-<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">)</span>
+<span></span>from runners.experiment_utils import load_experiment, save_experiment
+from src import logging
+from runners.utils import load_yaml, flatten
+from . import cmd, document_parser
+import glob
+import pandas as pd
+import os
+import copy
+import numpy as np
+from argparse import ArgumentParser
 
-<span class="kn">from</span> <span class="nn">runners.experiment_utils</span> <span class="kn">import</span> <span class="n">load_experiment</span><span class="p">,</span> <span class="n">save_experiment</span>
-<span class="kn">from</span> <span class="nn">src</span> <span class="kn">import</span> <span class="n">logging</span>
-<span class="kn">from</span> <span class="nn">runners.utils</span> <span class="kn">import</span> <span class="n">build_parser_for_yml_script</span><span class="p">,</span> <span class="n">load_yaml</span><span class="p">,</span> <span class="n">flatten</span>
-<span class="kn">import</span> <span class="nn">glob</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">copy</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
+from gspread import WorksheetNotFound
 
-<span class="kn">import</span> <span class="nn">gspread</span>
-<span class="kn">from</span> <span class="nn">oauth2client.service_account</span> <span class="kn">import</span> <span class="n">ServiceAccountCredentials</span>
-<span class="kn">from</span> <span class="nn">gspread</span> <span class="kn">import</span> <span class="n">WorksheetNotFound</span>
+<div class="viewcode-block" id="init_gsheet"><a class="viewcode-back" href="../../source/scripts.html#scripts.analyze.init_gsheet">[docs]</a>def init_gsheet(credentials_path):
+    &quot;&quot;&quot;
+    Initializes the Google Sheets client given a path to credentials.
+    
+    Args:
+        credentials_path (str): path to your Google credentials that are used to
+            authorize the Google Sheets access.
+    
+    Returns:
+        :class:`gspread.Client`: Google Sheets Client initialized with credentials.
+    &quot;&quot;&quot;
+    scope = [&#39;https://spreadsheets.google.com/feeds&#39;,
+    &#39;https://www.googleapis.com/auth/drive&#39;]
+    credentials = ServiceAccountCredentials.from_json_keyfile_name(
+        credentials_path, scope
+    )
+    gc = gspread.authorize(credentials)
+    return gc</div>
 
-<div class="viewcode-block" id="init_gsheet"><a class="viewcode-back" href="../../source/scripts.html#scripts.analyze.init_gsheet">[docs]</a><span class="k">def</span> <span class="nf">init_gsheet</span><span class="p">(</span><span class="n">credentials_path</span><span class="p">):</span>
-    <span class="n">scope</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;https://spreadsheets.google.com/feeds&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;https://www.googleapis.com/auth/drive&#39;</span><span class="p">]</span>
-    <span class="n">credentials</span> <span class="o">=</span> <span class="n">ServiceAccountCredentials</span><span class="o">.</span><span class="n">from_json_keyfile_name</span><span class="p">(</span>
-        <span class="n">credentials_path</span><span class="p">,</span> <span class="n">scope</span>
-    <span class="p">)</span>
-    <span class="n">gc</span> <span class="o">=</span> <span class="n">gspread</span><span class="o">.</span><span class="n">authorize</span><span class="p">(</span><span class="n">credentials</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">gc</span></div>
+<div class="viewcode-block" id="upload_to_gsheet"><a class="viewcode-back" href="../../source/scripts.html#scripts.analyze.upload_to_gsheet">[docs]</a>def upload_to_gsheet(results, config, exp=None):
+    &quot;&quot;&quot;
+    Uploads the analysis to the Google Sheet, if possible.
+    
+    Args:
+        results (:class:`pandas.DataFrame`): DataFrame containing all the results - output
+            by :py:func:`scripts.analyze.analyze`.
+        config (dict): Dictionary containing the entire experiment configuration.
+        exp (:class:`comet_ml.Experiment`): Experiment given by comet.ml (optional).
+    &quot;&quot;&quot;
+    credentials_path = os.getenv(&#39;PATH_TO_GOOGLE_CREDENTIALS&#39;, None)
+    if not credentials_path:
+        logging.info(&#39;PATH_TO_GOOGLE_CREDENTIALS not set, cannot proceed.&#39;)
+        return None
 
-<div class="viewcode-block" id="upload_to_gsheet"><a class="viewcode-back" href="../../source/scripts.html#scripts.analyze.upload_to_gsheet">[docs]</a><span class="k">def</span> <span class="nf">upload_to_gsheet</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">exp</span><span class="p">):</span>
-    <span class="n">credentials_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;PATH_TO_GOOGLE_CREDENTIALS&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">credentials_path</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;PATH_TO_GOOGLE_CREDENTIALS not set, cannot proceed.&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="kc">None</span>
+    gc = init_gsheet(credentials_path)
 
-    <span class="n">gc</span> <span class="o">=</span> <span class="n">init_gsheet</span><span class="p">(</span><span class="n">credentials_path</span><span class="p">)</span>
+    config = copy.deepcopy(config)
+    sheet_name = config[&#39;info&#39;].pop(&#39;spreadsheet_name&#39;, None)
+    worksheet_name = config[&#39;info&#39;].pop(&#39;worksheet_name&#39;, None)
+    if not sheet_name or not worksheet_name:
+        logging.info(&#39;Sheet name not specified, not uploading results to Google sheets&#39;)
+        return None
+    logging.info(f&#39;Opening {sheet_name} with {worksheet_name}&#39;)
+    sheet = gc.open(sheet_name)
 
-    <span class="n">config</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-    <span class="n">sheet_name</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;info&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;spreadsheet_name&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="n">worksheet_name</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;info&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;worksheet_name&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">sheet_name</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">worksheet_name</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Sheet name not specified, not uploading results to Google sheets&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="kc">None</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Opening </span><span class="si">{sheet_name}</span><span class="s1"> with </span><span class="si">{worksheet_name}</span><span class="s1">&#39;</span><span class="p">)</span>
-    <span class="n">sheet</span> <span class="o">=</span> <span class="n">gc</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">sheet_name</span><span class="p">)</span>
+    try:
+        summary_worksheet = sheet.worksheet(worksheet_name)
+    except WorksheetNotFound:
+        logging.info(f&#39;Worksheet not found, creating new sheet w/ name {worksheet_name}&#39;)
+        template_worksheet = sheet.worksheet(&#39;Template&#39;)
+        summary_worksheet = template_worksheet.duplicate(new_sheet_name=worksheet_name)
 
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">summary_worksheet</span> <span class="o">=</span> <span class="n">sheet</span><span class="o">.</span><span class="n">worksheet</span><span class="p">(</span><span class="n">worksheet_name</span><span class="p">)</span>
-    <span class="k">except</span> <span class="n">WorksheetNotFound</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Worksheet not found, creating new sheet w/ name </span><span class="si">{worksheet_name}</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="n">template_worksheet</span> <span class="o">=</span> <span class="n">sheet</span><span class="o">.</span><span class="n">worksheet</span><span class="p">(</span><span class="s1">&#39;Template&#39;</span><span class="p">)</span>
-        <span class="n">summary_worksheet</span> <span class="o">=</span> <span class="n">template_worksheet</span><span class="o">.</span><span class="n">duplicate</span><span class="p">(</span><span class="n">new_sheet_name</span><span class="o">=</span><span class="n">worksheet_name</span><span class="p">)</span>
+    datasets = np.unique(results[&#39;dataset&#39;])
+    metrics = [&#39;SDR&#39;, &#39;SIR&#39;, &#39;SAR&#39;]
+    notes = config[&#39;info&#39;].pop(&#39;notes&#39;, &#39;No notes&#39;)
 
-    <span class="n">datasets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;dataset&#39;</span><span class="p">])</span>
-    <span class="n">metrics</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;SDR&#39;</span><span class="p">,</span> <span class="s1">&#39;SIR&#39;</span><span class="p">,</span> <span class="s1">&#39;SAR&#39;</span><span class="p">]</span>
-    <span class="n">notes</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;info&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;notes&#39;</span><span class="p">,</span> <span class="s1">&#39;No notes&#39;</span><span class="p">)</span>
+    def trunc(values, decs=0):
+        return np.trunc(values*10**decs)/(10**decs)
 
-    <span class="k">def</span> <span class="nf">trunc</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">decs</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">trunc</span><span class="p">(</span><span class="n">values</span><span class="o">*</span><span class="mi">10</span><span class="o">**</span><span class="n">decs</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mi">10</span><span class="o">**</span><span class="n">decs</span><span class="p">)</span>
+    existing_rows = summary_worksheet.get_all_values()
 
-    <span class="n">existing_rows</span> <span class="o">=</span> <span class="n">summary_worksheet</span><span class="o">.</span><span class="n">get_all_values</span><span class="p">()</span>
+    for dataset in datasets:
+        logging.info(
+            f&quot;Uploading results for {dataset} for {config[&#39;info&#39;][&#39;experiment_key&#39;]} &quot;
+            f&quot;@ {worksheet_name} in {summary_worksheet}&quot;
+        )
+        _results = results[results[&#39;dataset&#39;] == dataset]
+        dataset_paths = {
+            key: config[&#39;datasets&#39;][key][&#39;folder&#39;] 
+            for key in config[&#39;datasets&#39;]
+        }
+        experiment_key = config[&#39;info&#39;][&#39;experiment_key&#39;]
+        experiment_url = &#39;No link&#39;
+        if hasattr(exp, &#39;_get_experiment_url&#39;):
+            experiment_url = exp._get_experiment_url()
+        row_to_insert = [
+            f&#39;=HYPERLINK(&quot;{experiment_url}&quot;, &quot;{experiment_key}&quot;)&#39;,
+            notes, 
+            dataset_paths.pop(&#39;train&#39;, &#39;No training&#39;),
+            dataset_paths.pop(&#39;val&#39;, &#39;No validation.&#39;),
+            dataset,
+            np.unique(_results[&#39;file_name&#39;]).shape[0],
+        ]
 
-    <span class="k">for</span> <span class="n">dataset</span> <span class="ow">in</span> <span class="n">datasets</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Uploading results for </span><span class="si">{dataset}</span><span class="s2"> for </span><span class="si">{config[&#39;info&#39;][&#39;experiment_key&#39;]}</span><span class="s2"> &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;@ </span><span class="si">{worksheet_name}</span><span class="s2"> in </span><span class="si">{summary_worksheet}</span><span class="s2">&quot;</span>
-        <span class="p">)</span>
-        <span class="n">_results</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;dataset&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">dataset</span><span class="p">]</span>
-        <span class="n">dataset_paths</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">key</span><span class="p">:</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;datasets&#39;</span><span class="p">][</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;folder&#39;</span><span class="p">]</span> 
-            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;datasets&#39;</span><span class="p">]</span>
-        <span class="p">}</span>
-        <span class="n">experiment_key</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;info&#39;</span><span class="p">][</span><span class="s1">&#39;experiment_key&#39;</span><span class="p">]</span>
-        <span class="n">experiment_url</span> <span class="o">=</span> <span class="s1">&#39;No link&#39;</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">exp</span><span class="p">,</span> <span class="s1">&#39;_get_experiment_url&#39;</span><span class="p">):</span>
-            <span class="n">experiment_url</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">_get_experiment_url</span><span class="p">()</span>
-        <span class="n">row_to_insert</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="sa">f</span><span class="s1">&#39;=HYPERLINK(&quot;</span><span class="si">{experiment_url}</span><span class="s1">&quot;, &quot;</span><span class="si">{experiment_key}</span><span class="s1">&quot;)&#39;</span><span class="p">,</span>
-            <span class="n">notes</span><span class="p">,</span> 
-            <span class="n">dataset_paths</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;train&#39;</span><span class="p">,</span> <span class="s1">&#39;No training&#39;</span><span class="p">),</span>
-            <span class="n">dataset_paths</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;val&#39;</span><span class="p">,</span> <span class="s1">&#39;No validation.&#39;</span><span class="p">),</span>
-            <span class="n">dataset</span><span class="p">,</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">_results</span><span class="p">[</span><span class="s1">&#39;file_name&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="p">]</span>
-
-        <span class="n">row_exists</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="n">row_index</span> <span class="o">=</span> <span class="mi">3</span>
-        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">existing_rows</span><span class="p">):</span>
-            <span class="n">compared_indices</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
-            <span class="n">row</span> <span class="o">=</span> <span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">+</span> <span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">compared_indices</span><span class="p">]</span>
-            <span class="n">inserted_row</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="p">[</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;info&#39;</span><span class="p">][</span><span class="s1">&#39;experiment_key&#39;</span><span class="p">]]</span> <span class="o">+</span> 
-                <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">row_to_insert</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">compared_indices</span><span class="p">]</span> 
-            <span class="p">)</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">row</span> <span class="o">==</span> <span class="n">inserted_row</span><span class="p">):</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Row already exists&quot;</span><span class="p">)</span>
-                <span class="n">row_exists</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">row_index</span> <span class="o">=</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span>
-                <span class="k">break</span>
+        row_exists = False
+        row_index = 3
+        for j, row in enumerate(existing_rows):
+            compared_indices = [2, 3, 4]
+            row = [row[0]] + [row[i] for i in compared_indices]
+            inserted_row = (
+                [config[&#39;info&#39;][&#39;experiment_key&#39;]] + 
+                [str(row_to_insert[i]) for i in compared_indices] 
+            )
+            if (row == inserted_row):
+                logging.info(&quot;Row already exists&quot;)
+                row_exists = True
+                row_index = j + 1
+                break
         
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">row_exists</span><span class="p">:</span>
-            <span class="n">summary_worksheet</span><span class="o">.</span><span class="n">insert_row</span><span class="p">(</span>
-                <span class="n">row_to_insert</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">value_input_option</span><span class="o">=</span><span class="s1">&#39;USER_ENTERED&#39;</span>
-            <span class="p">)</span>
-        <span class="n">overall_metrics</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">_results</span><span class="p">[</span><span class="s1">&#39;file_name&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">+</span> 
-            <span class="p">[</span><span class="n">trunc</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">decs</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">_results</span><span class="o">.</span><span class="n">mean</span><span class="p">()[</span><span class="n">metrics</span><span class="p">]]</span>
-        <span class="p">)</span>
-        <span class="n">overall_index</span> <span class="o">=</span> <span class="n">summary_worksheet</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;Overall&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">col</span> <span class="o">-</span> <span class="mi">1</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">overall_metrics</span><span class="p">):</span>
-            <span class="n">summary_worksheet</span><span class="o">.</span><span class="n">update_cell</span><span class="p">(</span><span class="n">row_index</span><span class="p">,</span> <span class="n">overall_index</span> <span class="o">+</span> <span class="n">i</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        if not row_exists:
+            summary_worksheet.insert_row(
+                row_to_insert, index=3, value_input_option=&#39;USER_ENTERED&#39;
+            )
+        overall_metrics = (
+            [np.unique(_results[&#39;file_name&#39;]).shape[0]] + 
+            [trunc(x, decs=2) for x in _results.mean()[metrics]]
+        )
+        overall_index = summary_worksheet.find(&#39;Overall&#39;).col - 1
+        for i, value in enumerate(overall_metrics):
+            summary_worksheet.update_cell(row_index, overall_index + i, value)
 
-        <span class="n">source_names</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">_results</span><span class="p">[</span><span class="s1">&#39;source_name&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">source_name</span> <span class="ow">in</span> <span class="n">source_names</span><span class="p">:</span>
-            <span class="n">source_metrics</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">source_name_cell</span> <span class="o">=</span> <span class="n">summary_worksheet</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">source_name</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="n">source_name_cell</span> <span class="o">=</span> <span class="n">summary_worksheet</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;Source&#39;</span><span class="p">)</span>
-                <span class="n">source_name_cell</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">source_name</span>
-                <span class="n">summary_worksheet</span><span class="o">.</span><span class="n">update_cells</span><span class="p">([</span><span class="n">source_name_cell</span><span class="p">])</span>
-            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">metric</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">metrics</span><span class="p">):</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="n">trunc</span><span class="p">(</span>
-                    <span class="n">_results</span><span class="p">[</span><span class="n">_results</span><span class="p">[</span><span class="s1">&#39;source_name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">source_name</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()[</span><span class="n">metric</span><span class="p">],</span> 
-                    <span class="n">decs</span><span class="o">=</span><span class="mi">2</span>
-                <span class="p">)</span>
-                <span class="n">summary_worksheet</span><span class="o">.</span><span class="n">update_cell</span><span class="p">(</span>
-                    <span class="n">row_index</span><span class="p">,</span> <span class="n">source_name_cell</span><span class="o">.</span><span class="n">col</span> <span class="o">+</span> <span class="n">i</span><span class="p">,</span> <span class="n">value</span>
-                <span class="p">)</span></div>
+        source_names = np.unique(_results[&#39;source_name&#39;]).tolist()
+        for source_name in source_names:
+            source_metrics = []
+            try:
+                source_name_cell = summary_worksheet.find(source_name)
+            except Exception as e:
+                source_name_cell = summary_worksheet.find(&#39;Source&#39;)
+                source_name_cell.value = source_name
+                summary_worksheet.update_cells([source_name_cell])
+            for i, metric in enumerate(metrics):
+                value = trunc(
+                    _results[_results[&#39;source_name&#39;] == source_name].mean()[metric], 
+                    decs=2
+                )
+                summary_worksheet.update_cell(
+                    row_index, source_name_cell.col + i, value
+                )</div>
 
-<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../source/scripts.html#scripts.analyze.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">path_to_yml_file</span><span class="p">):</span>
-    <span class="n">config</span><span class="p">,</span> <span class="n">exp</span><span class="p">,</span> <span class="n">path_to_yml_file</span> <span class="o">=</span> <span class="n">load_experiment</span><span class="p">(</span><span class="n">path_to_yml_file</span><span class="p">)</span>
+<div class="viewcode-block" id="analyze"><a class="viewcode-back" href="../../source/scripts.html#scripts.analyze.analyze">[docs]</a>def analyze(path_to_yml_file, use_gsheet=False):
+    &quot;&quot;&quot;
+    Analyzes the metrics for all the files that were evaluated in the experiment.
     
-    <span class="n">paths</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;info&#39;</span><span class="p">][</span><span class="s1">&#39;output_folder&#39;</span><span class="p">],</span> <span class="s1">&#39;results&#39;</span><span class="p">,</span> <span class="s1">&#39;**.yml&#39;</span><span class="p">),</span>
-        <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span>
-    <span class="p">)</span>
-
-    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
-
-    <span class="k">for</span> <span class="n">_path</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">:</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">load_yaml</span><span class="p">(</span><span class="n">_path</span><span class="p">,</span> <span class="p">[])</span>
-        <span class="k">for</span> <span class="n">_data</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
-            <span class="n">keys</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">_data</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
-            <span class="n">keys</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;permutation&#39;</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
-                <span class="n">flattened</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="s1">&#39;experiment_key&#39;</span><span class="p">:</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;info&#39;</span><span class="p">][</span><span class="s1">&#39;experiment_key&#39;</span><span class="p">],</span>
-                    <span class="s1">&#39;notes&#39;</span><span class="p">:</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;info&#39;</span><span class="p">][</span><span class="s1">&#39;notes&#39;</span><span class="p">],</span>
-                    <span class="s1">&#39;file_name&#39;</span><span class="p">:</span> <span class="n">_path</span><span class="p">,</span>
-                    <span class="s1">&#39;dataset&#39;</span><span class="p">:</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;datasets&#39;</span><span class="p">][</span><span class="s1">&#39;test&#39;</span><span class="p">][</span><span class="s1">&#39;folder&#39;</span><span class="p">],</span>
-                    <span class="s1">&#39;source_name&#39;</span><span class="p">:</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
-                <span class="p">}</span>
-
-                <span class="n">flattened</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">flatten</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>
-
-                <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="n">_data</span><span class="p">[</span><span class="n">key</span><span class="p">]:</span>
-                    <span class="n">flattened</span><span class="p">[</span><span class="n">metric</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">_data</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">metric</span><span class="p">])</span>
-
-                <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">flattened</span><span class="p">)</span>
+    Args:
+        path_to_yml_file (str): Path to the yml file that defines the experiment. The
+            corresponding results folder for the experiment is what will be analyzed and put
+            into a Pandas dataframe.
+        use_gsheet (bool, optional): Whether or not to upload to the Google Sheet. 
+            Defaults to False.
     
-    <span class="n">results</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">results</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">exp</span></div>
+    Returns:
+        tuple: 3-element tuple containing
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
-    <span class="n">parser</span> <span class="o">=</span> <span class="n">build_parser_for_yml_script</span><span class="p">()</span>
-    <span class="n">args</span> <span class="o">=</span> <span class="nb">vars</span><span class="p">(</span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">())</span>
-    <span class="n">results</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">exp</span> <span class="o">=</span> <span class="n">main</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="s1">&#39;spec&#39;</span><span class="p">])</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;info&#39;</span><span class="p">][</span><span class="s1">&#39;experiment_key&#39;</span><span class="p">])</span>
-    <span class="n">upload_to_gsheet</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">exp</span><span class="p">)</span>
+            - results (:class:`pandas.DataFrame`): DataFrame containing all of the results 
+              for every file evaluated in the experiment. The DataFrame also has every
+              key in the experiment configuration in flattened format.
+              
+              For example, model_config_recurrent_stack_args_embedding_size is a column in the DataFrame.
+
+            - config (*dict*):  A dictionary containing the configuration of the experiment. 
+
+            - exp (:class:`comet_ml.Experiment`): An instantiated experiment if comet.ml is needed,  otherwise it is None.
+    &quot;&quot;&quot;
+    config, exp, path_to_yml_file = load_experiment(path_to_yml_file)
+    
+    paths = glob.glob(
+        os.path.join(config[&#39;info&#39;][&#39;output_folder&#39;], &#39;results&#39;, &#39;**.yml&#39;),
+        recursive=True
+    )
+
+    results = []
+
+    for _path in paths:
+        data = load_yaml(_path, [])
+        for _data in data:
+            keys = sorted(list(_data.keys()))
+            keys.remove(&#39;permutation&#39;)
+            for key in keys:
+                flattened = {
+                    &#39;experiment_key&#39;: config[&#39;info&#39;][&#39;experiment_key&#39;],
+                    &#39;notes&#39;: config[&#39;info&#39;][&#39;notes&#39;],
+                    &#39;file_name&#39;: _path,
+                    &#39;dataset&#39;: config[&#39;datasets&#39;][&#39;test&#39;][&#39;folder&#39;],
+                    &#39;source_name&#39;: key.split(&#39;/&#39;)[-1],
+                }
+
+                flattened.update(flatten(config))
+
+                for metric in _data[key]:
+                    flattened[metric] = np.mean(_data[key][metric])
+
+                results.append(flattened)
+    
+    results = pd.DataFrame(results)
+
+    logging.info(results.mean())
+    logging.info(config[&#39;info&#39;][&#39;experiment_key&#39;])
+
+    if use_gsheet:
+        upload_to_gsheet(results, config, exp)
+
+    return results, config, exp</div>
+
+<div class="viewcode-block" id="build_parser"><a class="viewcode-back" href="../../source/scripts.html#scripts.analyze.build_parser">[docs]</a>@document_parser(&#39;analyze&#39;, &#39;scripts.analyze.analyze&#39;)
+def build_parser():
+    parser = ArgumentParser()
+    parser.add_argument(
+        &quot;-p&quot;,
+        &quot;--path_to_yml_file&quot;,
+        type=str,
+        required=True,
+        help=&quot;&quot;&quot;Path to the configuration for the experiment that is getting analyzed. The
+        corresponding results folder for the experiment is what will be analyzed and put
+        into a Pandas dataframe.
+        &quot;&quot;&quot;
+    )
+    parser.add_argument(
+        &quot;--use_gsheet&quot;,
+        type=bool,
+        default=False,
+        help=&quot;&quot;&quot;Results can be synced to a Google sheet after analysis if this is true.
+        Defaults to false.
+        &quot;&quot;&quot;
+    )
+    return parser</div>
+
+if __name__ == &#39;__main__&#39;:
+    cmd(analyze, build_parser) 
 </pre></div>
 
            </div>

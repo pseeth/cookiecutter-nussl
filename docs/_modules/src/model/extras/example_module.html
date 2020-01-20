@@ -87,9 +87,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../experiments.html">Configuring an experiment</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../../source/runners.html">runners package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../source/scripts.html">scripts package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../source/src.html">src package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../source/runners.html">runners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../source/scripts.html">scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../source/src.html">src</a></li>
 </ul>
 
             
@@ -153,18 +153,18 @@
            <div itemprop="articleBody">
             
   <h1>Source code for src.model.extras.example_module</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">nn</span>
+<span></span>from torch import nn
 
-<div class="viewcode-block" id="ExampleModule"><a class="viewcode-back" href="../../../../source/src.model.extras.html#src.model.extras.example_module.ExampleModule">[docs]</a><span class="k">class</span> <span class="nc">ExampleModule</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    An example of a user-defined module that is passed to SeparationModel for building</span>
-<span class="sd">    up the model. This should be imported explicitly in the init to be included.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="ExampleModule.__init__"><a class="viewcode-back" href="../../../../source/src.model.extras.html#src.model.extras.example_module.ExampleModule.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">ExampleModule</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span></div>
+<div class="viewcode-block" id="ExampleModule"><a class="viewcode-back" href="../../../../source/src.model.extras.html#src.model.extras.example_module.ExampleModule">[docs]</a>class ExampleModule(nn.Module):
+    &quot;&quot;&quot;
+    An example of a user-defined module that is passed to SeparationModel for building
+    up the model. This should be imported explicitly in the init to be included.
+    &quot;&quot;&quot;
+    def __init__(self):
+        super(ExampleModule, self).__init__()
                 
-<div class="viewcode-block" id="ExampleModule.forward"><a class="viewcode-back" href="../../../../source/src.model.extras.html#src.model.extras.example_module.ExampleModule.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">data</span></div></div>
+<div class="viewcode-block" id="ExampleModule.forward"><a class="viewcode-back" href="../../../../source/src.model.extras.html#src.model.extras.example_module.ExampleModule.forward">[docs]</a>    def forward(self, data):
+        return data</div></div>
 </pre></div>
 
            </div>

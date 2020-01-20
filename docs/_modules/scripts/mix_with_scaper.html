@@ -87,9 +87,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../experiments.html">Configuring an experiment</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../source/runners.html">runners package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../source/scripts.html">scripts package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../source/src.html">src package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/runners.html">runners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/scripts.html">scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/src.html">src</a></li>
 </ul>
 
             
@@ -137,6 +137,8 @@
         
           <li><a href="../index.html">Module code</a> &raquo;</li>
         
+          <li><a href="../scripts.html">scripts</a> &raquo;</li>
+        
       <li>scripts.mix_with_scaper</li>
     
     
@@ -153,36 +155,35 @@
            <div itemprop="articleBody">
             
   <h1>Source code for scripts.mix_with_scaper</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">sys</span>
-<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">)</span>
+<span></span>from src.dataset import scaper_mix
+from . import cmd
+from multiprocessing import cpu_count
+import inspect
 
-<span class="kn">from</span> <span class="nn">src.dataset</span> <span class="kn">import</span> <span class="n">scaper_mix</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">runners.utils</span> <span class="kn">import</span> <span class="n">build_parser_for_yml_script</span><span class="p">,</span> <span class="n">parse_yaml</span>
-<span class="kn">from</span> <span class="nn">argparse</span> <span class="kn">import</span> <span class="n">ArgumentParser</span>
-<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">cpu_count</span>
-<span class="kn">import</span> <span class="nn">os</span>
+<div class="viewcode-block" id="mix_with_scaper"><a class="viewcode-back" href="../../source/scripts.html#scripts.mix_with_scaper.mix_with_scaper">[docs]</a>def mix_with_scaper(**kwargs):
+    &quot;&quot;&quot;
+    Takes in keyword arguments containing the specification for mixing with Scaper. See
+    :py:func:`src.dataset.scaper_mix` for a description of what should be in the
+    kwargs. This function does some sanitation of the keyword arguments before 
+    passing it to :py:func:`src.dataset.scaper_mix`.
+    
+    Args:
+        kwargs (dict): All of the keyword arguments required for 
+            :py:func:`src.dataset.scaper_mix`.
+    &quot;&quot;&quot;
+    args = inspect.getfullargspec(scaper_mix)[0]
+    keys_to_pop = []
+    for key in kwargs.copy():
+        if key not in args:
+            kwargs.pop(key)
 
-<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../source/scripts.html#scripts.mix_with_scaper.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">path_to_yml_file</span><span class="p">):</span>
-    <span class="n">spec</span> <span class="o">=</span> <span class="n">parse_yaml</span><span class="p">(</span><span class="n">path_to_yml_file</span><span class="p">)</span>
+    if &#39;num_workers&#39; in kwargs:      
+        kwargs[&#39;num_workers&#39;] = min(kwargs[&#39;num_workers&#39;], cpu_count())
+        
+    scaper_mix(**kwargs)</div>
 
-    <span class="k">for</span> <span class="n">_spec</span> <span class="ow">in</span> <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;jobs&#39;</span><span class="p">]:</span>
-        <span class="n">scaper_mix</span><span class="p">(</span>
-            <span class="n">_spec</span><span class="p">[</span><span class="s1">&#39;mixture_parameters&#39;</span><span class="p">],</span>
-            <span class="n">_spec</span><span class="p">[</span><span class="s1">&#39;sample_rate&#39;</span><span class="p">],</span>
-            <span class="n">event_parameters</span><span class="o">=</span><span class="n">_spec</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;event_parameters&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="n">coherent</span><span class="o">=</span><span class="n">_spec</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;coherent&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
-            <span class="n">ref_db</span><span class="o">=</span><span class="n">_spec</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;ref_db&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mi">40</span><span class="p">),</span>
-            <span class="n">bitdepth</span><span class="o">=</span><span class="n">_spec</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;bitdepth&#39;</span><span class="p">,</span> <span class="mi">16</span><span class="p">),</span>
-            <span class="n">seed</span><span class="o">=</span><span class="n">_spec</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;seed&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
-            <span class="n">num_workers</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="n">_spec</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;num_workers&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">cpu_count</span><span class="p">()),</span>
-            <span class="n">allow_repeated_label</span><span class="o">=</span><span class="n">_spec</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;allow_repeated_label&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
-        <span class="p">)</span></div>
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
-    <span class="n">parser</span> <span class="o">=</span> <span class="n">build_parser_for_yml_script</span><span class="p">()</span>
-    <span class="n">args</span> <span class="o">=</span> <span class="nb">vars</span><span class="p">(</span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">())</span>
-    <span class="n">main</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="s1">&#39;spec&#39;</span><span class="p">])</span>
+if __name__ == &#39;__main__&#39;:
+    cmd(mix_with_scaper, lambda: None)
 </pre></div>
 
            </div>

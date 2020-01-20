@@ -87,9 +87,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../experiments.html">Configuring an experiment</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../../source/runners.html">runners package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../source/scripts.html">scripts package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../source/src.html">src package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../source/runners.html">runners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../source/scripts.html">scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../source/src.html">src</a></li>
 </ul>
 
             
@@ -153,160 +153,160 @@
            <div itemprop="articleBody">
             
   <h1>Source code for nussl.deep.networks.separation_model</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">nn</span>
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">modules</span>
-<span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span>
+<span></span>from torch import nn
+import json
+from . import modules
+import torch
+import numpy as np
+from itertools import chain
 
-<div class="viewcode-block" id="SeparationModel"><a class="viewcode-back" href="../../../../source/src.model.html#src.model.SeparationModel">[docs]</a><span class="k">class</span> <span class="nc">SeparationModel</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
-<div class="viewcode-block" id="SeparationModel.__init__"><a class="viewcode-back" href="../../../../source/src.model.html#src.model.SeparationModel.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">extra_modules</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        SeparationModel takes a configuration file or dictionary that describes the model</span>
-<span class="sd">        structure, which is some combination of MelProjection, Embedding, RecurrentStack,</span>
-<span class="sd">        ConvolutionalStack, and other modules found in networks.modules. The configuration file</span>
-<span class="sd">        can be built using the helper functions in config.builders:</span>
-<span class="sd">            - build_dpcl_config: Builds the original deep clustering network, mapping each</span>
-<span class="sd">                time-frequency point to an embedding of some size. Takes as input a</span>
-<span class="sd">                log_spectrogram.</span>
-<span class="sd">            - build_mi_config: Builds a &quot;traditional&quot; mask inference network that maps the mixture</span>
-<span class="sd">                spectrogram to source estimates.  Takes as input a log_spectrogram and a</span>
-<span class="sd">                magnitude_spectrogram.</span>
-<span class="sd">            - build_chimera_config: Builds a Chimera network with a mask inference head and a</span>
-<span class="sd">                deep clustering head to map. A combination of MI and DPCL. Takes as input a</span>
-<span class="sd">                log_spectrogram and a magnitude_spectrogram.</span>
+<div class="viewcode-block" id="SeparationModel"><a class="viewcode-back" href="../../../../source/src.model.html#src.model.SeparationModel">[docs]</a>class SeparationModel(nn.Module):
+    def __init__(self, config, extra_modules=None):
+        &quot;&quot;&quot;
+        SeparationModel takes a configuration file or dictionary that describes the model
+        structure, which is some combination of MelProjection, Embedding, RecurrentStack,
+        ConvolutionalStack, and other modules found in networks.modules. The configuration file
+        can be built using the helper functions in config.builders:
+            - build_dpcl_config: Builds the original deep clustering network, mapping each
+                time-frequency point to an embedding of some size. Takes as input a
+                log_spectrogram.
+            - build_mi_config: Builds a &quot;traditional&quot; mask inference network that maps the mixture
+                spectrogram to source estimates.  Takes as input a log_spectrogram and a
+                magnitude_spectrogram.
+            - build_chimera_config: Builds a Chimera network with a mask inference head and a
+                deep clustering head to map. A combination of MI and DPCL. Takes as input a
+                log_spectrogram and a magnitude_spectrogram.
 
-<span class="sd">        References:</span>
-<span class="sd">            Hershey, J. R., Chen, Z., Le Roux, J., &amp; Watanabe, S. (2016, March).</span>
-<span class="sd">            Deep clustering: Discriminative embeddings for segmentation and separation.</span>
-<span class="sd">            In Acoustics, Speech and Signal Processing (ICASSP),</span>
-<span class="sd">            2016 IEEE International Conference on (pp. 31-35). IEEE.</span>
+        References:
+            Hershey, J. R., Chen, Z., Le Roux, J., &amp; Watanabe, S. (2016, March).
+            Deep clustering: Discriminative embeddings for segmentation and separation.
+            In Acoustics, Speech and Signal Processing (ICASSP),
+            2016 IEEE International Conference on (pp. 31-35). IEEE.
 
-<span class="sd">            Luo, Y., Chen, Z., Hershey, J. R., Le Roux, J., &amp; Mesgarani, N. (2017, March).</span>
-<span class="sd">            Deep clustering and conventional networks for music separation: Stronger together.</span>
-<span class="sd">            In Acoustics, Speech and Signal Processing (ICASSP),</span>
-<span class="sd">            2017 IEEE International Conference on (pp. 61-65). IEEE.</span>
+            Luo, Y., Chen, Z., Hershey, J. R., Le Roux, J., &amp; Mesgarani, N. (2017, March).
+            Deep clustering and conventional networks for music separation: Stronger together.
+            In Acoustics, Speech and Signal Processing (ICASSP),
+            2017 IEEE International Conference on (pp. 61-65). IEEE.
 
-<span class="sd">        Args:</span>
-<span class="sd">            config: (str, dict) Either a config dictionary built from one of the helper functions,</span>
-<span class="sd">                or the path to a json file containing a config built from the helper functions.</span>
+        Args:
+            config: (str, dict) Either a config dictionary built from one of the helper functions,
+                or the path to a json file containing a config built from the helper functions.
 
-<span class="sd">        Examples:</span>
-<span class="sd">            &gt;&gt;&gt; args = {</span>
-<span class="sd">            &gt;&gt;&gt;    &#39;num_frequencies&#39;: 512,</span>
-<span class="sd">            &gt;&gt;&gt;    &#39;num_mels&#39;: 128,</span>
-<span class="sd">            &gt;&gt;&gt;    &#39;sample_rate&#39;: 44100,</span>
-<span class="sd">            &gt;&gt;&gt;    &#39;hidden_size&#39;: 300,</span>
-<span class="sd">            &gt;&gt;&gt;    &#39;bidirectional&#39;: True,</span>
-<span class="sd">            &gt;&gt;&gt;    &#39;num_layers&#39;: 4,</span>
-<span class="sd">            &gt;&gt;&gt;    &#39;embedding_size&#39;: 20,</span>
-<span class="sd">            &gt;&gt;&gt;    &#39;num_sources&#39;: 4,</span>
-<span class="sd">            &gt;&gt;&gt;    &#39;embedding_activation&#39;: [&#39;sigmoid&#39;, &#39;unitnorm&#39;],</span>
-<span class="sd">            &gt;&gt;&gt;    &#39;mask_activation&#39;: [&#39;softmax&#39;]</span>
-<span class="sd">            &gt;&gt;&gt; }</span>
-<span class="sd">            &gt;&gt;&gt; config = helpers.build_chimera_config(args)</span>
-<span class="sd">            &gt;&gt;&gt; with open(&#39;config.json&#39;, &#39;w&#39;) as f:</span>
-<span class="sd">            &gt;&gt;&gt;    json.dump(config, f)</span>
-<span class="sd">            &gt;&gt;&gt; model = SeparationModel(&#39;config.json&#39;)</span>
-<span class="sd">            &gt;&gt;&gt; test_data = np.random.random((1, 100, 512))</span>
-<span class="sd">            &gt;&gt;&gt; data = torch.from_numpy(test_data).float()</span>
-<span class="sd">            &gt;&gt;&gt; output = model({&#39;log_spectrogram&#39;: data,</span>
-<span class="sd">            &gt;&gt;&gt;                &#39;magnitude_spectrogram&#39;: data})</span>
+        Examples:
+            &gt;&gt;&gt; args = {
+            &gt;&gt;&gt;    &#39;num_frequencies&#39;: 512,
+            &gt;&gt;&gt;    &#39;num_mels&#39;: 128,
+            &gt;&gt;&gt;    &#39;sample_rate&#39;: 44100,
+            &gt;&gt;&gt;    &#39;hidden_size&#39;: 300,
+            &gt;&gt;&gt;    &#39;bidirectional&#39;: True,
+            &gt;&gt;&gt;    &#39;num_layers&#39;: 4,
+            &gt;&gt;&gt;    &#39;embedding_size&#39;: 20,
+            &gt;&gt;&gt;    &#39;num_sources&#39;: 4,
+            &gt;&gt;&gt;    &#39;embedding_activation&#39;: [&#39;sigmoid&#39;, &#39;unitnorm&#39;],
+            &gt;&gt;&gt;    &#39;mask_activation&#39;: [&#39;softmax&#39;]
+            &gt;&gt;&gt; }
+            &gt;&gt;&gt; config = helpers.build_chimera_config(args)
+            &gt;&gt;&gt; with open(&#39;config.json&#39;, &#39;w&#39;) as f:
+            &gt;&gt;&gt;    json.dump(config, f)
+            &gt;&gt;&gt; model = SeparationModel(&#39;config.json&#39;)
+            &gt;&gt;&gt; test_data = np.random.random((1, 100, 512))
+            &gt;&gt;&gt; data = torch.from_numpy(test_data).float()
+            &gt;&gt;&gt; output = model({&#39;log_spectrogram&#39;: data,
+            &gt;&gt;&gt;                &#39;magnitude_spectrogram&#39;: data})
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">SeparationModel</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">config</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s1">&#39;json&#39;</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
-                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                    <span class="n">config</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">config</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        &quot;&quot;&quot;
+        super(SeparationModel, self).__init__()
+        if type(config) is str:
+            if &#39;json&#39; in config:
+                with open(config, &#39;r&#39;) as f:
+                    config = json.load(f)
+            else:
+                config = json.loads(config)
 
-        <span class="c1"># Add extra modules to modules</span>
-        <span class="k">if</span> <span class="n">extra_modules</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">extra_modules</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">modules</span><span class="p">):</span>
-                    <span class="nb">setattr</span><span class="p">(</span>
-                        <span class="n">modules</span><span class="p">,</span> 
-                        <span class="n">name</span><span class="p">,</span>
-                        <span class="nb">getattr</span><span class="p">(</span><span class="n">extra_modules</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-                    <span class="p">)</span>
+        # Add extra modules to modules
+        if extra_modules:
+            for name in dir(extra_modules):
+                if name not in dir(modules):
+                    setattr(
+                        modules, 
+                        name,
+                        getattr(extra_modules, name)
+                    )
 
-        <span class="n">module_dict</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">input</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">module_key</span> <span class="ow">in</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;modules&#39;</span><span class="p">]:</span>
-            <span class="n">module</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;modules&#39;</span><span class="p">][</span><span class="n">module_key</span><span class="p">]</span>
-            <span class="k">if</span> <span class="s1">&#39;input_shape&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">module</span><span class="p">:</span>
-                <span class="n">class_func</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">modules</span><span class="p">,</span> <span class="n">module</span><span class="p">[</span><span class="s1">&#39;class&#39;</span><span class="p">])</span>
-                <span class="n">module_dict</span><span class="p">[</span><span class="n">module_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">class_func</span><span class="p">(</span><span class="o">**</span><span class="n">module</span><span class="p">[</span><span class="s1">&#39;args&#39;</span><span class="p">])</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="p">[</span><span class="n">module_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">module</span><span class="p">[</span><span class="s1">&#39;input_shape&#39;</span><span class="p">]</span>
+        module_dict = {}
+        self.input = {}
+        for module_key in config[&#39;modules&#39;]:
+            module = config[&#39;modules&#39;][module_key]
+            if &#39;input_shape&#39; not in module:
+                class_func = getattr(modules, module[&#39;class&#39;])
+                module_dict[module_key] = class_func(**module[&#39;args&#39;])
+            else:
+                self.input[module_key] = module[&#39;input_shape&#39;]
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">layers</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ModuleDict</span><span class="p">(</span><span class="n">module_dict</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">connections</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;connections&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">output_keys</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span></div>
+        self.layers = nn.ModuleDict(module_dict)
+        self.connections = config[&#39;connections&#39;]
+        self.output_keys = config[&#39;output&#39;]
+        self.config = config
 
-<div class="viewcode-block" id="SeparationModel.forward"><a class="viewcode-back" href="../../../../source/src.model.html#src.model.SeparationModel.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Args:</span>
-<span class="sd">            data: (dict) a dictionary containing the input data for the model. Should match the input_keys</span>
-<span class="sd">                in self.input.</span>
+<div class="viewcode-block" id="SeparationModel.forward"><a class="viewcode-back" href="../../../../source/src.model.html#src.model.SeparationModel.forward">[docs]</a>    def forward(self, data):
+        &quot;&quot;&quot;
+        Args:
+            data: (dict) a dictionary containing the input data for the model. Should match the input_keys
+                in self.input.
 
-<span class="sd">        Returns:</span>
+        Returns:
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">name</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="p">)):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Not all keys present in data! Needs {&quot;, &quot;.join(self.input)}&#39;</span><span class="p">)</span>
-        <span class="n">output</span> <span class="o">=</span> <span class="p">{}</span>
+        &quot;&quot;&quot;
+        if not all(name in list(data) for name in list(self.input)):
+            raise ValueError(f&#39;Not all keys present in data! Needs {&quot;, &quot;.join(self.input)}&#39;)
+        output = {}
 
-        <span class="k">for</span> <span class="n">connection</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">connections</span><span class="p">:</span>
-            <span class="n">layer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">connection</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
-            <span class="n">input_data</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">connection</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
-                <span class="n">input_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">output</span> <span class="k">else</span> <span class="n">data</span><span class="p">[</span><span class="n">c</span><span class="p">])</span>
-            <span class="n">_output</span> <span class="o">=</span> <span class="n">layer</span><span class="p">(</span><span class="o">*</span><span class="n">input_data</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">_output</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">_output</span><span class="p">:</span>
-                    <span class="n">output</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{connection[0]}</span><span class="s1">:</span><span class="si">{k}</span><span class="s1">&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_output</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">output</span><span class="p">[</span><span class="n">connection</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">_output</span>
-        <span class="k">return</span> <span class="p">{</span><span class="n">o</span><span class="p">:</span> <span class="n">output</span><span class="p">[</span><span class="n">o</span><span class="p">]</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_keys</span><span class="p">}</span></div>
+        for connection in self.connections:
+            layer = self.layers[connection[0]]
+            input_data = []
+            for c in connection[1]:
+                input_data.append(output[c] if c in output else data[c])
+            _output = layer(*input_data)
+            if isinstance(_output, dict):
+                for k in _output:
+                    output[f&#39;{connection[0]}:{k}&#39;] = _output[k]
+            else:
+                output[connection[0]] = _output
+        return {o: output[o] for o in self.output_keys}</div>
 
-<div class="viewcode-block" id="SeparationModel.project_data"><a class="viewcode-back" href="../../../../source/src.model.html#src.model.SeparationModel.project_data">[docs]</a>    <span class="k">def</span> <span class="nf">project_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">clamp</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="k">if</span> <span class="s1">&#39;mel_projection&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">:</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="s1">&#39;mel_projection&#39;</span><span class="p">](</span><span class="n">data</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">clamp</span><span class="p">:</span>
-                <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">data</span></div>
+<div class="viewcode-block" id="SeparationModel.project_data"><a class="viewcode-back" href="../../../../source/src.model.html#src.model.SeparationModel.project_data">[docs]</a>    def project_data(self, data, clamp=False):
+        if &#39;mel_projection&#39; in self.layers:
+            data = self.layers[&#39;mel_projection&#39;](data)
+            if clamp:
+                data = data.clamp(0.0, 1.0)
+        return data</div>
 
-<div class="viewcode-block" id="SeparationModel.save"><a class="viewcode-back" href="../../../../source/src.model.html#src.model.SeparationModel.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Saves a SeparationModel into a location into a dictionary with the</span>
-<span class="sd">        weights and model configuration.</span>
-<span class="sd">        Args:</span>
-<span class="sd">            location: (str) Where you want the model saved, as a path.</span>
+<div class="viewcode-block" id="SeparationModel.save"><a class="viewcode-back" href="../../../../source/src.model.html#src.model.SeparationModel.save">[docs]</a>    def save(self, location, metadata=None):
+        &quot;&quot;&quot;
+        Saves a SeparationModel into a location into a dictionary with the
+        weights and model configuration.
+        Args:
+            location: (str) Where you want the model saved, as a path.
 
-<span class="sd">        Returns:</span>
+        Returns:
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">save_dict</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;state_dict&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span>
-            <span class="s1">&#39;config&#39;</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
-        <span class="p">}</span>
-        <span class="n">save_dict</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">save_dict</span><span class="p">,</span> <span class="o">**</span><span class="p">(</span><span class="n">metadata</span> <span class="k">if</span> <span class="n">metadata</span> <span class="k">else</span> <span class="p">{})}</span>
-        <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">save_dict</span><span class="p">,</span> <span class="n">location</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">location</span></div>
+        &quot;&quot;&quot;
+        save_dict = {
+            &#39;state_dict&#39;: self.state_dict(),
+            &#39;config&#39;: json.dumps(self.config)
+        }
+        save_dict = {**save_dict, **(metadata if metadata else {})}
+        torch.save(save_dict, location)
+        return location</div>
     
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">output</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span>
-        <span class="n">num_parameters</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">:</span>
-                <span class="n">num_parameters</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumprod</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">size</span><span class="p">())[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="n">output</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Number of parameters: </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">num_parameters</span>
-        <span class="k">return</span> <span class="n">output</span></div>
+    def __repr__(self):
+        output = super().__repr__()
+        num_parameters = 0
+        for p in self.parameters():
+            if p.requires_grad:
+                num_parameters += np.cumprod(p.size())[-1]
+        output += &#39;\nNumber of parameters: %d&#39; % num_parameters
+        return output</div>
 </pre></div>
 
            </div>

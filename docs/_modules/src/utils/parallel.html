@@ -87,9 +87,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../experiments.html">Configuring an experiment</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/runners.html">runners package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/scripts.html">scripts package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/src.html">src package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/runners.html">runners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/scripts.html">scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/src.html">src</a></li>
 </ul>
 
             
@@ -153,60 +153,60 @@
            <div itemprop="articleBody">
             
   <h1>Source code for src.utils.parallel</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">concurrent.futures</span> <span class="kn">import</span> <span class="n">ProcessPoolExecutor</span><span class="p">,</span> <span class="n">as_completed</span>
-<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span></span>from concurrent.futures import ProcessPoolExecutor, as_completed
+from tqdm import tqdm
 
-<div class="viewcode-block" id="parallel_process"><a class="viewcode-back" href="../../../source/src.utils.html#src.utils.parallel.parallel_process">[docs]</a><span class="k">def</span> <span class="nf">parallel_process</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">use_kwargs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">front_num</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        A parallel version of the map function with a progress bar.</span>
+<div class="viewcode-block" id="parallel_process"><a class="viewcode-back" href="../../../source/src.utils.html#src.utils.parallel.parallel_process">[docs]</a>def parallel_process(array, function, n_jobs=4, use_kwargs=False, front_num=0):
+    &quot;&quot;&quot;
+    A parallel version of the map function with a progress bar.
 
-<span class="sd">        Args:</span>
-<span class="sd">            array (array-like): An array to iterate over.</span>
-<span class="sd">            function (function): A python function to apply to the elements of array</span>
-<span class="sd">            n_jobs (int, default=16): The number of cores to use</span>
-<span class="sd">            use_kwargs (boolean, default=False): Whether to consider the elements of array as dictionaries of</span>
-<span class="sd">                keyword arguments to function</span>
-<span class="sd">            front_num (int, default=3): The number of iterations to run serially before kicking off the parallel job.</span>
-<span class="sd">                Useful for catching bugs</span>
+    Args:
+        array (array-like): An array to iterate over.
+        function (function): A python function to apply to the elements of array
+        n_jobs (int, default=16): The number of cores to use
+        use_kwargs (boolean, default=False): Whether to consider the elements of array as dictionaries of
+            keyword arguments to function
+        front_num (int, default=3): The number of iterations to run serially before kicking off the parallel job.
+            Useful for catching bugs
 
-<span class="sd">        Returns:</span>
-<span class="sd">            list: A list containing the results of each function on each of the arguments </span>
-<span class="sd">            in the array::</span>
-<span class="sd">                </span>
-<span class="sd">                [function(array[0]), function(array[1]), ...].</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1">#We run the first few iterations serially to catch bugs</span>
-    <span class="k">if</span> <span class="n">front_num</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">front</span> <span class="o">=</span> <span class="p">[</span><span class="n">function</span><span class="p">(</span><span class="o">**</span><span class="n">a</span><span class="p">)</span> <span class="k">if</span> <span class="n">use_kwargs</span> <span class="k">else</span> <span class="n">function</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">array</span><span class="p">[:</span><span class="n">front_num</span><span class="p">]]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">front</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="c1">#If we set n_jobs to 1, just run a list comprehension. This is useful for benchmarking and debugging.</span>
-    <span class="k">if</span> <span class="n">n_jobs</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">front</span> <span class="o">+</span> <span class="p">[</span><span class="n">function</span><span class="p">(</span><span class="o">**</span><span class="n">a</span><span class="p">)</span> <span class="k">if</span> <span class="n">use_kwargs</span> <span class="k">else</span> <span class="n">function</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">array</span><span class="p">[</span><span class="n">front_num</span><span class="p">:])]</span>
-    <span class="c1">#Assemble the workers</span>
-    <span class="k">with</span> <span class="n">ProcessPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">)</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
-        <span class="c1">#Pass the elements of array into function</span>
-        <span class="k">if</span> <span class="n">use_kwargs</span><span class="p">:</span>
-            <span class="n">futures</span> <span class="o">=</span> <span class="p">[</span><span class="n">pool</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="o">**</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">array</span><span class="p">[</span><span class="n">front_num</span><span class="p">:]]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">futures</span> <span class="o">=</span> <span class="p">[</span><span class="n">pool</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">array</span><span class="p">[</span><span class="n">front_num</span><span class="p">:]]</span>
-        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;total&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">futures</span><span class="p">),</span>
-            <span class="s1">&#39;unit&#39;</span><span class="p">:</span> <span class="s1">&#39;it&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;unit_scale&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-            <span class="s1">&#39;leave&#39;</span><span class="p">:</span> <span class="kc">True</span>
-        <span class="p">}</span>
-            <span class="c1">#Print out the progress as tasks complete</span>
-        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">as_completed</span><span class="p">(</span><span class="n">futures</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-            <span class="k">pass</span>
-    <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="c1">#Get the results from the futures.</span>
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">future</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">enumerate</span><span class="p">(</span><span class="n">futures</span><span class="p">)):</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">())</span>
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">front</span> <span class="o">+</span> <span class="n">out</span></div>
+    Returns:
+        list: A list containing the results of each function on each of the arguments 
+        in the array::
+            
+            [function(array[0]), function(array[1]), ...].
+    &quot;&quot;&quot;
+    #We run the first few iterations serially to catch bugs
+    if front_num &gt; 0:
+        front = [function(**a) if use_kwargs else function(a) for a in array[:front_num]]
+    else:
+        front = []
+    #If we set n_jobs to 1, just run a list comprehension. This is useful for benchmarking and debugging.
+    if n_jobs==1:
+        return front + [function(**a) if use_kwargs else function(a) for a in tqdm(array[front_num:])]
+    #Assemble the workers
+    with ProcessPoolExecutor(max_workers=n_jobs) as pool:
+        #Pass the elements of array into function
+        if use_kwargs:
+            futures = [pool.submit(function, **a) for a in array[front_num:]]
+        else:
+            futures = [pool.submit(function, a) for a in array[front_num:]]
+        kwargs = {
+            &#39;total&#39;: len(futures),
+            &#39;unit&#39;: &#39;it&#39;,
+            &#39;unit_scale&#39;: True,
+            &#39;leave&#39;: True
+        }
+            #Print out the progress as tasks complete
+        for f in tqdm(as_completed(futures), **kwargs):
+            pass
+    out = []
+    #Get the results from the futures.
+    for i, future in tqdm(enumerate(futures)):
+        try:
+            out.append(future.result())
+        except Exception as e:
+            out.append(e)
+    return front + out</div>
 </pre></div>
 
            </div>

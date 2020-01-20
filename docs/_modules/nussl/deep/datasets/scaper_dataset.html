@@ -87,9 +87,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../experiments.html">Configuring an experiment</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../../source/runners.html">runners package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../source/scripts.html">scripts package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../source/src.html">src package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../source/runners.html">runners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../source/scripts.html">scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../source/src.html">src</a></li>
 </ul>
 
             
@@ -153,89 +153,89 @@
            <div itemprop="articleBody">
             
   <h1>Source code for nussl.deep.datasets.scaper_dataset</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">.base_dataset</span> <span class="kn">import</span> <span class="n">BaseDataset</span>
-<span class="kn">import</span> <span class="nn">librosa</span>
-<span class="kn">import</span> <span class="nn">jams</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span></span>from .base_dataset import BaseDataset
+import librosa
+import jams
+import os
+import numpy as np
 
-<div class="viewcode-block" id="Scaper"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.Scaper">[docs]</a><span class="k">class</span> <span class="nc">Scaper</span><span class="p">(</span><span class="n">BaseDataset</span><span class="p">):</span>
-<div class="viewcode-block" id="Scaper.__init__"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.Scaper.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">folder</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;This dataset expects that your data was mixed using Scaper, which generates</span>
-<span class="sd">        mixtures from a given source library. Scaper generates a bunch of JSON files</span>
-<span class="sd">        which are then parsed by this dataset class. Each JSON file contains all of the</span>
-<span class="sd">        metadata to find the sources that went into the mixture, the mixture itself (must</span>
-<span class="sd">        have the same name as the JSON file but with a different extension), and the </span>
-<span class="sd">        classes of the sources. This JSON file is processed here to load the mixture</span>
-<span class="sd">        and sources, and label the sources.</span>
+<div class="viewcode-block" id="Scaper"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.Scaper">[docs]</a>class Scaper(BaseDataset):
+    def __init__(self, folder, options):
+        &quot;&quot;&quot;This dataset expects that your data was mixed using Scaper, which generates
+        mixtures from a given source library. Scaper generates a bunch of JSON files
+        which are then parsed by this dataset class. Each JSON file contains all of the
+        metadata to find the sources that went into the mixture, the mixture itself (must
+        have the same name as the JSON file but with a different extension), and the 
+        classes of the sources. This JSON file is processed here to load the mixture
+        and sources, and label the sources.
 
-<span class="sd">        For now, Scaper datasets must be mixed by this fork of Scaper, kept here:</span>
-<span class="sd">            https://github.com/pseeth/scaper</span>
+        For now, Scaper datasets must be mixed by this fork of Scaper, kept here:
+            https://github.com/pseeth/scaper
 
-<span class="sd">        This fork saves the sources alongside the mixture. Datasets created using this</span>
-<span class="sd">        fork can be immediately used for training a deep source separation model by</span>
-<span class="sd">        using this Dataset class.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">Scaper</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+        This fork saves the sources alongside the mixture. Datasets created using this
+        fork can be immediately used for training a deep source separation model by
+        using this Dataset class.
+        &quot;&quot;&quot;
+        super(Scaper, self).__init__(folder, options)
 
-        <span class="c1">#initialization</span>
-        <span class="n">jam_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">jam</span> <span class="o">=</span> <span class="n">jams</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">jam_file</span><span class="p">)</span>
+        #initialization
+        jam_file = self.files[0]
+        jam = jams.load(jam_file)
         
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;source_labels&#39;</span><span class="p">]:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;source_labels&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">jam</span><span class="o">.</span><span class="n">annotations</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;sandbox&#39;</span><span class="p">][</span><span class="s1">&#39;scaper&#39;</span><span class="p">][</span><span class="s1">&#39;fg_labels&#39;</span><span class="p">]</span>
+        if not self.options[&#39;source_labels&#39;]:
+            self.options[&#39;source_labels&#39;] = jam.annotations[0][&#39;sandbox&#39;][&#39;scaper&#39;][&#39;fg_labels&#39;]
         
-        <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;group_sources&#39;</span><span class="p">]:</span>
-            <span class="n">group_name</span> <span class="o">=</span> <span class="s1">&#39;+&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;source_labels&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">group_name</span><span class="p">)</span></div>
+        for group in self.options[&#39;group_sources&#39;]:
+            group_name = &#39;+&#39;.join(group)
+            self.options[&#39;source_labels&#39;].append(group_name)
 
-<div class="viewcode-block" id="Scaper.get_files"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.Scaper.get_files">[docs]</a>    <span class="k">def</span> <span class="nf">get_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">folder</span><span class="p">):</span>
-        <span class="n">files</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
-            <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.wav&#39;</span><span class="p">,</span> <span class="s1">&#39;.jams&#39;</span><span class="p">))</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span> 
-            <span class="k">if</span> <span class="s1">&#39;.wav&#39;</span> <span class="ow">in</span> <span class="n">x</span>
-        <span class="p">])</span>
-        <span class="k">return</span> <span class="n">files</span></div>
+<div class="viewcode-block" id="Scaper.get_files"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.Scaper.get_files">[docs]</a>    def get_files(self, folder):
+        files = sorted(
+            [os.path.join(folder, x.replace(&#39;.wav&#39;, &#39;.jams&#39;)) for x in os.listdir(folder) 
+            if &#39;.wav&#39; in x
+        ])
+        return files</div>
 
-<div class="viewcode-block" id="Scaper.load_audio_files"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.Scaper.load_audio_files">[docs]</a>    <span class="k">def</span> <span class="nf">load_audio_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">):</span>
-        <span class="n">mix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_audio_file</span><span class="p">(</span><span class="n">file_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.jams&#39;</span><span class="p">,</span> <span class="s1">&#39;.wav&#39;</span><span class="p">))</span>
-        <span class="n">source_folder</span> <span class="o">=</span> <span class="n">file_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.jams&#39;</span><span class="p">,</span> <span class="s1">&#39;_sources&#39;</span><span class="p">)</span>
-        <span class="n">jam</span> <span class="o">=</span> <span class="n">jams</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">jam</span><span class="o">.</span><span class="n">annotations</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;data&#39;</span><span class="p">]</span>      
-        <span class="n">classes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;source_labels&#39;</span><span class="p">]</span>
-        <span class="n">source_dict</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">lengths</span> <span class="o">=</span> <span class="p">[</span><span class="n">mix</span><span class="o">.</span><span class="n">signal_length</span><span class="p">]</span>
+<div class="viewcode-block" id="Scaper.load_audio_files"><a class="viewcode-back" href="../../../../source/src.dataset.html#src.dataset.Scaper.load_audio_files">[docs]</a>    def load_audio_files(self, file_name):
+        mix = self._load_audio_file(file_name.replace(&#39;.jams&#39;, &#39;.wav&#39;))
+        source_folder = file_name.replace(&#39;.jams&#39;, &#39;_sources&#39;)
+        jam = jams.load(file_name)
+        data = jam.annotations[0][&#39;data&#39;]      
+        classes = self.options[&#39;source_labels&#39;]
+        source_dict = {}
+        lengths = [mix.signal_length]
 
-        <span class="k">for</span> <span class="n">datum</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
-            <span class="n">d</span> <span class="o">=</span> <span class="n">datum</span><span class="o">.</span><span class="n">value</span>
-            <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;role&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;foreground&#39;</span><span class="p">:</span>
-                <span class="n">source_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">source_folder</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;audio_path&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;.wav&#39;</span><span class="p">)</span>
-                <span class="n">source_dict</span><span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_audio_file</span><span class="p">(</span><span class="n">source_path</span><span class="p">)</span>
-                <span class="n">lengths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">source_dict</span><span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">signal_length</span><span class="p">)</span>
+        for datum in data:
+            d = datum.value
+            if d[&#39;role&#39;] == &#39;foreground&#39;:
+                source_path = os.path.join(source_folder, d[&#39;audio_path&#39;] + &#39;.wav&#39;)
+                source_dict[d[&#39;label&#39;]] = self._load_audio_file(source_path)
+                lengths.append(source_dict[d[&#39;label&#39;]].signal_length)
 
-        <span class="n">min_length</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">lengths</span><span class="p">)</span>
-        <span class="n">mix</span><span class="o">.</span><span class="n">audio_data</span> <span class="o">=</span> <span class="n">mix</span><span class="o">.</span><span class="n">audio_data</span><span class="p">[:,</span> <span class="p">:</span><span class="n">min_length</span><span class="p">]</span>
-        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">source_dict</span><span class="p">:</span>
-            <span class="n">source_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">audio_data</span> <span class="o">=</span> <span class="n">source_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">audio_data</span><span class="p">[:,</span> <span class="p">:</span><span class="n">min_length</span><span class="p">]</span>
+        min_length = min(lengths)
+        mix.audio_data = mix.audio_data[:, :min_length]
+        for key in source_dict:
+            source_dict[key].audio_data = source_dict[key].audio_data[:, :min_length]
 
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s1">&#39;group_sources&#39;</span><span class="p">]):</span>
-            <span class="n">combined</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">group</span><span class="p">:</span>
-                <span class="n">combined</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">source_dict</span><span class="p">[</span><span class="n">label</span><span class="p">])</span>
-                <span class="n">source_dict</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
-            <span class="n">group_name</span> <span class="o">=</span> <span class="s1">&#39;+&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
-            <span class="n">source_dict</span><span class="p">[</span><span class="n">group_name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">combined</span><span class="p">)</span>
+        for i, group in enumerate(self.options[&#39;group_sources&#39;]):
+            combined = []
+            for label in group:
+                combined.append(source_dict[label])
+                source_dict.pop(label)
+            group_name = &#39;+&#39;.join(group)
+            source_dict[group_name] = sum(combined)
 
-        <span class="n">sources</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">one_hots</span> <span class="o">=</span> <span class="p">[]</span>
+        sources = []
+        one_hots = []
 
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">classes</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">source_dict</span><span class="p">:</span>
-                <span class="n">sources</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">source_dict</span><span class="p">[</span><span class="n">label</span><span class="p">])</span>
-                <span class="n">one_hot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">classes</span><span class="p">))</span>
-                <span class="n">one_hot</span><span class="p">[</span><span class="n">classes</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">label</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
-                <span class="n">one_hots</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">one_hot</span><span class="p">)</span>
-        <span class="n">one_hots</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">one_hots</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">mix</span><span class="p">,</span> <span class="n">sources</span><span class="p">,</span> <span class="n">one_hots</span></div></div>
+        for i, label in enumerate(classes):
+            if label in source_dict:
+                sources.append(source_dict[label])
+                one_hot = np.zeros(len(classes))
+                one_hot[classes.index(label)] = 1
+                one_hots.append(one_hot)
+        one_hots = np.stack(one_hots)
+        return mix, sources, one_hots</div></div>
 </pre></div>
 
            </div>

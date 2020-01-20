@@ -87,9 +87,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../experiments.html">Configuring an experiment</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/runners.html">runners package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/scripts.html">scripts package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/src.html">src package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/runners.html">runners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/scripts.html">scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/src.html">src</a></li>
 </ul>
 
             
@@ -153,143 +153,148 @@
            <div itemprop="articleBody">
             
   <h1>Source code for src.dataset.scaper_mixer</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">..utils.parallel</span> <span class="kn">import</span> <span class="n">parallel_process</span>
-<span class="kn">from</span> <span class="nn">scaper</span> <span class="kn">import</span> <span class="n">Scaper</span><span class="p">,</span> <span class="n">generate_from_jams</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span></span>import os
+from ..utils.parallel import parallel_process
+from scaper import Scaper, generate_from_jams
+import numpy as np
+from tqdm import tqdm
 
-<span class="kn">import</span> <span class="nn">subprocess</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">copy</span>
+import subprocess
+import os
+import logging
+import copy
 
-<div class="viewcode-block" id="make_one_mixture"><a class="viewcode-back" href="../../../source/src.dataset.html#src.dataset.scaper_mixer.make_one_mixture">[docs]</a><span class="k">def</span> <span class="nf">make_one_mixture</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">path_to_file</span><span class="p">,</span> <span class="n">num_sources</span><span class="p">,</span> <span class="n">event_parameters</span><span class="p">,</span> <span class="n">allow_repeated_label</span><span class="p">):</span>
-    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_sources</span><span class="p">):</span>
-        <span class="n">sc</span><span class="o">.</span><span class="n">add_event</span><span class="p">(</span><span class="o">**</span><span class="n">event_parameters</span><span class="p">)</span>
-    <span class="n">sc</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span>
-        <span class="n">path_to_file</span><span class="p">,</span> 
-        <span class="n">path_to_file</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.wav&#39;</span><span class="p">,</span> <span class="s1">&#39;.jams&#39;</span><span class="p">),</span> 
-        <span class="n">no_audio</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">allow_repeated_label</span><span class="o">=</span><span class="n">allow_repeated_label</span>
-    <span class="p">)</span>
-    <span class="n">sc</span><span class="o">.</span><span class="n">fg_spec</span> <span class="o">=</span> <span class="p">[]</span></div>
+<div class="viewcode-block" id="make_one_mixture"><a class="viewcode-back" href="../../../source/src.dataset.html#src.dataset.scaper_mixer.make_one_mixture">[docs]</a>def make_one_mixture(sc, path_to_file, num_sources, event_parameters, allow_repeated_label):
+    for j in range(num_sources):
+        sc.add_event(**event_parameters)
+    sc.generate(
+        path_to_file, 
+        path_to_file.replace(&#39;.wav&#39;, &#39;.jams&#39;), 
+        no_audio=True,
+        allow_repeated_label=allow_repeated_label
+    )
+    sc.fg_spec = []</div>
 
-<div class="viewcode-block" id="instantiate_and_get_event_spec"><a class="viewcode-back" href="../../../source/src.dataset.html#src.dataset.scaper_mixer.instantiate_and_get_event_spec">[docs]</a><span class="k">def</span> <span class="nf">instantiate_and_get_event_spec</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">master_label</span><span class="p">,</span> <span class="n">scene_duration</span><span class="p">,</span> <span class="n">event_parameters</span><span class="p">):</span>
-    <span class="n">sc</span><span class="o">.</span><span class="n">fg_spec</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">_event_parameters</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">event_parameters</span><span class="p">)</span>
-    <span class="n">_event_parameters</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;const&#39;</span><span class="p">,</span> <span class="n">master_label</span><span class="p">)</span>
-    <span class="n">sc</span><span class="o">.</span><span class="n">add_event</span><span class="p">(</span><span class="o">**</span><span class="n">_event_parameters</span><span class="p">)</span>
-    <span class="n">event</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_instantiate_event</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">fg_spec</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-    <span class="n">sc</span><span class="o">.</span><span class="n">fg_spec</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">return</span> <span class="n">sc</span><span class="p">,</span> <span class="n">event</span></div>
+<div class="viewcode-block" id="instantiate_and_get_event_spec"><a class="viewcode-back" href="../../../source/src.dataset.html#src.dataset.scaper_mixer.instantiate_and_get_event_spec">[docs]</a>def instantiate_and_get_event_spec(sc, master_label, scene_duration, event_parameters):
+    sc.fg_spec = []
+    _event_parameters = copy.deepcopy(event_parameters)
+    _event_parameters[&#39;label&#39;] = (&#39;const&#39;, master_label)
+    sc.add_event(**_event_parameters)
+    event = sc._instantiate_event(sc.fg_spec[-1])
+    sc.fg_spec = []
+    return sc, event</div>
 
-<div class="viewcode-block" id="make_one_mixture_coherent"><a class="viewcode-back" href="../../../source/src.dataset.html#src.dataset.scaper_mixer.make_one_mixture_coherent">[docs]</a><span class="k">def</span> <span class="nf">make_one_mixture_coherent</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">path_to_file</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">event_parameters</span><span class="p">,</span> <span class="n">allow_repeated_label</span><span class="p">):</span>
-    <span class="n">sc</span><span class="p">,</span> <span class="n">event</span> <span class="o">=</span> <span class="n">instantiate_and_get_event_spec</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">labels</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">sc</span><span class="o">.</span><span class="n">duration</span><span class="p">,</span> <span class="n">event_parameters</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">sc</span><span class="o">.</span><span class="n">add_event</span><span class="p">(</span>
-                <span class="n">label</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;const&#39;</span><span class="p">,</span> <span class="n">label</span><span class="p">),</span>
-                <span class="n">source_file</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;const&#39;</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">source_file</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">label</span><span class="p">)),</span>
-                <span class="n">source_time</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;const&#39;</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">source_time</span><span class="p">),</span>
-                <span class="n">event_time</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;const&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
-                <span class="n">event_duration</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;const&#39;</span><span class="p">,</span> <span class="n">sc</span><span class="o">.</span><span class="n">duration</span><span class="p">),</span>
-                <span class="n">snr</span><span class="o">=</span><span class="n">event_parameters</span><span class="p">[</span><span class="s1">&#39;snr&#39;</span><span class="p">],</span>
-                <span class="n">pitch_shift</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;const&#39;</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">pitch_shift</span><span class="p">),</span>
-                <span class="n">time_stretch</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;const&#39;</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">time_stretch</span><span class="p">)</span>
-            <span class="p">)</span>
-        <span class="k">except</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Got an error for </span><span class="si">{label}</span><span class="s2"> @ </span><span class="si">{_source_file}</span><span class="s2">. Moving on...&quot;</span><span class="p">)</span>
-    <span class="n">sc</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span>
-        <span class="n">path_to_file</span><span class="p">,</span> 
-        <span class="n">path_to_file</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.wav&#39;</span><span class="p">,</span> <span class="s1">&#39;.jams&#39;</span><span class="p">),</span> 
-        <span class="n">no_audio</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
-        <span class="n">allow_repeated_label</span><span class="o">=</span><span class="n">allow_repeated_label</span>
-    <span class="p">)</span>
-    <span class="n">sc</span><span class="o">.</span><span class="n">fg_spec</span> <span class="o">=</span> <span class="p">[]</span></div>
+<div class="viewcode-block" id="make_one_mixture_coherent"><a class="viewcode-back" href="../../../source/src.dataset.html#src.dataset.scaper_mixer.make_one_mixture_coherent">[docs]</a>def make_one_mixture_coherent(sc, path_to_file, labels, event_parameters, allow_repeated_label):
+    sc, event = instantiate_and_get_event_spec(sc, labels[0], sc.duration, event_parameters)
+    for label in labels:
+        try:
+            sc.add_event(
+                label=(&#39;const&#39;, label),
+                source_file=(&#39;const&#39;, event.source_file.replace(labels[0], label)),
+                source_time=(&#39;const&#39;, event.source_time),
+                event_time=(&#39;const&#39;, 0),
+                event_duration=(&#39;const&#39;, sc.duration),
+                snr=event_parameters[&#39;snr&#39;],
+                pitch_shift=(&#39;const&#39;, event.pitch_shift),
+                time_stretch=(&#39;const&#39;, event.time_stretch)
+            )
+        except:
+            logging.exception(f&quot;Got an error for {label} @ {_source_file}. Moving on...&quot;)
+    sc.generate(
+        path_to_file, 
+        path_to_file.replace(&#39;.wav&#39;, &#39;.jams&#39;), 
+        no_audio=True, 
+        allow_repeated_label=allow_repeated_label
+    )
+    sc.fg_spec = []</div>
 
-<div class="viewcode-block" id="synthesize_one_mixture"><a class="viewcode-back" href="../../../source/src.dataset.html#src.dataset.scaper_mixer.synthesize_one_mixture">[docs]</a><span class="k">def</span> <span class="nf">synthesize_one_mixture</span><span class="p">(</span><span class="n">jams_file</span><span class="p">):</span>
-    <span class="n">wav_file</span> <span class="o">=</span> <span class="n">jams_file</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.jams&#39;</span><span class="p">,</span> <span class="s1">&#39;.wav&#39;</span><span class="p">)</span>
-    <span class="n">generate_from_jams</span><span class="p">(</span><span class="n">jams_file</span><span class="p">,</span> <span class="n">wav_file</span><span class="p">,</span> <span class="n">save_sources</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+<div class="viewcode-block" id="synthesize_one_mixture"><a class="viewcode-back" href="../../../source/src.dataset.html#src.dataset.scaper_mixer.synthesize_one_mixture">[docs]</a>def synthesize_one_mixture(jams_file):
+    wav_file = jams_file.replace(&#39;.jams&#39;, &#39;.wav&#39;)
+    generate_from_jams(jams_file, wav_file, save_sources=True)</div>
 
-<div class="viewcode-block" id="synthesize_mixtures_in_parallel"><a class="viewcode-back" href="../../../source/src.dataset.html#src.dataset.scaper_mixer.synthesize_mixtures_in_parallel">[docs]</a><span class="k">def</span> <span class="nf">synthesize_mixtures_in_parallel</span><span class="p">(</span><span class="n">target_path</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">):</span>
-    <span class="n">jam_files</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">target_path</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">target_path</span><span class="p">)</span> <span class="k">if</span> <span class="s1">&#39;.jams&#39;</span> <span class="ow">in</span> <span class="n">x</span>
-    <span class="p">]</span>
-    <span class="n">parallel_process</span><span class="p">(</span>
-        <span class="n">jam_files</span><span class="p">,</span> <span class="n">synthesize_one_mixture</span><span class="p">,</span> <span class="n">n_jobs</span>
-    <span class="p">)</span></div>
+<div class="viewcode-block" id="synthesize_mixtures_in_parallel"><a class="viewcode-back" href="../../../source/src.dataset.html#src.dataset.scaper_mixer.synthesize_mixtures_in_parallel">[docs]</a>def synthesize_mixtures_in_parallel(target_path, n_jobs):
+    jam_files = [
+        os.path.join(target_path, x) for x in os.listdir(target_path) if &#39;.jams&#39; in x
+    ]
+    parallel_process(
+        jam_files, synthesize_one_mixture, n_jobs
+    )</div>
 
-<div class="viewcode-block" id="scaper_mix"><a class="viewcode-back" href="../../../source/src.dataset.html#src.dataset.scaper_mixer.scaper_mix">[docs]</a><span class="k">def</span> <span class="nf">scaper_mix</span><span class="p">(</span>
-    <span class="n">mixture_parameters</span><span class="p">,</span> 
-    <span class="n">sample_rate</span><span class="p">,</span> 
-    <span class="n">event_parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">coherent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">allow_repeated_label</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">ref_db</span><span class="o">=-</span><span class="mi">40</span><span class="p">,</span> 
-    <span class="n">bitdepth</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
-    <span class="n">seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-    <span class="n">num_workers</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-<span class="p">):</span>
-    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Making JAMS files&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="scaper_mix"><a class="viewcode-back" href="../../../source/src.dataset.html#src.dataset.scaper_mixer.scaper_mix">[docs]</a>def scaper_mix(
+    mixture_parameters, 
+    sample_rate, 
+    event_parameters=None,
+    coherent=False,
+    allow_repeated_label=False,
+    ref_db=-40, 
+    bitdepth=16,
+    seed=0,
+    num_workers=1,
+):
+    np.random.seed(seed)
+    logging.info(&#39;Making JAMS files&#39;)
 
-    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">params</span> <span class="ow">in</span> <span class="n">mixture_parameters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="k">if</span> <span class="s1">&#39;event_parameters&#39;</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
-            <span class="n">_event_parameters</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;event_parameters&#39;</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">_event_parameters</span> <span class="o">=</span> <span class="n">event_parameters</span>
+    for key, params in mixture_parameters.items():
+        if &#39;event_parameters&#39; in params:
+            _event_parameters = params[&#39;event_parameters&#39;]
+        else:
+            _event_parameters = event_parameters
 
-        <span class="n">generators</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Making generators&#39;</span><span class="p">)</span>
-        <span class="n">bg_path</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;background_path&#39;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">bg_path</span><span class="p">:</span>
-            <span class="n">bg_path</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;foreground_path&#39;</span><span class="p">]</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;num_mixtures&#39;</span><span class="p">])):</span>
-            <span class="n">sc</span> <span class="o">=</span> <span class="n">Scaper</span><span class="p">(</span>
-                <span class="n">params</span><span class="p">[</span><span class="s1">&#39;scene_duration&#39;</span><span class="p">],</span> 
-                <span class="n">fg_path</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;foreground_path&#39;</span><span class="p">],</span> 
-                <span class="n">bg_path</span><span class="o">=</span><span class="n">bg_path</span><span class="p">,</span> 
-                <span class="n">random_state</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;num_mixtures&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">10</span><span class="p">)</span>
-            <span class="p">)</span>
-            <span class="n">sc</span><span class="o">.</span><span class="n">ref_db</span> <span class="o">=</span> <span class="n">ref_db</span>
-            <span class="n">sc</span><span class="o">.</span><span class="n">sr</span> <span class="o">=</span> <span class="n">sample_rate</span>
-            <span class="n">sc</span><span class="o">.</span><span class="n">bitdepth</span> <span class="o">=</span> <span class="n">bitdepth</span>
-            <span class="n">generators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sc</span><span class="p">)</span>
+        # make sure all the vals in _event_parameters are tuples
+        for key in _event_parameters:
+            if _event_parameters[key]:
+                _event_parameters[key] = tuple(_event_parameters[key])
 
-        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;target_path&#39;</span><span class="p">],</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        generators = []
+        logging.info(&#39;Making generators&#39;)
+        bg_path = params[&#39;background_path&#39;]
+        if not bg_path:
+            bg_path = params[&#39;foreground_path&#39;]
+        for i in tqdm(range(params[&#39;num_mixtures&#39;])):
+            sc = Scaper(
+                params[&#39;scene_duration&#39;], 
+                fg_path=params[&#39;foreground_path&#39;], 
+                bg_path=bg_path, 
+                random_state=np.random.randint(params[&#39;num_mixtures&#39;]*10)
+            )
+            sc.ref_db = ref_db
+            sc.sr = sample_rate
+            sc.bitdepth = bitdepth
+            generators.append(sc)
+
+        os.makedirs(params[&#39;target_path&#39;], exist_ok=True)
         
-        <span class="n">timings</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">silent_files</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+        timings = {}
+        silent_files = {&#39;default&#39;: True}
 
-        <span class="k">if</span> <span class="n">coherent</span><span class="p">:</span>
-            <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="p">{</span>
-                    <span class="s1">&#39;path_to_file&#39;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;target_path&#39;</span><span class="p">],</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{i:08d}</span><span class="s1">.wav&#39;</span><span class="p">),</span>
-                    <span class="s1">&#39;sc&#39;</span><span class="p">:</span> <span class="n">generators</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
-                    <span class="s1">&#39;labels&#39;</span><span class="p">:</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;labels&#39;</span><span class="p">],</span>
-                    <span class="s1">&#39;event_parameters&#39;</span><span class="p">:</span> <span class="n">_event_parameters</span><span class="p">,</span>
-                    <span class="s1">&#39;allow_repeated_label&#39;</span><span class="p">:</span> <span class="n">allow_repeated_label</span>
-                <span class="p">}</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;num_mixtures&#39;</span><span class="p">])</span>
-            <span class="p">]</span>
-            <span class="n">mix_func</span> <span class="o">=</span> <span class="n">make_one_mixture_coherent</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="p">{</span>
-                    <span class="s1">&#39;path_to_file&#39;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;target_path&#39;</span><span class="p">],</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{i:08d}</span><span class="s1">.wav&#39;</span><span class="p">),</span>
-                    <span class="s1">&#39;sc&#39;</span><span class="p">:</span> <span class="n">generators</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
-                    <span class="s1">&#39;num_sources&#39;</span><span class="p">:</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;num_sources&#39;</span><span class="p">],</span>
-                    <span class="s1">&#39;event_parameters&#39;</span><span class="p">:</span> <span class="n">_event_parameters</span><span class="p">,</span>
-                    <span class="s1">&#39;allow_repeated_label&#39;</span><span class="p">:</span> <span class="n">allow_repeated_label</span>
-                <span class="p">}</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;num_mixtures&#39;</span><span class="p">])</span>
-            <span class="p">]</span>
-            <span class="n">mix_func</span> <span class="o">=</span> <span class="n">make_one_mixture</span>
+        if coherent:
+            args = [
+                {
+                    &#39;path_to_file&#39;: os.path.join(params[&#39;target_path&#39;], f&#39;{i:08d}.wav&#39;),
+                    &#39;sc&#39;: generators[i],
+                    &#39;labels&#39;: params[&#39;labels&#39;],
+                    &#39;event_parameters&#39;: _event_parameters,
+                    &#39;allow_repeated_label&#39;: allow_repeated_label
+                } for i in range(params[&#39;num_mixtures&#39;])
+            ]
+            mix_func = make_one_mixture_coherent
+        else:
+            args = [
+                {
+                    &#39;path_to_file&#39;: os.path.join(params[&#39;target_path&#39;], f&#39;{i:08d}.wav&#39;),
+                    &#39;sc&#39;: generators[i],
+                    &#39;num_sources&#39;: params[&#39;num_sources&#39;],
+                    &#39;event_parameters&#39;: _event_parameters,
+                    &#39;allow_repeated_label&#39;: allow_repeated_label
+                } for i in range(params[&#39;num_mixtures&#39;])
+            ]
+            mix_func = make_one_mixture
 
-        <span class="n">parallel_process</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">mix_func</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="n">num_workers</span><span class="p">,</span> <span class="n">front_num</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">use_kwargs</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        parallel_process(args, mix_func, n_jobs=num_workers, front_num=1, use_kwargs=True)
 
-    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Synthesizing mixtures in parallel across </span><span class="si">{num_workers}</span><span class="s1"> threads&#39;</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">params</span> <span class="ow">in</span> <span class="n">mixture_parameters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">synthesize_mixtures_in_parallel</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;target_path&#39;</span><span class="p">],</span> <span class="n">num_workers</span><span class="p">)</span></div>
+    logging.info(f&#39;Synthesizing mixtures in parallel across {num_workers} threads&#39;)
+    for key, params in mixture_parameters.items():
+        synthesize_mixtures_in_parallel(params[&#39;target_path&#39;], num_workers)</div>
 </pre></div>
 
            </div>

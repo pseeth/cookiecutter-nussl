@@ -87,9 +87,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../experiments.html">Configuring an experiment</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../source/runners.html">runners package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../source/scripts.html">scripts package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../source/src.html">src package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/runners.html">runners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/scripts.html">scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/src.html">src</a></li>
 </ul>
 
             
@@ -153,209 +153,199 @@
            <div itemprop="articleBody">
             
   <h1>Source code for runners.utils</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">collections</span>
-<span class="kn">from</span> <span class="nn">concurrent.futures</span> <span class="kn">import</span> <span class="n">ProcessPoolExecutor</span><span class="p">,</span> <span class="n">as_completed</span>
-<span class="kn">import</span> <span class="nn">yaml</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">argparse</span> <span class="kn">import</span> <span class="n">ArgumentParser</span>
-<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">cpu_count</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">default_script_args</span>
-<span class="kn">import</span> <span class="nn">random</span>
-<span class="kn">import</span> <span class="nn">string</span>
+<span></span>import collections
+from concurrent.futures import ProcessPoolExecutor, as_completed
+import yaml
+import os
+from multiprocessing import cpu_count
+import logging
+from .config import default_script_args
+import random
+import string
 
-<span class="c1">#: List of environment variables to look for and replace. </span>
-<span class="n">env_variables</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s1">&#39;DATA_DIRECTORY&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;CACHE_DIRECTORY&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;ARTIFACTS_DIRECTORY&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;NUSSL_DIRECTORY&#39;</span><span class="p">,</span>
-<span class="p">]</span>
+#: List of environment variables to look for and replace. 
+env_variables = [
+    &#39;DATA_DIRECTORY&#39;,
+    &#39;CACHE_DIRECTORY&#39;,
+    &#39;ARTIFACTS_DIRECTORY&#39;,
+    &#39;NUSSL_DIRECTORY&#39;,
+]
 
-<div class="viewcode-block" id="modify_yml_with_env"><a class="viewcode-back" href="../../source/runners.html#runners.utils.modify_yml_with_env">[docs]</a><span class="k">def</span> <span class="nf">modify_yml_with_env</span><span class="p">(</span><span class="n">yml</span><span class="p">,</span> <span class="n">env_variables</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Replaces specific substrings in a string or elsewhere with</span>
-<span class="sd">    their corresponding environment variables. The environment variables it currently</span>
-<span class="sd">    replaces are: DATA_DIRECTORY, CACHE_DIRECTORY, ARTIFACTS_DIRECTORY, and </span>
-<span class="sd">    NUSSL_DIRECTORY. Descriptions of these are in setup/environment/default.sh.</span>
+<div class="viewcode-block" id="modify_yml_with_env"><a class="viewcode-back" href="../../source/runners.html#runners.utils.modify_yml_with_env">[docs]</a>def modify_yml_with_env(yml, env_variables):
+    &quot;&quot;&quot;
+    Replaces specific substrings in a string or elsewhere with
+    their corresponding environment variables. The environment variables it currently
+    replaces are: DATA_DIRECTORY, CACHE_DIRECTORY, ARTIFACTS_DIRECTORY, and 
+    NUSSL_DIRECTORY. Descriptions of these are in setup/environment/default.sh.
 
-<span class="sd">    Args:</span>
-<span class="sd">        yml (str): A string containing the YML code (unparsed). Things in curly braces</span>
-<span class="sd">             in the string are modified by passing in the data in :py:obj:`runners.utils.env_variables`.</span>
-<span class="sd">        env_variables (list): A list of strings containing what environment variables</span>
-<span class="sd">            to replace.</span>
-<span class="sd">    </span>
-<span class="sd">    Returns:</span>
-<span class="sd">        str: YML string with the environment variables replaced.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">for</span> <span class="n">_env</span> <span class="ow">in</span> <span class="n">env_variables</span><span class="p">:</span>
-        <span class="n">_env_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;${{</span><span class="si">{_env}</span><span class="s1">}}&#39;</span>
-        <span class="k">if</span> <span class="n">_env_str</span> <span class="ow">in</span> <span class="n">yml</span><span class="p">:</span>
-            <span class="n">yml</span> <span class="o">=</span> <span class="n">yml</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">_env_str</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="n">_env</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">yml</span></div>
+    Args:
+        yml (str): A string containing the YML code (unparsed). Things in curly braces
+             in the string are modified by passing in the data in :py:obj:`runners.utils.env_variables`.
+        env_variables (list): A list of strings containing what environment variables
+            to replace.
+    
+    Returns:
+        str: YML string with the environment variables replaced.
+    &quot;&quot;&quot;
+    for _env in env_variables:
+        _env_str = f&#39;${{{_env}}}&#39;
+        if _env_str in yml:
+            yml = yml.replace(_env_str, os.getenv(_env, &quot;&quot;))
+    return yml</div>
 
-<div class="viewcode-block" id="load_yaml"><a class="viewcode-back" href="../../source/runners.html#runners.utils.load_yaml">[docs]</a><span class="k">def</span> <span class="nf">load_yaml</span><span class="p">(</span><span class="n">path_to_yml</span><span class="p">,</span> <span class="n">env_variables</span><span class="o">=</span><span class="n">env_variables</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Loads a YAML file and modifies it according to the environment variables using</span>
-<span class="sd">    :py:func:`runners.utils.modify_yml_with_env`.</span>
-<span class="sd">    </span>
-<span class="sd">    Args:</span>
-<span class="sd">        path_to_yml (str): Path to the YML file.</span>
-<span class="sd">        env_variables (list): A list of strings containing what environment variables</span>
-<span class="sd">            to replace.</span>
-<span class="sd">    </span>
-<span class="sd">    </span>
-<span class="sd">    Returns:</span>
-<span class="sd">        dict: Parsed and loaded YAML into a dictionary.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path_to_yml</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="n">yml</span> <span class="o">=</span> <span class="n">modify_yml_with_env</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="n">env_variables</span><span class="p">)</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">yml</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">FullLoader</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">data</span></div>
+<div class="viewcode-block" id="load_yaml"><a class="viewcode-back" href="../../source/runners.html#runners.utils.load_yaml">[docs]</a>def load_yaml(path_to_yml, env_variables=env_variables):
+    &quot;&quot;&quot;
+    Loads a YAML file and modifies it according to the environment variables using
+    :py:func:`runners.utils.modify_yml_with_env`.
+    
+    Args:
+        path_to_yml (str): Path to the YML file.
+        env_variables (list): A list of strings containing what environment variables
+            to replace.
+    
+    
+    Returns:
+        dict: Parsed and loaded YAML into a dictionary.
+    &quot;&quot;&quot;
+    with open(path_to_yml, &#39;r&#39;) as f:
+        yml = modify_yml_with_env(f.read(), env_variables)
+        data = yaml.load(yml, Loader=yaml.FullLoader)
+    return data</div>
 
-<div class="viewcode-block" id="dump_yaml"><a class="viewcode-back" href="../../source/runners.html#runners.utils.dump_yaml">[docs]</a><span class="k">def</span> <span class="nf">dump_yaml</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">path_to_yml</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Dump data to a yml file at a specified location.</span>
-<span class="sd">    </span>
-<span class="sd">    Args:</span>
-<span class="sd">        data (obj): Whatever data to dump to the yml file, as long as it can be</span>
-<span class="sd">            serialized to YAML. Typically a dictionary.</span>
-<span class="sd">        path_to_yml (str): Where to save the data.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path_to_yml</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span></div>
+<div class="viewcode-block" id="dump_yaml"><a class="viewcode-back" href="../../source/runners.html#runners.utils.dump_yaml">[docs]</a>def dump_yaml(data, path_to_yml):
+    &quot;&quot;&quot;
+    Dump data to a yml file at a specified location.
+    
+    Args:
+        data (obj): Whatever data to dump to the yml file, as long as it can be
+            serialized to YAML. Typically a dictionary.
+        path_to_yml (str): Where to save the data.
+    &quot;&quot;&quot;
+    with open(path_to_yml, &#39;w&#39;) as f:
+        yaml.dump(data, f)</div>
 
-<div class="viewcode-block" id="build_parser_for_yml_script"><a class="viewcode-back" href="../../source/runners.html#runners.utils.build_parser_for_yml_script">[docs]</a><span class="k">def</span> <span class="nf">build_parser_for_yml_script</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;Builds an ArgumentParser with a common setup. Used in the</span>
-<span class="sd">    scripts.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">parser</span> <span class="o">=</span> <span class="n">ArgumentParser</span><span class="p">()</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s1">&#39;spec&#39;</span><span class="p">,</span> 
-        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> 
-        <span class="n">help</span><span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">            Path to .yml file containing specification for reorganizing. If the only key</span>
-<span class="s2">            is &#39;jobs&#39;, then we assume it points to a list of jobs with parameters</span>
-<span class="s2">            input_path and output_path. Each job is executed one after the other. The</span>
-<span class="s2">            structure of each .yml file is up to you.</span>
-<span class="s2">            &quot;&quot;&quot;</span>
-    <span class="p">)</span>
-    <span class="k">return</span> <span class="n">parser</span></div>
+<div class="viewcode-block" id="parse_yaml"><a class="viewcode-back" href="../../source/runners.html#runners.utils.parse_yaml">[docs]</a>def parse_yaml(path_to_yml, jobs=True):
+    &quot;&quot;&quot;
+    Parses a YAML file, replacing necessary environment variables and putting 
+    it in an expected form for the scripts.
+    
+    Args:
+        path_to_yml (str): Path to yml file to be parsed.
+        jobs (bool, optional): Whether to convert it so that it&#39;s a sequence
+            of jobs if `jobs` is not defined in spec. Defaults to True.
+    
+    Returns:
+        dict: Loaded dictionay, modified by environment variables and depending on
+            jobs.
+    &quot;&quot;&quot;
+    _spec = load_yaml(path_to_yml)
+    spec = {}
 
-<div class="viewcode-block" id="parse_yaml"><a class="viewcode-back" href="../../source/runners.html#runners.utils.parse_yaml">[docs]</a><span class="k">def</span> <span class="nf">parse_yaml</span><span class="p">(</span><span class="n">path_to_yml</span><span class="p">,</span> <span class="n">jobs</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Parses a YAML file, replacing necessary environment variables and putting </span>
-<span class="sd">    it in an expected form for the scripts.</span>
-<span class="sd">    </span>
-<span class="sd">    Args:</span>
-<span class="sd">        path_to_yml (str): Path to yml file to be parsed.</span>
-<span class="sd">        jobs (bool, optional): Whether to convert it so that it&#39;s a sequence</span>
-<span class="sd">            of jobs if `jobs` is not defined in spec. Defaults to True.</span>
-<span class="sd">    </span>
-<span class="sd">    Returns:</span>
-<span class="sd">        dict: Loaded dictionay, modified by environment variables and depending on</span>
-<span class="sd">            jobs.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">_spec</span> <span class="o">=</span> <span class="n">load_yaml</span><span class="p">(</span><span class="n">path_to_yml</span><span class="p">)</span>
-    <span class="n">spec</span> <span class="o">=</span> <span class="p">{}</span>
+    if &#39;jobs&#39; not in _spec and jobs:
+        spec[&#39;jobs&#39;] = [_spec]
+    else:
+        spec = _spec
+    return spec</div>
 
-    <span class="k">if</span> <span class="s1">&#39;jobs&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_spec</span> <span class="ow">and</span> <span class="n">jobs</span><span class="p">:</span>
-        <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;jobs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">_spec</span><span class="p">]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">spec</span> <span class="o">=</span> <span class="n">_spec</span>
-    <span class="k">return</span> <span class="n">spec</span></div>
+<div class="viewcode-block" id="prepare_script_args"><a class="viewcode-back" href="../../source/runners.html#runners.utils.prepare_script_args">[docs]</a>def prepare_script_args(spec):
+    &quot;&quot;&quot;
+    Uses the default script args if those items are not specified for
+    the script.
+    
+    Args:
+        spec (dict): Script args to modify with defaults as needed.
+    
+    Returns:
+        dict: Modified dictionary with values as needed.
+    &quot;&quot;&quot;
+    spec[&#39;run_in&#39;] = spec.pop(&#39;run_in&#39;, default_script_args[&#39;run_in&#39;])
+    spec[&#39;num_gpus&#39;] = spec.pop(&#39;num_gpus&#39;, default_script_args[&#39;num_gpus&#39;])
+    spec[&#39;blocking&#39;] = spec.pop(&#39;blocking&#39;, default_script_args[&#39;blocking&#39;])
+    return spec</div>
 
-<div class="viewcode-block" id="prepare_script_args"><a class="viewcode-back" href="../../source/runners.html#runners.utils.prepare_script_args">[docs]</a><span class="k">def</span> <span class="nf">prepare_script_args</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Uses the default script args if those items are not specified for</span>
-<span class="sd">    the script.</span>
-<span class="sd">    </span>
-<span class="sd">    Args:</span>
-<span class="sd">        spec (dict): Script args to modify with defaults as needed.</span>
-<span class="sd">    </span>
-<span class="sd">    Returns:</span>
-<span class="sd">        dict: Modified dictionary with values as needed.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;run_in&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;run_in&#39;</span><span class="p">,</span> <span class="n">default_script_args</span><span class="p">[</span><span class="s1">&#39;run_in&#39;</span><span class="p">])</span>
-    <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;num_gpus&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;num_gpus&#39;</span><span class="p">,</span> <span class="n">default_script_args</span><span class="p">[</span><span class="s1">&#39;num_gpus&#39;</span><span class="p">])</span>
-    <span class="n">spec</span><span class="p">[</span><span class="s1">&#39;blocking&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;blocking&#39;</span><span class="p">,</span> <span class="n">default_script_args</span><span class="p">[</span><span class="s1">&#39;blocking&#39;</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">spec</span></div>
+<div class="viewcode-block" id="disp_script"><a class="viewcode-back" href="../../source/runners.html#runners.utils.disp_script">[docs]</a>def disp_script(spec):
+    &quot;&quot;&quot;
+    Displays the arguments for a script in a readable fashion in
+    logging.
+    
+    Args:
+        spec (dict): Dictionary containing script parameters.
+    &quot;&quot;&quot;
+    logging.info(
+        f&quot;\n&quot;
+        f&quot;  Running {spec[&#39;script&#39;]} with args:\n&quot;
+        f&quot;    config: {spec[&#39;config&#39;]}\n&quot;
+        f&quot;    run_in: {spec[&#39;run_in&#39;]}\n&quot;
+        f&quot;    num_gpus: {spec[&#39;num_gpus&#39;]}\n&quot;
+        f&quot;    blocking: {spec[&#39;blocking&#39;]}\n&quot;
+    )</div>
 
-<div class="viewcode-block" id="disp_script"><a class="viewcode-back" href="../../source/runners.html#runners.utils.disp_script">[docs]</a><span class="k">def</span> <span class="nf">disp_script</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Displays the arguments for a script in a readable fashion in</span>
-<span class="sd">    logging.</span>
-<span class="sd">    </span>
-<span class="sd">    Args:</span>
-<span class="sd">        spec (dict): Dictionary containing script parameters.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;  Running </span><span class="si">{spec[&#39;script&#39;]}</span><span class="s2"> with args:</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;    config: </span><span class="si">{spec[&#39;config&#39;]}</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;    run_in: </span><span class="si">{spec[&#39;run_in&#39;]}</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;    num_gpus: </span><span class="si">{spec[&#39;num_gpus&#39;]}</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;    blocking: </span><span class="si">{spec[&#39;blocking&#39;]}</span><span class="se">\n</span><span class="s2">&quot;</span>
-    <span class="p">)</span></div>
+<div class="viewcode-block" id="deep_update"><a class="viewcode-back" href="../../source/runners.html#runners.utils.deep_update">[docs]</a>def deep_update(source, overrides):
+    &quot;&quot;&quot; 
+    Update a nested dictionary or similar mapping.
+    Modify ``source`` in place.
+    
+    Args:
+        source (dict): Source dictionary that gets updated
+        overrides (dict): Dictionary with items to update in source
+            dict.
+    
+    Returns:
+        (dict): Updated source dictionary.
+    &quot;&quot;&quot;
+    for key, value in overrides.items():
+        if isinstance(value, collections.Mapping) and value:
+            returned = deep_update(source.get(key, {}), value)
+            source[key] = returned
+        else:
+            source[key] = overrides[key]
+    return source</div>
 
-<div class="viewcode-block" id="deep_update"><a class="viewcode-back" href="../../source/runners.html#runners.utils.deep_update">[docs]</a><span class="k">def</span> <span class="nf">deep_update</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">overrides</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; </span>
-<span class="sd">    Update a nested dictionary or similar mapping.</span>
-<span class="sd">    Modify ``source`` in place.</span>
-<span class="sd">    </span>
-<span class="sd">    Args:</span>
-<span class="sd">        source (dict): Source dictionary that gets updated</span>
-<span class="sd">        overrides (dict): Dictionary with items to update in source</span>
-<span class="sd">            dict.</span>
-<span class="sd">    </span>
-<span class="sd">    Returns:</span>
-<span class="sd">        (dict): Updated source dictionary.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">overrides</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">)</span> <span class="ow">and</span> <span class="n">value</span><span class="p">:</span>
-            <span class="n">returned</span> <span class="o">=</span> <span class="n">deep_update</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">{}),</span> <span class="n">value</span><span class="p">)</span>
-            <span class="n">source</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">returned</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">source</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">overrides</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">source</span></div>
+<div class="viewcode-block" id="flatten"><a class="viewcode-back" href="../../source/runners.html#runners.utils.flatten">[docs]</a>def flatten(d, parent_key=&#39;&#39;, sep=&#39;_&#39;):
+    &quot;&quot;&quot;
+    Flattens a dictionary so that it only has one level. A sequence of keys
+    will result in a key that is like::
 
-<div class="viewcode-block" id="flatten"><a class="viewcode-back" href="../../source/runners.html#runners.utils.flatten">[docs]</a><span class="k">def</span> <span class="nf">flatten</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">parent_key</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;_&#39;</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Flattens a dictionary so that it only has one level. A sequence of keys</span>
-<span class="sd">    will result in a key that is like::</span>
+        { key1_key2_key3: value }
 
-<span class="sd">        { key1_key2_key3: value }</span>
+    from::
+        
+        { key1: {key2: {key3: val} } }
 
-<span class="sd">    from::</span>
-<span class="sd">        </span>
-<span class="sd">        { key1: {key2: {key3: val} } }</span>
+    This is done recursively.
+    
+    Args:
+        d ([type]): Dictionary that is being flattened.
+        parent_key (str, optional): The key above this one (used in recursion). 
+            Defaults to &#39;&#39;.
+        sep (str, optional): Delimiter between keys. Defaults to &#39;_&#39;.
+    
+    Returns:
+        dict: flattened dictionary
+    &quot;&quot;&quot;
+    items = []
+    for k, v in d.items():
+        new_key = parent_key + sep + k if parent_key else k
+        if isinstance(v, collections.MutableMapping):
+            items.extend(flatten(v, new_key, sep=sep).items())
+        else:
+            items.append((new_key, v))
+    return dict(items)</div>
 
-<span class="sd">    This is done recursively.</span>
-<span class="sd">    </span>
-<span class="sd">    Args:</span>
-<span class="sd">        d ([type]): Dictionary that is being flattened.</span>
-<span class="sd">        parent_key (str, optional): The key above this one (used in recursion). </span>
-<span class="sd">            Defaults to &#39;&#39;.</span>
-<span class="sd">        sep (str, optional): Delimiter between keys. Defaults to &#39;_&#39;.</span>
-<span class="sd">    </span>
-<span class="sd">    Returns:</span>
-<span class="sd">        dict: flattened dictionary</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">items</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">new_key</span> <span class="o">=</span> <span class="n">parent_key</span> <span class="o">+</span> <span class="n">sep</span> <span class="o">+</span> <span class="n">k</span> <span class="k">if</span> <span class="n">parent_key</span> <span class="k">else</span> <span class="n">k</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">MutableMapping</span><span class="p">):</span>
-            <span class="n">items</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">flatten</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">new_key</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">new_key</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
-    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">items</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="make_random_string"><a class="viewcode-back" href="../../source/runners.html#runners.utils.make_random_string">[docs]</a><span class="k">def</span> <span class="nf">make_random_string</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Makes a random alphanumeric string of some length</span>
-<span class="sd">    </span>
-<span class="sd">    Args:</span>
-<span class="sd">        length (int, optional): Length of the random string to return. Defaults to 10.</span>
-<span class="sd">    </span>
-<span class="sd">    Returns:</span>
-<span class="sd">        str: Random alphanumeric string of the specified length.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-        <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">ascii_lowercase</span> <span class="o">+</span> <span class="n">string</span><span class="o">.</span><span class="n">digits</span><span class="p">)</span> 
-        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">length</span><span class="p">)</span>
-    <span class="p">)</span></div>
+<div class="viewcode-block" id="make_random_string"><a class="viewcode-back" href="../../source/runners.html#runners.utils.make_random_string">[docs]</a>def make_random_string(length=10):
+    &quot;&quot;&quot;
+    Makes a random alphanumeric string of some length
+    
+    Args:
+        length (int, optional): Length of the random string to return. Defaults to 10.
+    
+    Returns:
+        str: Random alphanumeric string of the specified length.
+    &quot;&quot;&quot;
+    return &#39;&#39;.join(
+        random.choice(string.ascii_lowercase + string.digits) 
+        for _ in range(length)
+    )</div>
 </pre></div>
 
            </div>

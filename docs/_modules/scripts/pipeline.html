@@ -87,9 +87,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../experiments.html">Configuring an experiment</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../source/runners.html">runners package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../source/scripts.html">scripts package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../source/src.html">src package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/runners.html">runners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/scripts.html">scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/src.html">src</a></li>
 </ul>
 
             
@@ -137,6 +137,8 @@
         
           <li><a href="../index.html">Module code</a> &raquo;</li>
         
+          <li><a href="../scripts.html">scripts</a> &raquo;</li>
+        
       <li>scripts.pipeline</li>
     
     
@@ -153,52 +155,60 @@
            <div itemprop="articleBody">
             
   <h1>Source code for scripts.pipeline</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">sys</span>
-<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">)</span>
+<span></span>from runners.utils import load_yaml
+from . import cmd, document_parser
+from runners.script_runner_pool import ScriptRunnerPool
+from src import logging
+from multiprocessing import cpu_count
+from argparse import ArgumentParser
 
-<span class="kn">from</span> <span class="nn">runners.utils</span> <span class="kn">import</span> <span class="n">build_parser_for_yml_script</span><span class="p">,</span> <span class="n">parse_yaml</span>
-<span class="kn">from</span> <span class="nn">runners.script_runner_pool</span> <span class="kn">import</span> <span class="n">ScriptRunnerPool</span>
-<span class="kn">from</span> <span class="nn">src</span> <span class="kn">import</span> <span class="n">logging</span>
-<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">cpu_count</span>
+<div class="viewcode-block" id="build_parser"><a class="viewcode-back" href="../../source/scripts.html#scripts.pipeline.build_parser">[docs]</a>@document_parser(&#39;pipeline&#39;, &#39;scripts.pipeline.parallel_job_execution&#39;)
+def build_parser():
+    parser = ArgumentParser()
+    parser.add_argument(&#39;--script&#39;, type=str, help=&quot;Path to script to run.&quot;)
+    parser.add_argument(&#39;--config&#39;, type=str, help=&quot;Path to config for script.&quot;)
+    parser.add_argument(&#39;--run_in&#39;, type=str, help=&quot;Run in host or container.&quot;, default=&#39;host&#39;)
+    parser.add_argument(&#39;--num_gpus&#39;, type=int, help=&quot;How many GPUs to use.&quot;, default=0)
+    parser.add_argument(&#39;--blocking&#39;, type=bool, help=&quot;Finish this job before proceeding to next.&quot;, default=False)
+    return parser</div>
 
-<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../source/scripts.html#scripts.pipeline.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">path_to_yml_file</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Takes a .yml file with structure as follows:</span>
+<div class="viewcode-block" id="parallel_job_execution"><a class="viewcode-back" href="../../source/scripts.html#scripts.pipeline.parallel_job_execution">[docs]</a>def parallel_job_execution(script_func, jobs, parallelize=False, num_jobs=1):
+    &quot;&quot;&quot;
+    Takes a .yml file with structure as follows::
+    
+        script: name of script in scripts/ folder
+        config: path/to/yml/config.yml
+        run_in: &#39;host&#39; or &#39;container&#39; (default: host)
+        num_gpus: how many gpus (default: 0)
+        blocking: whether to block on this job or not (default: false)
 
-<span class="sd">            script: path/to/script/name.py</span>
-<span class="sd">            config: path/to/yml/config.yml</span>
-<span class="sd">            run_in: &#39;host&#39; or &#39;container&#39;</span>
-<span class="sd">            num_gpus: how many gpus (default: 0)</span>
-<span class="sd">            blocking: whether to block on this job or not (default: false)</span>
+    Could also be multiple jobs::
 
-<span class="sd">        Could also be multiple jobs:</span>
-<span class="sd">            parallelize: whether to parallelize each job (default: false)</span>
-<span class="sd">            num_jobs: how many jobs to run in parallel (default: 1)</span>
+        parallelize: whether to parallelize each job (default: false)
+        num_jobs: how many jobs to run in parallel (default: 1)
 
-<span class="sd">            jobs:</span>
-<span class="sd">            - script: script1.py</span>
-<span class="sd">            config: config1.yml</span>
-<span class="sd">            - script: script2.py</span>
-<span class="sd">            config: config2.yml</span>
-<span class="sd">            ...</span>
+        jobs:
+        - script: script1.py
+          config: config1.yml
+        - script: script2.py
+          config: config2.yml
+        ...
 
-<span class="sd">        The jobs get executed one after the other.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">spec</span> <span class="o">=</span> <span class="n">parse_yaml</span><span class="p">(</span><span class="n">path_to_yml_file</span><span class="p">)</span>
+    The jobs get executed in sequence or in parallel.
+    
+    Args:
+        path_to_yml_file (str): Path to .yml file specifying the sequence
+            of jobs that should be run.
+    &quot;&quot;&quot;
+    num_jobs = min(cpu_count(), num_jobs)
+    logging.info(
+        f&quot;\n  Executing scripts with num_jobs: {num_jobs}&quot;
+    )
+    pool = ScriptRunnerPool(max_workers=num_jobs)
+    pool.submit(jobs)</div>
 
-    <span class="n">num_jobs</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">cpu_count</span><span class="p">(),</span> <span class="n">spec</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;num_jobs&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-
-    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">  Executing scripts with num_jobs: </span><span class="si">{num_jobs}</span><span class="s2">&quot;</span>
-    <span class="p">)</span>
-
-    <span class="n">pool</span> <span class="o">=</span> <span class="n">ScriptRunnerPool</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="n">num_jobs</span><span class="p">)</span>
-    <span class="n">pool</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">spec</span><span class="p">[</span><span class="s1">&#39;jobs&#39;</span><span class="p">])</span></div>
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">parser</span> <span class="o">=</span> <span class="n">build_parser_for_yml_script</span><span class="p">()</span>
-    <span class="n">args</span> <span class="o">=</span> <span class="nb">vars</span><span class="p">(</span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">())</span>
-    <span class="n">main</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="s1">&#39;spec&#39;</span><span class="p">])</span>
+if __name__ == &quot;__main__&quot;:
+    cmd(lambda x: x, build_parser, parallel_job_execution)
 </pre></div>
 
            </div>
