@@ -15,7 +15,7 @@ def build_parser():
     parser.add_argument('--blocking', type=bool, help="Finish this job before proceeding to next.", default=False)
     return parser
 
-def parallel_job_execution(script_func, jobs, parallelize=False, num_jobs=1):
+def parallel_job_execution(script_func, jobs, num_jobs=1):
     """
     Takes a .yml file with structure as follows::
     
@@ -27,7 +27,6 @@ def parallel_job_execution(script_func, jobs, parallelize=False, num_jobs=1):
 
     Could also be multiple jobs::
 
-        parallelize: whether to parallelize each job (default: false)
         num_jobs: how many jobs to run in parallel (default: 1)
 
         jobs:

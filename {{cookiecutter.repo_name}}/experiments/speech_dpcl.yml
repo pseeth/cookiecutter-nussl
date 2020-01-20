@@ -157,7 +157,7 @@ algorithm_config:
     mask_type: soft
     model_path: ${ARTIFACTS_DIRECTORY}/cookiecutter/speech/${EXPERIMENT_KEY}/checkpoints/best.model.pth
     num_sources: 2
-    percentile: 95
+    percentile: 90
 
 test_config:
   num_workers: 10
