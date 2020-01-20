@@ -289,7 +289,6 @@ import textwrap
                     else:
                         args.append(f&#39;--{key}&#39;)
                         args.append(str(val))
-                print(args)
                 args, unknown_args = cmd_parser.parse_known_args(args)
                 args = vars(args)
                 [job.pop(k) for k in args if k in job]
