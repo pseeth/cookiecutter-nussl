@@ -283,11 +283,13 @@ import textwrap
             if cmd_parser:
                 args = []
                 for key, val in job.items():
-                    args.append(f&#39;--{key}&#39;)
-                    if isinstance(val, dict):
-                        val = json.dumps(val)
-                    args.append(val)
-
+                    if isinstance(val, bool):
+                        if val:
+                            args.append(f&#39;--{key}&#39;)
+                    else:
+                        args.append(f&#39;--{key}&#39;)
+                        args.append(str(val))
+                print(args)
                 args, unknown_args = cmd_parser.parse_known_args(args)
                 args = vars(args)
                 [job.pop(k) for k in args if k in job]
