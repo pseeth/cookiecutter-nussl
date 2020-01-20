@@ -49,13 +49,13 @@ check_container_environment:
 run_in_container:
 	-docker info >/dev/null 2>&1 && \
 	source $(env_file) && \
-	CUDA_VISIBLE_DEVICES=$(gpus) NAME=$(name) poetry run python -m runners.run_in_docker "$(command)" || \
+	CUDA_VISIBLE_DEVICES=$(gpus) NAME=$(name) python -m runners.run_in_docker "$(command)" || \
 	(echo "Trying on host..." && make run_in_host command="$(command)" env_file=$(env_file) gpus=$(gpus))
 
 # Helper for running stuff on the host, masking gpus via a string (e.g. gpus="0,1").
 run_in_host:
 	source $(env_file) && \
-	CUDA_VISIBLE_DEVICES=$(gpus) poetry run $(command)
+	CUDA_VISIBLE_DEVICES=$(gpus) $(command)
 
 # Start a Jupyter notebook in a container. It'll be available at the host port defined 
 # in your environment setup.
@@ -89,8 +89,8 @@ test_container:
 #	make pipeline yml=path/to/pipeline.yml
 pipeline:
 	source $(env_file) && \
-	poetry run python -m scripts.pipeline -y "${yml}"
+	python -m scripts.pipeline -y "${yml}"
 
 experiment:
 	source $(env_file) && \
-	poetry run python -m scripts.sweep_experiment -p $(yml) --num_gpus $(num_gpus) --num_jobs $(num_jobs) 
+	python -m scripts.sweep_experiment -p $(yml) --num_gpus $(num_gpus) --num_jobs $(num_jobs) 
