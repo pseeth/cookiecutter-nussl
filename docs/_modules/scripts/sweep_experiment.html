@@ -483,7 +483,7 @@ from argparse import ArgumentParser
         num_jobs = 1 if s == &#39;analyze&#39; else num_jobs
         extra_cmd_args = &#39;&#39;
         if s == &#39;analyze&#39;:
-            extra_cmd_args += &#39;--use_gsheet true&#39;
+            extra_cmd_args += &#39;--use_gsheet&#39;
         run_in = &#39;host&#39; if s == &#39;analyze&#39; else run_in
         pipeline = create_pipeline(
             experiments, 
