@@ -12,7 +12,7 @@ def build_parser():
     parser.add_argument('--config', type=str, help="Path to config for script.")
     parser.add_argument('--run_in', type=str, help="Run in host or container.", default='host')
     parser.add_argument('--num_gpus', type=int, help="How many GPUs to use.", default=0)
-    parser.add_argument('--blocking', type=bool, help="Finish this job before proceeding to next.", default=False)
+    parser.add_argument('--blocking', help="Finish this job before proceeding to next.", action='store_true')
     return parser
 
 def parallel_job_execution(script_func, jobs, num_jobs=1):

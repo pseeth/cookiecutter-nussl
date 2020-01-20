@@ -216,7 +216,7 @@ key in the experiment configuration in flattened format.</p>
 <code class="sig-prename descclassname">scripts.analyze.</code><code class="sig-name descname">build_parser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/analyze.html#build_parser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.analyze.build_parser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Builds the parser for <a class="reference internal" href="#module-scripts.analyze" title="scripts.analyze"><code class="xref py py-mod docutils literal notranslate"><span class="pre">scripts.analyze</span></code></a>.</p>
 <blockquote>
-<div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: python -m scripts.analyze  [-h] -p PATH_TO_YML_FILE [--use_gsheet USE_GSHEET]
+<div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: python -m scripts.analyze  [-h] -p PATH_TO_YML_FILE [--use_gsheet]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -225,8 +225,7 @@ optional arguments:
                         getting analyzed. The corresponding results folder for
                         the experiment is what will be analyzed and put into a
                         Pandas dataframe.
-  --use_gsheet USE_GSHEET
-                        Results can be synced to a Google sheet after analysis
+  --use_gsheet          Results can be synced to a Google sheet after analysis
                         if this is true. Defaults to false.
 </pre></div>
 </div>
@@ -399,7 +398,7 @@ passing it to <code class="xref py py-func docutils literal notranslate"><span c
 <dd><p>Builds the parser for <a class="reference internal" href="#module-scripts.pipeline" title="scripts.pipeline"><code class="xref py py-mod docutils literal notranslate"><span class="pre">scripts.pipeline</span></code></a>.</p>
 <blockquote>
 <div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: python -m scripts.pipeline  [-h] [--script SCRIPT] [--config CONFIG] [--run_in RUN_IN]
-                    [--num_gpus NUM_GPUS] [--blocking BLOCKING]
+                    [--num_gpus NUM_GPUS] [--blocking]
 
 optional arguments:
   -h, --help           show this help message and exit
@@ -407,7 +406,7 @@ optional arguments:
   --config CONFIG      Path to config for script.
   --run_in RUN_IN      Run in host or container.
   --num_gpus NUM_GPUS  How many GPUs to use.
-  --blocking BLOCKING  Finish this job before proceeding to next.
+  --blocking           Finish this job before proceeding to next.
 </pre></div>
 </div>
 </div></blockquote>
@@ -462,7 +461,7 @@ of jobs that should be run.</p>
 <dd><p>Builds the parser for <a class="reference internal" href="#module-scripts.reorganize" title="scripts.reorganize"><code class="xref py py-mod docutils literal notranslate"><span class="pre">scripts.reorganize</span></code></a>.</p>
 <blockquote>
 <div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: python -m scripts.reorganize  [-h] [--input_path INPUT_PATH] [--output_path OUTPUT_PATH]
-                    [--org_func ORG_FUNC] [--use_symlink USE_SYMLINK]
+                    [--org_func ORG_FUNC] [--make_copy]
                     [--audio_extensions AUDIO_EXTENSIONS [AUDIO_EXTENSIONS ...]]
 
 optional arguments:
@@ -476,8 +475,7 @@ optional arguments:
   --org_func ORG_FUNC   Organization function to use reorganize the dataset.
                         Should correspond to the name of a function in
                         reorganize.py.
-  --use_symlink USE_SYMLINK
-                        Whether to use a symlink or to actually copy the file.
+  --make_copy           Whether to use a symlink or to actually copy the file.
   --audio_extensions AUDIO_EXTENSIONS [AUDIO_EXTENSIONS ...]
                         Audio extensions to look for in the input_path.
                         Matching ones will be reorganize and placed into the
@@ -498,7 +496,7 @@ optional arguments:
 
 <dl class="function">
 <dt id="scripts.reorganize.reorganize">
-<code class="sig-prename descclassname">scripts.reorganize.</code><code class="sig-name descname">reorganize</code><span class="sig-paren">(</span><em class="sig-param">input_path, output_path, org_func, use_symlink=True, audio_extensions=['.wav', '.mp3', '.aac'], **kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/reorganize.html#reorganize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.reorganize.reorganize" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">scripts.reorganize.</code><code class="sig-name descname">reorganize</code><span class="sig-paren">(</span><em class="sig-param">input_path, output_path, org_func, make_copy=False, audio_extensions=['.wav', '.mp3', '.aac'], **kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/reorganize.html#reorganize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.reorganize.reorganize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reorganizes the folders in the input path into the output path given an
 organization function, passed in by org_func.</p>
 <dl class="field-list simple">
@@ -522,7 +520,7 @@ that is specified.</p></li>
 
 <dl class="function">
 <dt id="scripts.reorganize.split_folder_by_class">
-<code class="sig-prename descclassname">scripts.reorganize.</code><code class="sig-name descname">split_folder_by_class</code><span class="sig-paren">(</span><em class="sig-param">path_to_file</em>, <em class="sig-param">output_directory</em>, <em class="sig-param">use_symlink=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/reorganize.html#split_folder_by_class"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.reorganize.split_folder_by_class" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">scripts.reorganize.</code><code class="sig-name descname">split_folder_by_class</code><span class="sig-paren">(</span><em class="sig-param">path_to_file</em>, <em class="sig-param">output_directory</em>, <em class="sig-param">make_copy=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/reorganize.html#split_folder_by_class"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.reorganize.split_folder_by_class" title="Permalink to this definition">¶</a></dt>
 <dd><p>Splits a folder by class which is indicated by the name of the file.</p>
 <p>The mixture name is the name of the parent directory to the file. This function
 is used to organize datasets like musdb for consumption by Scaper for mixing
@@ -581,7 +579,7 @@ Defaults to True.</p></li>
 
 <dl class="function">
 <dt id="scripts.reorganize.split_urbansound_by_fold">
-<code class="sig-prename descclassname">scripts.reorganize.</code><code class="sig-name descname">split_urbansound_by_fold</code><span class="sig-paren">(</span><em class="sig-param">path_to_file, output_directory, use_symlink=True, train_folds=[1, 2, 3, 4, 5, 6, 7, 8], val_folds=[9], test_folds=[10], path_to_urbansound_csv=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/reorganize.html#split_urbansound_by_fold"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.reorganize.split_urbansound_by_fold" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">scripts.reorganize.</code><code class="sig-name descname">split_urbansound_by_fold</code><span class="sig-paren">(</span><em class="sig-param">path_to_file, output_directory, make_copy=False, train_folds=[1, 2, 3, 4, 5, 6, 7, 8], val_folds=[9], test_folds=[10], path_to_urbansound_csv=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/reorganize.html#split_urbansound_by_fold"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.reorganize.split_urbansound_by_fold" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reorganizes the urbansound dataset using the metadata/UrbanSound8K.csv to
 determine which fold each file belongs to. It makes symlinks in the corresponding
 train, test, and val folders.</p>

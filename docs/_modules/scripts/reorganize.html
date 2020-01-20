@@ -168,7 +168,7 @@ import argparse
 import yaml
 import sys
 
-<div class="viewcode-block" id="split_urbansound_by_fold"><a class="viewcode-back" href="../../source/scripts.html#scripts.reorganize.split_urbansound_by_fold">[docs]</a>def split_urbansound_by_fold(path_to_file, output_directory, use_symlink=True, 
+<div class="viewcode-block" id="split_urbansound_by_fold"><a class="viewcode-back" href="../../source/scripts.html#scripts.reorganize.split_urbansound_by_fold">[docs]</a>def split_urbansound_by_fold(path_to_file, output_directory, make_copy=False, 
     train_folds=[1, 2, 3, 4, 5, 6, 7, 8], val_folds=[9], test_folds=[10],
     path_to_urbansound_csv=None):
     &quot;&quot;&quot;
@@ -228,7 +228,7 @@ import sys
         reader = csv.DictReader(f)
         rows = list(reader)</div>
 
-<div class="viewcode-block" id="split_folder_by_class"><a class="viewcode-back" href="../../source/scripts.html#scripts.reorganize.split_folder_by_class">[docs]</a>def split_folder_by_class(path_to_file, output_directory, use_symlink=True):
+<div class="viewcode-block" id="split_folder_by_class"><a class="viewcode-back" href="../../source/scripts.html#scripts.reorganize.split_folder_by_class">[docs]</a>def split_folder_by_class(path_to_file, output_directory, make_copy=False):
     &quot;&quot;&quot;Splits a folder by class which is indicated by the name of the file. 
     
     The mixture name is the name of the parent directory to the file. This function
@@ -291,12 +291,12 @@ import sys
 
     if not os.path.exists(output_path):
         logging.info(f&quot;{path_to_file} -&gt; {output_path}&quot;)
-        if use_symlink:
-            os.symlink(path_to_file, output_path)
+        if make_copy:
+            shutil.copyfile(path_to_file, output_path)
         else:
-            shutil.copyfile(path_to_file, output_path)</div>
+            os.symlink(path_to_file, output_path)</div>
 
-<div class="viewcode-block" id="reorganize"><a class="viewcode-back" href="../../source/scripts.html#scripts.reorganize.reorganize">[docs]</a>def reorganize(input_path, output_path, org_func, use_symlink=True, 
+<div class="viewcode-block" id="reorganize"><a class="viewcode-back" href="../../source/scripts.html#scripts.reorganize.reorganize">[docs]</a>def reorganize(input_path, output_path, org_func, make_copy=False, 
                audio_extensions=[&#39;.wav&#39;, &#39;.mp3&#39;, &#39;.aac&#39;], **kwargs):
     &quot;&quot;&quot;
     Reorganizes the folders in the input path into the output path given an 
@@ -322,7 +322,7 @@ import sys
     args = [{
         &#39;path_to_file&#39;: p,
         &#39;output_directory&#39;: output_path,
-        &#39;use_symlink&#39;: use_symlink,
+        &#39;make_copy&#39;: make_copy,
         **kwargs
     } for p in paths_to_files]
 
@@ -354,9 +354,9 @@ def build_parser():
         to the name of a function in reorganize.py.&quot;&quot;&quot;
     )
     parser.add_argument(
-        &#39;--use_symlink&#39;, type=bool, 
+        &#39;--make_copy&#39;, 
+        action=&quot;store_true&quot;,
         help=&quot;&quot;&quot;Whether to use a symlink or to actually copy the file.&quot;&quot;&quot;,
-        default=True
     )
     parser.add_argument(
         &#39;--audio_extensions&#39;, nargs=&#39;+&#39;, 

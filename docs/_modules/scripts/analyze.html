@@ -378,8 +378,7 @@ def build_parser():
     )
     parser.add_argument(
         &quot;--use_gsheet&quot;,
-        type=bool,
-        default=False,
+        action=&quot;store_true&quot;,
         help=&quot;&quot;&quot;Results can be synced to a Google sheet after analysis if this is true.
         Defaults to false.
         &quot;&quot;&quot;

@@ -11,7 +11,7 @@ import argparse
 import yaml
 import sys
 
-def split_urbansound_by_fold(path_to_file, output_directory, use_symlink=True, 
+def split_urbansound_by_fold(path_to_file, output_directory, make_copy=False, 
     train_folds=[1, 2, 3, 4, 5, 6, 7, 8], val_folds=[9], test_folds=[10],
     path_to_urbansound_csv=None):
     """
@@ -71,7 +71,7 @@ def split_urbansound_by_fold(path_to_file, output_directory, use_symlink=True,
         reader = csv.DictReader(f)
         rows = list(reader)
 
-def split_folder_by_class(path_to_file, output_directory, use_symlink=True):
+def split_folder_by_class(path_to_file, output_directory, make_copy=False):
     """Splits a folder by class which is indicated by the name of the file. 
     
     The mixture name is the name of the parent directory to the file. This function
@@ -134,12 +134,12 @@ def split_folder_by_class(path_to_file, output_directory, use_symlink=True):
 
     if not os.path.exists(output_path):
         logging.info(f"{path_to_file} -> {output_path}")
-        if use_symlink:
-            os.symlink(path_to_file, output_path)
-        else:
+        if make_copy:
             shutil.copyfile(path_to_file, output_path)
+        else:
+            os.symlink(path_to_file, output_path)
 
-def reorganize(input_path, output_path, org_func, use_symlink=True, 
+def reorganize(input_path, output_path, org_func, make_copy=False, 
                audio_extensions=['.wav', '.mp3', '.aac'], **kwargs):
     """
     Reorganizes the folders in the input path into the output path given an 
@@ -165,7 +165,7 @@ def reorganize(input_path, output_path, org_func, use_symlink=True,
     args = [{
         'path_to_file': p,
         'output_directory': output_path,
-        'use_symlink': use_symlink,
+        'make_copy': make_copy,
         **kwargs
     } for p in paths_to_files]
 
@@ -197,9 +197,9 @@ def build_parser():
         to the name of a function in reorganize.py."""
     )
     parser.add_argument(
-        '--use_symlink', type=bool, 
+        '--make_copy', 
+        action="store_true",
         help="""Whether to use a symlink or to actually copy the file.""",
-        default=True
     )
     parser.add_argument(
         '--audio_extensions', nargs='+', 
