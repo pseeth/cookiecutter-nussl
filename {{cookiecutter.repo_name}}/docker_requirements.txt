@@ -45,7 +45,7 @@ netifaces==0.10.9
 numba==0.47.0
 numcodecs==0.6.2
 numpy==1.18.1
--e git+https://github.com/interactiveaudiolab/nussl.git@79b793bf65ab12cf7f29a9ebdd360717afa0d3ba#egg=nussl
+-e git+https://github.com/interactiveaudiolab/nussl.git@1289cf574101aaad37294d5294d881239496241e#egg=nussl
 nvidia-ml-py3==7.352.0
 oauth2client==4.1.3
 oauthlib==3.1.0
@@ -62,7 +62,7 @@ pycparser==2.19
 pyparsing==2.4.6
 pypiwin32==223; sys_platform == "win32" and python_version >= "3.6"
 pyrsistent==0.15.7
-pytest==5.3.3
+pytest==5.3.4
 pytest-cov==2.8.1
 python-dateutil==2.8.1
 pytz==2019.3
