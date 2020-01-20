@@ -331,7 +331,7 @@ from argparse import ArgumentParser
     return experiments, cache_experiments</div>
         
 <div class="viewcode-block" id="create_pipeline"><a class="viewcode-back" href="../../source/scripts.html#scripts.sweep_experiment.create_pipeline">[docs]</a>def create_pipeline(path_to_yml_files, script_name, num_jobs=1, num_gpus=0,
-    run_in=&#39;container&#39;, blocking=False, prefix=&#39;-p&#39;, extra_cmd_args=&#39;&#39;):
+    run_in=&#39;host&#39;, blocking=False, prefix=&#39;-p&#39;, extra_cmd_args=&#39;&#39;):
     &quot;&quot;&quot;
     Takes a list of yml files, a script name, and some configuration options and
     creates a pipeline that can be passed to :py:mod:`scripts.pipeline` so that each
@@ -346,7 +346,7 @@ from argparse import ArgumentParser
             :py:class:`runners.script_runner_pool.ScriptRunnerPool`. Defaults to 1.
         num_gpus (int, optional): Number of GPUs to use for each job. Defaults to 0.
         run_in (str, optional): Whether to run on &#39;host&#39; or &#39;container&#39;. 
-            Defaults to &#39;container&#39;.
+            Defaults to &#39;host&#39;.
         blocking (bool, optional): Whether to block on each job (forces the jobs to run
             sequentially). Defaults to False.
         prefix (str, optional): The prefix to use before the command (either &#39;-p&#39; or &#39;-y&#39;).

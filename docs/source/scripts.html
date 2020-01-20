@@ -379,13 +379,13 @@ run the evaluation on each eval_key in sequence. Defaults to [‘test’].</p></
 <dt id="scripts.mix_with_scaper.mix_with_scaper">
 <code class="sig-prename descclassname">scripts.mix_with_scaper.</code><code class="sig-name descname">mix_with_scaper</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/mix_with_scaper.html#mix_with_scaper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.mix_with_scaper.mix_with_scaper" title="Permalink to this definition">¶</a></dt>
 <dd><p>Takes in keyword arguments containing the specification for mixing with Scaper. See
-<a class="reference internal" href="src.dataset.html#src.dataset.scaper_mix" title="src.dataset.scaper_mix"><code class="xref py py-func docutils literal notranslate"><span class="pre">src.dataset.scaper_mix()</span></code></a> for a description of what should be in the
+<code class="xref py py-func docutils literal notranslate"><span class="pre">src.dataset.scaper_mix()</span></code> for a description of what should be in the
 kwargs. This function does some sanitation of the keyword arguments before
-passing it to <a class="reference internal" href="src.dataset.html#src.dataset.scaper_mix" title="src.dataset.scaper_mix"><code class="xref py py-func docutils literal notranslate"><span class="pre">src.dataset.scaper_mix()</span></code></a>.</p>
+passing it to <code class="xref py py-func docutils literal notranslate"><span class="pre">src.dataset.scaper_mix()</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>kwargs</strong> (<em>dict</em>) – All of the keyword arguments required for
-<a class="reference internal" href="src.dataset.html#src.dataset.scaper_mix" title="src.dataset.scaper_mix"><code class="xref py py-func docutils literal notranslate"><span class="pre">src.dataset.scaper_mix()</span></code></a>.</p>
+<code class="xref py py-func docutils literal notranslate"><span class="pre">src.dataset.scaper_mix()</span></code>.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -791,7 +791,7 @@ the sweep is the number of experiments that get created.</p>
 
 <dl class="function">
 <dt id="scripts.sweep_experiment.create_pipeline">
-<code class="sig-prename descclassname">scripts.sweep_experiment.</code><code class="sig-name descname">create_pipeline</code><span class="sig-paren">(</span><em class="sig-param">path_to_yml_files</em>, <em class="sig-param">script_name</em>, <em class="sig-param">num_jobs=1</em>, <em class="sig-param">num_gpus=0</em>, <em class="sig-param">run_in='container'</em>, <em class="sig-param">blocking=False</em>, <em class="sig-param">prefix='-p'</em>, <em class="sig-param">extra_cmd_args=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/sweep_experiment.html#create_pipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.sweep_experiment.create_pipeline" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">scripts.sweep_experiment.</code><code class="sig-name descname">create_pipeline</code><span class="sig-paren">(</span><em class="sig-param">path_to_yml_files</em>, <em class="sig-param">script_name</em>, <em class="sig-param">num_jobs=1</em>, <em class="sig-param">num_gpus=0</em>, <em class="sig-param">run_in='host'</em>, <em class="sig-param">blocking=False</em>, <em class="sig-param">prefix='-p'</em>, <em class="sig-param">extra_cmd_args=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/sweep_experiment.html#create_pipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.sweep_experiment.create_pipeline" title="Permalink to this definition">¶</a></dt>
 <dd><p>Takes a list of yml files, a script name, and some configuration options and
 creates a pipeline that can be passed to <a class="reference internal" href="#module-scripts.pipeline" title="scripts.pipeline"><code class="xref py py-mod docutils literal notranslate"><span class="pre">scripts.pipeline</span></code></a> so that each
 job is executed accordingly.</p>
@@ -806,7 +806,7 @@ Is used as the max_workers argument in
 <a class="reference internal" href="runners.html#runners.script_runner_pool.ScriptRunnerPool" title="runners.script_runner_pool.ScriptRunnerPool"><code class="xref py py-class docutils literal notranslate"><span class="pre">runners.script_runner_pool.ScriptRunnerPool</span></code></a>. Defaults to 1.</p></li>
 <li><p><strong>num_gpus</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of GPUs to use for each job. Defaults to 0.</p></li>
 <li><p><strong>run_in</strong> (<em>str</em><em>, </em><em>optional</em>) – Whether to run on ‘host’ or ‘container’.
-Defaults to ‘container’.</p></li>
+Defaults to ‘host’.</p></li>
 <li><p><strong>blocking</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to block on each job (forces the jobs to run
 sequentially). Defaults to False.</p></li>
 <li><p><strong>prefix</strong> (<em>str</em><em>, </em><em>optional</em>) – The prefix to use before the command (either ‘-p’ or ‘-y’).
