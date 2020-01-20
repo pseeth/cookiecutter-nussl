@@ -172,7 +172,7 @@ def build_parser():
     parser.add_argument(&#39;--blocking&#39;, type=bool, help=&quot;Finish this job before proceeding to next.&quot;, default=False)
     return parser</div>
 
-<div class="viewcode-block" id="parallel_job_execution"><a class="viewcode-back" href="../../source/scripts.html#scripts.pipeline.parallel_job_execution">[docs]</a>def parallel_job_execution(script_func, jobs, parallelize=False, num_jobs=1):
+<div class="viewcode-block" id="parallel_job_execution"><a class="viewcode-back" href="../../source/scripts.html#scripts.pipeline.parallel_job_execution">[docs]</a>def parallel_job_execution(script_func, jobs, num_jobs=1):
     &quot;&quot;&quot;
     Takes a .yml file with structure as follows::
     
@@ -184,7 +184,6 @@ def build_parser():
 
     Could also be multiple jobs::
 
-        parallelize: whether to parallelize each job (default: false)
         num_jobs: how many jobs to run in parallel (default: 1)
 
         jobs:

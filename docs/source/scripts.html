@@ -424,7 +424,7 @@ optional arguments:
 
 <dl class="function">
 <dt id="scripts.pipeline.parallel_job_execution">
-<code class="sig-prename descclassname">scripts.pipeline.</code><code class="sig-name descname">parallel_job_execution</code><span class="sig-paren">(</span><em class="sig-param">script_func</em>, <em class="sig-param">jobs</em>, <em class="sig-param">parallelize=False</em>, <em class="sig-param">num_jobs=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/pipeline.html#parallel_job_execution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.pipeline.parallel_job_execution" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">scripts.pipeline.</code><code class="sig-name descname">parallel_job_execution</code><span class="sig-paren">(</span><em class="sig-param">script_func</em>, <em class="sig-param">jobs</em>, <em class="sig-param">num_jobs=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/pipeline.html#parallel_job_execution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.pipeline.parallel_job_execution" title="Permalink to this definition">¶</a></dt>
 <dd><p>Takes a .yml file with structure as follows:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>script: name of script in scripts/ folder
 config: path/to/yml/config.yml
@@ -434,8 +434,7 @@ blocking: whether to block on this job or not (default: false)
 </pre></div>
 </div>
 <p>Could also be multiple jobs:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>parallelize: whether to parallelize each job (default: false)
-num_jobs: how many jobs to run in parallel (default: 1)
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>num_jobs: how many jobs to run in parallel (default: 1)
 
 jobs:
 - script: script1.py
