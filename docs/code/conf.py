@@ -12,7 +12,7 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../{{ cookiecutter.repo_name }}'))
+sys.path.insert(0, os.path.abspath('../../{{cookiecutter.repo_name}}'))
 # -- Project information -----------------------------------------------------
 
 project = 'Cookiecutter for nussl'
