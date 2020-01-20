@@ -1,11 +1,11 @@
-src.dataset package
-===================
+src.dataset
+===========
 
 Submodules
 ----------
 
-src.dataset.scaper\_mixer module
---------------------------------
+src.dataset.scaper\_mixer
+-------------------------
 
 .. automodule:: src.dataset.scaper_mixer
    :members:

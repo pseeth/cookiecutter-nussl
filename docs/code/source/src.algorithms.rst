@@ -1,5 +1,5 @@
-src.algorithms package
-======================
+src.algorithms
+==============
 
 Module contents
 ---------------

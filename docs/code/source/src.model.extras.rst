@@ -1,11 +1,11 @@
-src.model.extras package
-========================
+src.model.extras
+================
 
 Submodules
 ----------
 
-src.model.extras.example\_module module
----------------------------------------
+src.model.extras.example\_module
+--------------------------------
 
 .. automodule:: src.model.extras.example_module
    :members:

@@ -1,0 +1,67 @@
+---
+# The purpose of this script is to create datasets of mixtures using Scaper. Given that
+# the data is organized properly in the folder babywsj8k, you can set up mixture_parameters
+# appropriately to create a dataset. There are three keys in mixture_parameters, each of
+# which creates a different dataset - one for training, one for validation, and one for
+# testing. Each dataset has the following parameters:
+
+# 'num_mixtures': The number of mixtures to create from this data.
+# 'foreground_path': The folder to take the foreground sources from. Here we use the same
+#     folder for training, testing, and validation, but they should be different in 
+#     practice.
+# 'background_path': You can add background noise to the mixtures if desired to make them
+#     sound more realistic. Set to None for no background (this probably has bugs in the 
+#     way it is currently implemented).
+# 'target_path': This is where the generated mixtures and sources go to.
+# 'scene_duration': In seconds, how long each mixture in the dataset is.
+# 'num_sources': How many sources are in each mixture. Don't set to greater than the number
+#     of sound classes.
+
+# Additionally, there is sample_rate, which sets the sample rate of the output mixtures.
+# If this is different from the input sample rate, it may take a while. Best to downsample
+# ahead of time using the downsample.py script.
+
+# Defaults at the moment are built for the babywsj8k script.
+
+mixture_parameters:
+  train:
+    num_mixtures: 10
+    foreground_path: ${DATA_DIRECTORY}/babywsj/dev
+    background_path:
+    target_path: ${DATA_DIRECTORY}/babywsj/generated/train
+    scene_duration: 20
+    num_sources: 5
+
+  val:
+    num_mixtures: 10
+    foreground_path: ${DATA_DIRECTORY}/babywsj/dev
+    background_path:
+    target_path: ${DATA_DIRECTORY}/babywsj/generated/val
+    scene_duration: 20
+    num_sources: 5
+
+  test:
+    num_mixtures: 10
+    foreground_path: ${DATA_DIRECTORY}/babywsj/dev
+    background_path:
+    target_path: ${DATA_DIRECTORY}/babywsj/generated/test
+    scene_duration: 20
+    num_sources: 5
+
+event_parameters:
+  label: ['choose', []]
+  source_file: ['choose', []]
+  source_time: ['const', 0]
+  event_time: ['uniform', 0, 20]
+  event_duration: ['const', 10]
+  snr: ['uniform',-2.5, 2.5]
+  pitch_shift: #defaults to None
+  time_stretch: #defaults to None
+
+sample_rate: 8000
+ref_db: -40
+bitdepth: 16
+seed: 0
+coherent: false
+num_workers: 10
+allow_repeated_label: true

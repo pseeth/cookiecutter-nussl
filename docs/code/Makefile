@@ -15,7 +15,11 @@ help:
 
 .PHONY: help Makefile
 
+apidoc:
+	sphinx-apidoc --templatedir _templates/ -o ./source ../../\{\{\ cookiecutter.repo_name\ \}\} 
+
 github:
+	make apidoc
 	make clean
 	make html 0=-a
 	rsync -r --exclude code --delete _build/html/ ..

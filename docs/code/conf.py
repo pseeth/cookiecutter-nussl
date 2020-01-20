@@ -20,8 +20,8 @@ copyright = '2020, Prem Seetharaman'
 author = 'Prem Seetharaman'
 
 def skip(app, what, name, obj, would_skip, options):
-    if name == "__init__":
-        return False
+    # if name == "__init__":
+    #     return False
     return would_skip
 
 def setup(app):
@@ -41,6 +41,7 @@ extensions = [
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
+highlight_language = "none"
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.

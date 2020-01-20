@@ -1,0 +1,32 @@
+num_jobs: 2 # controls whether to run this sequentially or in parallel
+
+jobs:
+# Before doing anything, download the toy data the scripts below depend on.
+- script: download_toy_data
+  config: -y data_prep/download_toy_data.yml
+  run_in: host
+  blocking: true
+
+# First, reorganize the MUSDB dataset so that it can be fed into Scaper.
+# Data should start off in a folder at DATA_DIRECTORY/musdb/raw/[train,test]/
+# This is how musdb18.zip unzips.
+- script: reorganize
+  config: -y data_prep/musdb/reorganize.yml
+  run_in: container
+  blocking: true
+
+# Downsample each audio file from 44100 to 16000.
+- script: resample
+  config: -y data_prep/musdb/resample.yml
+  run_in: container
+  blocking: true
+
+# Mix a coherent dataset with Scaper.
+- script: mix_with_scaper
+  config: -y data_prep/musdb/coherent.yml
+  run_in: host
+
+# Mix an incoherent dataset with Scaper.
+- script: mix_with_scaper
+  config: -y data_prep/musdb/incoherent.yml
+  run_in: container
