@@ -174,7 +174,7 @@ def create_experiments(path_to_yml_file):
     return experiments, cache_experiments
         
 def create_pipeline(path_to_yml_files, script_name, num_jobs=1, num_gpus=0,
-    run_in='container', blocking=False, prefix='-p', extra_cmd_args=''):
+    run_in='host', blocking=False, prefix='-p', extra_cmd_args=''):
     """
     Takes a list of yml files, a script name, and some configuration options and
     creates a pipeline that can be passed to :py:mod:`scripts.pipeline` so that each
@@ -189,7 +189,7 @@ def create_pipeline(path_to_yml_files, script_name, num_jobs=1, num_gpus=0,
             :py:class:`runners.script_runner_pool.ScriptRunnerPool`. Defaults to 1.
         num_gpus (int, optional): Number of GPUs to use for each job. Defaults to 0.
         run_in (str, optional): Whether to run on 'host' or 'container'. 
-            Defaults to 'container'.
+            Defaults to 'host'.
         blocking (bool, optional): Whether to block on each job (forces the jobs to run
             sequentially). Defaults to False.
         prefix (str, optional): The prefix to use before the command (either '-p' or '-y').

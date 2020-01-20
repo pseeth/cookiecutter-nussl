@@ -45,7 +45,7 @@ netifaces==0.10.9
 numba==0.47.0
 numcodecs==0.6.2
 numpy==1.18.1
--e git+https://github.com/interactiveaudiolab/nussl.git@1db6717867fd208d59d0588fa4ca6d91b215a524#egg=nussl
+-e git+https://github.com/interactiveaudiolab/nussl.git@79b793bf65ab12cf7f29a9ebdd360717afa0d3ba#egg=nussl
 nvidia-ml-py3==7.352.0
 oauth2client==4.1.3
 oauthlib==3.1.0
