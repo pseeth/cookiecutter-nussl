@@ -326,7 +326,7 @@ def sweep_experiment(path_to_yml_file, num_jobs=1, num_gpus=0, run_in='host'):
         num_jobs = 1 if s == 'analyze' else num_jobs
         extra_cmd_args = ''
         if s == 'analyze':
-            extra_cmd_args += '--use_gsheet true'
+            extra_cmd_args += '--use_gsheet'
         run_in = 'host' if s == 'analyze' else run_in
         pipeline = create_pipeline(
             experiments, 
