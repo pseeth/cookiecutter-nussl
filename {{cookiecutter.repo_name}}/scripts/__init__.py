@@ -128,11 +128,13 @@ def cmd(script_func, parser_func, exec_func=sequential_job_execution):
             if cmd_parser:
                 args = []
                 for key, val in job.items():
-                    args.append(f'--{key}')
-                    if isinstance(val, dict):
-                        val = json.dumps(val)
-                    args.append(val)
-
+                    if isinstance(val, bool):
+                        if val:
+                            args.append(f'--{key}')
+                    else:
+                        args.append(f'--{key}')
+                        args.append(str(val))
+                print(args)
                 args, unknown_args = cmd_parser.parse_known_args(args)
                 args = vars(args)
                 [job.pop(k) for k in args if k in job]
