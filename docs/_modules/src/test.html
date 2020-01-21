@@ -254,7 +254,10 @@ import yaml
             file_path ([type]): [description]
             data ([type], optional): [description]. Defaults to None.
         &quot;&quot;&quot;
-        mixture, sources = self.dataset.load_audio_files(file_path)[0:2]
+        mixture, sources, labels = self.dataset.load_audio_files(file_path)
+        classes = self.dataset.options[&#39;source_labels&#39;]
+        labels = [classes[np.argmax(l)] for l in labels]
+
         algorithm = self.AlgorithmClass(mixture, **self.algorithm_config[&#39;args&#39;])
         if data:
             for key in data:
@@ -267,7 +270,8 @@ import yaml
 
         tester_args = {
             &#39;true_sources_list&#39;: sources,
-            &#39;estimated_sources_list&#39;: estimates
+            &#39;estimated_sources_list&#39;: estimates,
+            &#39;source_labels&#39;: labels
         }
 
         all_scores = []
