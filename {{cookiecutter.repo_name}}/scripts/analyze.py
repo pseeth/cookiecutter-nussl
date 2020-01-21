@@ -32,7 +32,7 @@ def init_gsheet(credentials_path):
     gc = gspread.authorize(credentials)
     return gc
 
-def upload_to_gsheet(results, config, exp=None):
+def upload_to_gsheet(results, config, exp=None, upload_source_metrics=False):
     """
     Uploads the analysis to the Google Sheet, if possible.
     
@@ -41,6 +41,9 @@ def upload_to_gsheet(results, config, exp=None):
             by :py:func:`scripts.analyze.analyze`.
         config (dict): Dictionary containing the entire experiment configuration.
         exp (:class:`comet_ml.Experiment`): Experiment given by comet.ml (optional).
+        upload_source_metrics (bool): Uploads metrics for each source if True. Defaults to False.
+            Can have interactions with the API limit on Google Sheets. If there are two many 
+            sources, then it will hit the limit and the script will break.
     """
     credentials_path = os.getenv('PATH_TO_GOOGLE_CREDENTIALS', None)
     if not credentials_path:
@@ -124,25 +127,30 @@ def upload_to_gsheet(results, config, exp=None):
         for i, value in enumerate(overall_metrics):
             summary_worksheet.update_cell(row_index, overall_index + i, value)
 
-        source_names = np.unique(_results['source_name']).tolist()
-        for source_name in source_names:
-            source_metrics = []
+        if upload_sources:
             try:
-                source_name_cell = summary_worksheet.find(source_name)
-            except Exception as e:
-                source_name_cell = summary_worksheet.find('Source')
-                source_name_cell.value = source_name
-                summary_worksheet.update_cells([source_name_cell])
-            for i, metric in enumerate(metrics):
-                value = trunc(
-                    _results[_results['source_name'] == source_name].mean()[metric], 
-                    decs=2
-                )
-                summary_worksheet.update_cell(
-                    row_index, source_name_cell.col + i, value
-                )
+                source_names = np.unique(_results['source_name']).tolist()
+                for source_name in source_names:
+                    source_metrics = []
+                    try:
+                        source_name_cell = summary_worksheet.find(source_name)
+                    except Exception as e:
+                        source_name_cell = summary_worksheet.find('Source')
+                        source_name_cell.value = source_name
+                        summary_worksheet.update_cells([source_name_cell])
+                    for i, metric in enumerate(metrics):
+                        value = trunc(
+                            _results[_results['source_name'] == source_name].mean()[metric], 
+                            decs=2
+                        )
+                        summary_worksheet.update_cell(
+                            row_index, source_name_cell.col + i, value
+                        )
+            except:
+                logging.info("Failure in uploading. Likely too many unique sources and we hit an API limit.")
+                pass
 
-def analyze(path_to_yml_file, use_gsheet=False):
+def analyze(path_to_yml_file, use_gsheet=False, upload_source_metrics=False):
     """
     Analyzes the metrics for all the files that were evaluated in the experiment.
     
@@ -152,6 +160,9 @@ def analyze(path_to_yml_file, use_gsheet=False):
             into a Pandas dataframe.
         use_gsheet (bool, optional): Whether or not to upload to the Google Sheet. 
             Defaults to False.
+        upload_source_metrics (bool): Uploads metrics for each source if True. Defaults to False.
+            Can have interactions with the API limit on Google Sheets. If there are two many 
+            sources, then it will hit the limit and the script will break.
     
     Returns:
         tuple: 3-element tuple containing
@@ -202,7 +213,7 @@ def analyze(path_to_yml_file, use_gsheet=False):
     logging.info(config['info']['experiment_key'])
 
     if use_gsheet:
-        upload_to_gsheet(results, config, exp)
+        upload_to_gsheet(results, config, exp, upload_source_metrics)
 
     return results, config, exp
 
@@ -224,6 +235,14 @@ def build_parser():
         action="store_true",
         help="""Results can be synced to a Google sheet after analysis if this is true.
         Defaults to false.
+        """
+    )
+    parser.add_argument(
+        "--upload_source_metrics",
+        action="store_true",
+        help="""Uploads metrics for each source if True. Defaults to False.
+        Can have interactions with the API limit on Google Sheets. If there are two many 
+        sources, then it will hit the limit and the script will break.
         """
     )
     return parser
