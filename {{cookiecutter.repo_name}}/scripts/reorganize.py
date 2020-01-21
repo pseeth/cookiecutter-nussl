@@ -114,7 +114,6 @@ def split_folder_by_file(path_to_file, output_directory, input_directory, org_fi
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
         if not os.path.exists(output_path):
-            logging.info(f"{path_to_file} -> {output_path}")
             if make_copy:
                 shutil.copyfile(path_to_file, output_path)
             else:
@@ -185,7 +184,6 @@ def split_folder_by_class(path_to_file, output_directory, input_directory, make_
     os.makedirs(os.path.join(output_directory, class_name), exist_ok=True)
 
     if not os.path.exists(output_path):
-        logging.info(f"{path_to_file} -> {output_path}")
         if make_copy:
             shutil.copyfile(path_to_file, output_path)
         else:
