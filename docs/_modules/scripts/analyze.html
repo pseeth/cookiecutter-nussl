@@ -189,7 +189,7 @@ from gspread import WorksheetNotFound
     gc = gspread.authorize(credentials)
     return gc</div>
 
-<div class="viewcode-block" id="upload_to_gsheet"><a class="viewcode-back" href="../../source/scripts.html#scripts.analyze.upload_to_gsheet">[docs]</a>def upload_to_gsheet(results, config, exp=None):
+<div class="viewcode-block" id="upload_to_gsheet"><a class="viewcode-back" href="../../source/scripts.html#scripts.analyze.upload_to_gsheet">[docs]</a>def upload_to_gsheet(results, config, exp=None, upload_source_metrics=False):
     &quot;&quot;&quot;
     Uploads the analysis to the Google Sheet, if possible.
     
@@ -198,6 +198,9 @@ from gspread import WorksheetNotFound
             by :py:func:`scripts.analyze.analyze`.
         config (dict): Dictionary containing the entire experiment configuration.
         exp (:class:`comet_ml.Experiment`): Experiment given by comet.ml (optional).
+        upload_source_metrics (bool): Uploads metrics for each source if True. Defaults to False.
+            Can have interactions with the API limit on Google Sheets. If there are two many 
+            sources, then it will hit the limit and the script will break.
     &quot;&quot;&quot;
     credentials_path = os.getenv(&#39;PATH_TO_GOOGLE_CREDENTIALS&#39;, None)
     if not credentials_path:
@@ -281,25 +284,30 @@ from gspread import WorksheetNotFound
         for i, value in enumerate(overall_metrics):
             summary_worksheet.update_cell(row_index, overall_index + i, value)
 
-        source_names = np.unique(_results[&#39;source_name&#39;]).tolist()
-        for source_name in source_names:
-            source_metrics = []
+        if upload_sources:
             try:
-                source_name_cell = summary_worksheet.find(source_name)
-            except Exception as e:
-                source_name_cell = summary_worksheet.find(&#39;Source&#39;)
-                source_name_cell.value = source_name
-                summary_worksheet.update_cells([source_name_cell])
-            for i, metric in enumerate(metrics):
-                value = trunc(
-                    _results[_results[&#39;source_name&#39;] == source_name].mean()[metric], 
-                    decs=2
-                )
-                summary_worksheet.update_cell(
-                    row_index, source_name_cell.col + i, value
-                )</div>
+                source_names = np.unique(_results[&#39;source_name&#39;]).tolist()
+                for source_name in source_names:
+                    source_metrics = []
+                    try:
+                        source_name_cell = summary_worksheet.find(source_name)
+                    except Exception as e:
+                        source_name_cell = summary_worksheet.find(&#39;Source&#39;)
+                        source_name_cell.value = source_name
+                        summary_worksheet.update_cells([source_name_cell])
+                    for i, metric in enumerate(metrics):
+                        value = trunc(
+                            _results[_results[&#39;source_name&#39;] == source_name].mean()[metric], 
+                            decs=2
+                        )
+                        summary_worksheet.update_cell(
+                            row_index, source_name_cell.col + i, value
+                        )
+            except:
+                logging.info(&quot;Failure in uploading. Likely too many unique sources and we hit an API limit.&quot;)
+                pass</div>
 
-<div class="viewcode-block" id="analyze"><a class="viewcode-back" href="../../source/scripts.html#scripts.analyze.analyze">[docs]</a>def analyze(path_to_yml_file, use_gsheet=False):
+<div class="viewcode-block" id="analyze"><a class="viewcode-back" href="../../source/scripts.html#scripts.analyze.analyze">[docs]</a>def analyze(path_to_yml_file, use_gsheet=False, upload_source_metrics=False):
     &quot;&quot;&quot;
     Analyzes the metrics for all the files that were evaluated in the experiment.
     
@@ -309,6 +317,9 @@ from gspread import WorksheetNotFound
             into a Pandas dataframe.
         use_gsheet (bool, optional): Whether or not to upload to the Google Sheet. 
             Defaults to False.
+        upload_source_metrics (bool): Uploads metrics for each source if True. Defaults to False.
+            Can have interactions with the API limit on Google Sheets. If there are two many 
+            sources, then it will hit the limit and the script will break.
     
     Returns:
         tuple: 3-element tuple containing
@@ -359,7 +370,7 @@ from gspread import WorksheetNotFound
     logging.info(config[&#39;info&#39;][&#39;experiment_key&#39;])
 
     if use_gsheet:
-        upload_to_gsheet(results, config, exp)
+        upload_to_gsheet(results, config, exp, upload_source_metrics)
 
     return results, config, exp</div>
 
@@ -381,6 +392,14 @@ def build_parser():
         action=&quot;store_true&quot;,
         help=&quot;&quot;&quot;Results can be synced to a Google sheet after analysis if this is true.
         Defaults to false.
+        &quot;&quot;&quot;
+    )
+    parser.add_argument(
+        &quot;--upload_source_metrics&quot;,
+        action=&quot;store_true&quot;,
+        help=&quot;&quot;&quot;Uploads metrics for each source if True. Defaults to False.
+        Can have interactions with the API limit on Google Sheets. If there are two many 
+        sources, then it will hit the limit and the script will break.
         &quot;&quot;&quot;
     )
     return parser</div>

@@ -178,7 +178,7 @@
 <span id="scripts-analyze"></span><h2>scripts.analyze<a class="headerlink" href="#module-scripts.analyze" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="scripts.analyze.analyze">
-<code class="sig-prename descclassname">scripts.analyze.</code><code class="sig-name descname">analyze</code><span class="sig-paren">(</span><em class="sig-param">path_to_yml_file</em>, <em class="sig-param">use_gsheet=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/analyze.html#analyze"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.analyze.analyze" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">scripts.analyze.</code><code class="sig-name descname">analyze</code><span class="sig-paren">(</span><em class="sig-param">path_to_yml_file</em>, <em class="sig-param">use_gsheet=False</em>, <em class="sig-param">upload_source_metrics=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/analyze.html#analyze"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.analyze.analyze" title="Permalink to this definition">¶</a></dt>
 <dd><p>Analyzes the metrics for all the files that were evaluated in the experiment.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -188,6 +188,9 @@ corresponding results folder for the experiment is what will be analyzed and put
 into a Pandas dataframe.</p></li>
 <li><p><strong>use_gsheet</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether or not to upload to the Google Sheet.
 Defaults to False.</p></li>
+<li><p><strong>upload_source_metrics</strong> (<em>bool</em>) – Uploads metrics for each source if True. Defaults to False.
+Can have interactions with the API limit on Google Sheets. If there are two many
+sources, then it will hit the limit and the script will break.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -217,6 +220,7 @@ key in the experiment configuration in flattened format.</p>
 <dd><p>Builds the parser for <a class="reference internal" href="#module-scripts.analyze" title="scripts.analyze"><code class="xref py py-mod docutils literal notranslate"><span class="pre">scripts.analyze</span></code></a>.</p>
 <blockquote>
 <div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: python -m scripts.analyze  [-h] -p PATH_TO_YML_FILE [--use_gsheet]
+                    [--upload_source_metrics]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -227,6 +231,11 @@ optional arguments:
                         Pandas dataframe.
   --use_gsheet          Results can be synced to a Google sheet after analysis
                         if this is true. Defaults to false.
+  --upload_source_metrics
+                        Uploads metrics for each source if True. Defaults to
+                        False. Can have interactions with the API limit on
+                        Google Sheets. If there are two many sources, then it
+                        will hit the limit and the script will break.
 </pre></div>
 </div>
 </div></blockquote>
@@ -261,7 +270,7 @@ authorize the Google Sheets access.</p>
 
 <dl class="function">
 <dt id="scripts.analyze.upload_to_gsheet">
-<code class="sig-prename descclassname">scripts.analyze.</code><code class="sig-name descname">upload_to_gsheet</code><span class="sig-paren">(</span><em class="sig-param">results</em>, <em class="sig-param">config</em>, <em class="sig-param">exp=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/analyze.html#upload_to_gsheet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.analyze.upload_to_gsheet" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">scripts.analyze.</code><code class="sig-name descname">upload_to_gsheet</code><span class="sig-paren">(</span><em class="sig-param">results</em>, <em class="sig-param">config</em>, <em class="sig-param">exp=None</em>, <em class="sig-param">upload_source_metrics=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/analyze.html#upload_to_gsheet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.analyze.upload_to_gsheet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Uploads the analysis to the Google Sheet, if possible.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -270,6 +279,9 @@ authorize the Google Sheets access.</p>
 by <a class="reference internal" href="#scripts.analyze.analyze" title="scripts.analyze.analyze"><code class="xref py py-func docutils literal notranslate"><span class="pre">scripts.analyze.analyze()</span></code></a>.</p></li>
 <li><p><strong>config</strong> (<em>dict</em>) – Dictionary containing the entire experiment configuration.</p></li>
 <li><p><strong>exp</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">comet_ml.Experiment</span></code>) – Experiment given by comet.ml (optional).</p></li>
+<li><p><strong>upload_source_metrics</strong> (<em>bool</em>) – Uploads metrics for each source if True. Defaults to False.
+Can have interactions with the API limit on Google Sheets. If there are two many
+sources, then it will hit the limit and the script will break.</p></li>
 </ul>
 </dd>
 </dl>
