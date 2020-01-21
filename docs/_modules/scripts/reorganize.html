@@ -271,7 +271,6 @@ import sys
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
         if not os.path.exists(output_path):
-            logging.info(f&quot;{path_to_file} -&gt; {output_path}&quot;)
             if make_copy:
                 shutil.copyfile(path_to_file, output_path)
             else:
@@ -342,7 +341,6 @@ import sys
     os.makedirs(os.path.join(output_directory, class_name), exist_ok=True)
 
     if not os.path.exists(output_path):
-        logging.info(f&quot;{path_to_file} -&gt; {output_path}&quot;)
         if make_copy:
             shutil.copyfile(path_to_file, output_path)
         else:
