@@ -99,7 +99,10 @@ class EvaluationRunner(object):
             file_path ([type]): [description]
             data ([type], optional): [description]. Defaults to None.
         """
-        mixture, sources = self.dataset.load_audio_files(file_path)[0:2]
+        mixture, sources, labels = self.dataset.load_audio_files(file_path)
+        classes = self.dataset.options['source_labels']
+        labels = [classes[np.argmax(l)] for l in labels]
+
         algorithm = self.AlgorithmClass(mixture, **self.algorithm_config['args'])
         if data:
             for key in data:
@@ -112,7 +115,8 @@ class EvaluationRunner(object):
 
         tester_args = {
             'true_sources_list': sources,
-            'estimated_sources_list': estimates
+            'estimated_sources_list': estimates,
+            'source_labels': labels
         }
 
         all_scores = []

@@ -58,7 +58,7 @@ event_parameters:
   pitch_shift: #defaults to None
   time_stretch: #defaults to None
 
-sample_rate: 8000
+sample_rate: 16000
 ref_db: -40
 bitdepth: 16
 seed: 0

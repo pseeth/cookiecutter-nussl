@@ -74,7 +74,8 @@ def load_experiment(path_to_yml_file):
         if api_key and comet_ml_imported:
             exp = Experiment(
                 api_key=api_key, 
-                project_name=config['info']['project_name']
+                project_name=config['info']['project_name'],
+                auto_metric_logging=False
             )
             exp_key = exp.get_key()
         else:
@@ -94,7 +95,8 @@ def load_experiment(path_to_yml_file):
             try:
                 exp = ExistingExperiment(
                     api_key=api_key,
-                    previous_experiment=config['info']['experiment_key']
+                    previous_experiment=config['info']['experiment_key'],
+                    auto_metric_logging=False
                 )
             except:
                 pass
