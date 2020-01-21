@@ -25,7 +25,7 @@
 
 mixture_parameters:
   train:
-    num_mixtures: 10
+    num_mixtures: 5000
     foreground_path: ${DATA_DIRECTORY}/speech_commands/scaper/train
     background_path:
     target_path: ${DATA_DIRECTORY}/speech_commands/generated/train/
@@ -33,7 +33,7 @@ mixture_parameters:
     num_sources: 3
 
   val:
-    num_mixtures: 10
+    num_mixtures: 2500
     foreground_path: ${DATA_DIRECTORY}/speech_commands/scaper/val/
     background_path:
     target_path: ${DATA_DIRECTORY}/speech_commands/generated/val/
@@ -41,7 +41,7 @@ mixture_parameters:
     num_sources: 3
 
   test:
-    num_mixtures: 10
+    num_mixtures: 1000
     foreground_path: ${DATA_DIRECTORY}/speech_commands/scaper/test/
     background_path:
     target_path: ${DATA_DIRECTORY}/speech_commands/generated/test/
