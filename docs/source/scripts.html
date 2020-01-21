@@ -506,8 +506,8 @@ organization function, passed in by org_func.</p>
 <li><p><strong>output_path</strong> (<em>str</em>) – Root of folder where the reorganized files will be placed.</p></li>
 <li><p><strong>org_func</strong> (<em>str</em>) – Organization function to use reorganize the dataset. Should
 correspond to the name of a function in reorganize.py.</p></li>
-<li><p><strong>use_symlink</strong> (<em>bool</em>) – Whether to use a symlink or to actually copy the file.
-Defaults to True.</p></li>
+<li><p><strong>make_copy</strong> (<em>bool</em>) – Whether to use a symlink or to actually copy the file.
+Defaults to False.</p></li>
 <li><p><strong>audio_extensions</strong> (<em>list</em><em>, </em><em>optional</em>) – Audio extensions to look for in the
 input_path. Matching ones will be reorganize and placed into the output
 directory via a symlink.. Defaults to [‘.wav’, ‘.mp3’, ‘.aac’].</p></li>
@@ -520,7 +520,7 @@ that is specified.</p></li>
 
 <dl class="function">
 <dt id="scripts.reorganize.split_folder_by_class">
-<code class="sig-prename descclassname">scripts.reorganize.</code><code class="sig-name descname">split_folder_by_class</code><span class="sig-paren">(</span><em class="sig-param">path_to_file</em>, <em class="sig-param">output_directory</em>, <em class="sig-param">make_copy=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/reorganize.html#split_folder_by_class"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.reorganize.split_folder_by_class" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">scripts.reorganize.</code><code class="sig-name descname">split_folder_by_class</code><span class="sig-paren">(</span><em class="sig-param">path_to_file</em>, <em class="sig-param">output_directory</em>, <em class="sig-param">input_directory</em>, <em class="sig-param">make_copy=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/reorganize.html#split_folder_by_class"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.reorganize.split_folder_by_class" title="Permalink to this definition">¶</a></dt>
 <dd><p>Splits a folder by class which is indicated by the name of the file.</p>
 <p>The mixture name is the name of the parent directory to the file. This function
 is used to organize datasets like musdb for consumption by Scaper for mixing
@@ -570,8 +570,46 @@ is not copied.</p>
 /path/to/mixture_name/source_name.ext</p></li>
 <li><p><strong>output_directory</strong> (<em>str</em>) – Where the file after swapping the mixture_name and source_name
 will be copied to.</p></li>
-<li><p><strong>use_symlink</strong> (<em>bool</em>) – Whether to use a symlink or to actually copy the file.
-Defaults to True.</p></li>
+<li><p><strong>input_directory</strong> (<em>str</em>) – The root of the directory that the file comes from. Useful for
+figuring out the relative path with respect to the input directory for copying
+to the output_directory.</p></li>
+<li><p><strong>make_copy</strong> (<em>bool</em>) – Whether to use a symlink or to actually copy the file.
+Defaults to False.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scripts.reorganize.split_folder_by_file">
+<code class="sig-prename descclassname">scripts.reorganize.</code><code class="sig-name descname">split_folder_by_file</code><span class="sig-paren">(</span><em class="sig-param">path_to_file</em>, <em class="sig-param">output_directory</em>, <em class="sig-param">input_directory</em>, <em class="sig-param">org_file</em>, <em class="sig-param">make_copy=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/reorganize.html#split_folder_by_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.reorganize.split_folder_by_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reorganizes a directory using a organization file. The organization file should contain a
+list of paths that are relative to the input_directory. If path_to_file is in the organization
+file, then it will be symlinked (or moved) to the same relative path in output_directory.</p>
+<p>For example if organization file has an entry:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>path/to/my/file/0.wav
+</pre></div>
+</div>
+<p>And path to file looks like:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>input_directory/path/to/my/file/0.wav
+</pre></div>
+</div>
+<p>Then a new file will be created (or symlinked) at:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>output_directory/path/to/my/file/0.wav
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_to_file</strong> (<em>str</em>) – Path to the audio file that will be reorganized.</p></li>
+<li><p><strong>output_directory</strong> (<em>str</em>) – Where the file after swapping the mixture_name and source_name
+will be copied to.</p></li>
+<li><p><strong>input_directory</strong> (<em>str</em>) – The root of the directory that the file comes from. Useful for
+figuring out the relative path with respect to the input directory for copying
+to the output_directory.</p></li>
+<li><p><strong>org_file</strong> (<em>str</em>) – Path to the file containing all of the file names that should be moved.</p></li>
+<li><p><strong>make_copy</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to use a symlink or to actually copy the file.
+Defaults to False.</p></li>
 </ul>
 </dd>
 </dl>
@@ -579,7 +617,7 @@ Defaults to True.</p></li>
 
 <dl class="function">
 <dt id="scripts.reorganize.split_urbansound_by_fold">
-<code class="sig-prename descclassname">scripts.reorganize.</code><code class="sig-name descname">split_urbansound_by_fold</code><span class="sig-paren">(</span><em class="sig-param">path_to_file, output_directory, make_copy=False, train_folds=[1, 2, 3, 4, 5, 6, 7, 8], val_folds=[9], test_folds=[10], path_to_urbansound_csv=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/reorganize.html#split_urbansound_by_fold"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.reorganize.split_urbansound_by_fold" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">scripts.reorganize.</code><code class="sig-name descname">split_urbansound_by_fold</code><span class="sig-paren">(</span><em class="sig-param">path_to_file, output_directory, input_directory, make_copy=False, train_folds=[1, 2, 3, 4, 5, 6, 7, 8], val_folds=[9], test_folds=[10], path_to_urbansound_csv=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/reorganize.html#split_urbansound_by_fold"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.reorganize.split_urbansound_by_fold" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reorganizes the urbansound dataset using the metadata/UrbanSound8K.csv to
 determine which fold each file belongs to. It makes symlinks in the corresponding
 train, test, and val folders.</p>
@@ -590,8 +628,11 @@ train, test, and val folders.</p>
 /path/to/mixture_name/source_name.ext</p></li>
 <li><p><strong>output_directory</strong> (<em>str</em>) – Where the file after swapping the mixture_name and source_name
 will be copied to.</p></li>
-<li><p><strong>use_symlink</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to use a symlink or to actually copy the file.
-Defaults to True.</p></li>
+<li><p><strong>input_directory</strong> (<em>str</em>) – The root of the directory that the file comes from. Useful for
+figuring out the relative path with respect to the input directory for copying
+to the output_directory.</p></li>
+<li><p><strong>make_copy</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to use a symlink or to actually copy the file.
+Defaults to False.</p></li>
 <li><p><strong>train_folds</strong> (<em>list</em><em>, </em><em>optional</em>) – Which folds belong to the train set.
 Defaults to [1, 2, 3, 4, 5, 6, 7, 8].</p></li>
 <li><p><strong>val_folds</strong> (<em>list</em><em>, </em><em>optional</em>) – Which folds belong to the validation set.

@@ -1,0 +1,9 @@
+jobs:
+    - command: mkdir -p ${DATA_DIRECTORY}/speech_commands/all/
+      run_in: host
+    - command: curl http://download.tensorflow.org/data/speech_commands_v0.01.tar.gz -o ${DATA_DIRECTORY}/speech_commands_v0.01.tar.gz
+      run_in: host
+    - command: tar xvf ${DATA_DIRECTORY}/speech_commands_v0.01.tar.gz -C ${DATA_DIRECTORY}/speech_commands/all/
+      run_in: host
+    - command: python data_prep/speech_commands/create_training_list.py 
+      run_in: host

@@ -26,7 +26,7 @@ def job_runner(script):
             target = 'run_in_host'
         
         command = f"python -m scripts.{script['script']} {script['config']}"
-        print(command)
+        logging.info(command)
         subprocess.run(
             [
                 f"""

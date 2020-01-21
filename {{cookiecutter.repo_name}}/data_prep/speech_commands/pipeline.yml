@@ -1,0 +1,14 @@
+jobs:
+- script: run
+  config: -y data_prep/speech_commands/download.yml
+  run_in: host
+  blocking: true
+
+- script: reorganize
+  config: -y data_prep/speech_commands/reorganize.yml
+  run_in: host
+  blocking: true
+
+- script: mix_with_scaper
+  config: -y data_prep/speech_commands/incoherent.yml
+  run_in: host

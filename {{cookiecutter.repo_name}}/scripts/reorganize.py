@@ -11,7 +11,7 @@ import argparse
 import yaml
 import sys
 
-def split_urbansound_by_fold(path_to_file, output_directory, make_copy=False, 
+def split_urbansound_by_fold(path_to_file, output_directory, input_directory, make_copy=False, 
     train_folds=[1, 2, 3, 4, 5, 6, 7, 8], val_folds=[9], test_folds=[10],
     path_to_urbansound_csv=None):
     """
@@ -24,8 +24,11 @@ def split_urbansound_by_fold(path_to_file, output_directory, make_copy=False,
             /path/to/mixture_name/source_name.ext
         output_directory (str): Where the file after swapping the mixture_name and source_name
             will be copied to.
-        use_symlink (bool, optional): Whether to use a symlink or to actually copy the file. 
-            Defaults to True.
+        input_directory (str): The root of the directory that the file comes from. Useful for
+            figuring out the relative path with respect to the input directory for copying
+            to the output_directory.
+        make_copy (bool, optional): Whether to use a symlink or to actually copy the file. 
+            Defaults to False.
         train_folds (list, optional): Which folds belong to the train set. 
             Defaults to [1, 2, 3, 4, 5, 6, 7, 8].
         val_folds (list, optional): Which folds belong to the validation set. 
@@ -71,7 +74,53 @@ def split_urbansound_by_fold(path_to_file, output_directory, make_copy=False,
         reader = csv.DictReader(f)
         rows = list(reader)
 
-def split_folder_by_class(path_to_file, output_directory, make_copy=False):
+def split_folder_by_file(path_to_file, output_directory, input_directory, org_file, make_copy=False):
+    """
+    Reorganizes a directory using a organization file. The organization file should contain a 
+    list of paths that are relative to the input_directory. If path_to_file is in the organization
+    file, then it will be symlinked (or moved) to the same relative path in output_directory.
+
+    For example if organization file has an entry::
+
+        path/to/my/file/0.wav
+
+    And path to file looks like::
+
+        input_directory/path/to/my/file/0.wav
+    
+    Then a new file will be created (or symlinked) at::
+
+        output_directory/path/to/my/file/0.wav
+    
+    Args:
+        path_to_file (str): Path to the audio file that will be reorganized.
+        output_directory (str): Where the file after swapping the mixture_name and source_name
+            will be copied to.
+        input_directory (str): The root of the directory that the file comes from. Useful for
+            figuring out the relative path with respect to the input directory for copying
+            to the output_directory.
+        org_file (str): Path to the file containing all of the file names that should be moved.
+        make_copy (bool, optional): Whether to use a symlink or to actually copy the file. 
+            Defaults to False.
+    """
+    with open(org_file, 'r') as f:
+        files = f.readlines()
+        files = [x.strip() for x in files]
+    files = set(files)
+
+    relative_path = path_to_file.split(input_directory)[-1][1:]
+    if relative_path in files:
+        output_path = os.path.join(output_directory, relative_path)
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+        if not os.path.exists(output_path):
+            logging.info(f"{path_to_file} -> {output_path}")
+            if make_copy:
+                shutil.copyfile(path_to_file, output_path)
+            else:
+                os.symlink(path_to_file, output_path)
+
+def split_folder_by_class(path_to_file, output_directory, input_directory, make_copy=False):
     """Splits a folder by class which is indicated by the name of the file. 
     
     The mixture name is the name of the parent directory to the file. This function
@@ -122,8 +171,11 @@ def split_folder_by_class(path_to_file, output_directory, make_copy=False):
             /path/to/mixture_name/source_name.ext
         output_directory (str): Where the file after swapping the mixture_name and source_name
             will be copied to.
-        use_symlink (bool): Whether to use a symlink or to actually copy the file. 
-            Defaults to True.
+        input_directory (str): The root of the directory that the file comes from. Useful for
+            figuring out the relative path with respect to the input directory for copying
+            to the output_directory.
+        make_copy (bool): Whether to use a symlink or to actually copy the file. 
+            Defaults to False.
     """
     head, tail = os.path.split(path_to_file)
     class_name, ext = os.path.splitext(tail)
@@ -150,8 +202,8 @@ def reorganize(input_path, output_path, org_func, make_copy=False,
         output_path (str): Root of folder where the reorganized files will be placed. 
         org_func (str): Organization function to use reorganize the dataset. Should 
             correspond to the name of a function in reorganize.py.
-        use_symlink (bool): Whether to use a symlink or to actually copy the file. 
-            Defaults to True.
+        make_copy (bool): Whether to use a symlink or to actually copy the file. 
+            Defaults to False.
         audio_extensions (list, optional): Audio extensions to look for in the 
             input_path. Matching ones will be reorganize and placed into the output 
             directory via a symlink.. Defaults to ['.wav', '.mp3', '.aac'].
@@ -165,6 +217,7 @@ def reorganize(input_path, output_path, org_func, make_copy=False,
     args = [{
         'path_to_file': p,
         'output_directory': output_path,
+        'input_directory': input_path,
         'make_copy': make_copy,
         **kwargs
     } for p in paths_to_files]

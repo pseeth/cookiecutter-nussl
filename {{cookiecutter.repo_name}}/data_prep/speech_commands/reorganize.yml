@@ -1,0 +1,19 @@
+---
+jobs:
+- input_path: ${DATA_DIRECTORY}/speech_commands/all
+  output_path: ${DATA_DIRECTORY}/speech_commands/scaper/train
+  org_func: split_folder_by_file
+  org_file: ${DATA_DIRECTORY}/speech_commands/all/training_list.txt
+  make_copy: false
+  
+- input_path: ${DATA_DIRECTORY}/speech_commands/all
+  output_path: ${DATA_DIRECTORY}/speech_commands/scaper/val
+  org_func: split_folder_by_file
+  org_file: ${DATA_DIRECTORY}/speech_commands/all/validation_list.txt
+  make_copy: false
+
+- input_path: ${DATA_DIRECTORY}/speech_commands/all
+  output_path: ${DATA_DIRECTORY}/speech_commands/scaper/test
+  org_func: split_folder_by_file
+  org_file: ${DATA_DIRECTORY}/speech_commands/all/testing_list.txt
+  make_copy: false

@@ -181,7 +181,7 @@ import subprocess
             target = &#39;run_in_host&#39;
         
         command = f&quot;python -m scripts.{script[&#39;script&#39;]} {script[&#39;config&#39;]}&quot;
-        print(command)
+        logging.info(command)
         subprocess.run(
             [
                 f&quot;&quot;&quot;
