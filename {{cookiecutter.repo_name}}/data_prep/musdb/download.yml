@@ -1,0 +1,5 @@
+jobs:
+    - command: python data_prep/musdb/download.py --target_folder ${DATA_DIRECTORY}/musdb18_sample/raw
+      run_in: host
+    - command: musdbconvert ${DATA_DIRECTORY}/musdb18_sample/raw ${DATA_DIRECTORY}/musdb18_sample/
+      run_in: host

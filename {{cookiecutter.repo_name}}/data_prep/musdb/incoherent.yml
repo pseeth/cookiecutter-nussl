@@ -23,11 +23,11 @@
 
 mixture_parameters:
   train:
-    num_mixtures: 100
-    foreground_path: ${DATA_DIRECTORY}/babymusdb/scaper/train_16k
+    num_mixtures: 20000
+    foreground_path: ${DATA_DIRECTORY}/musdb18_sample/scaper/train_16k
     background_path:
-    target_path: ${DATA_DIRECTORY}/babymusdb/generated/incoherent/train
-    scene_duration: 4
+    target_path: ${DATA_DIRECTORY}/musdb18_sample/generated/incoherent/train
+    scene_duration: 1
     num_sources: 4
 
     event_parameters:
@@ -41,11 +41,11 @@ mixture_parameters:
       time_stretch: !!python/tuple ['const', 1]
 
   val:
-    num_mixtures: 10
-    foreground_path: ${DATA_DIRECTORY}/babymusdb/scaper/train_16k
+    num_mixtures: 5000
+    foreground_path: ${DATA_DIRECTORY}/musdb18_sample/scaper/train_16k
     background_path:
-    target_path: ${DATA_DIRECTORY}/babymusdb/generated/incoherent/val
-    scene_duration: 4
+    target_path: ${DATA_DIRECTORY}/musdb18_sample/generated/incoherent/val
+    scene_duration: 1
     num_sources: 4
 
     event_parameters:
@@ -60,11 +60,11 @@ mixture_parameters:
 
 
   test:
-    num_mixtures: 10
-    foreground_path: ${DATA_DIRECTORY}/babymusdb/scaper/test_16k
+    num_mixtures: 3000
+    foreground_path: ${DATA_DIRECTORY}/musdb18_sample/scaper/test_16k
     background_path:
-    target_path: ${DATA_DIRECTORY}/babymusdb/generated/incoherent/test
-    scene_duration: 4
+    target_path: ${DATA_DIRECTORY}/musdb18_sample/generated/incoherent/test
+    scene_duration: 5
     num_sources: 4
 
     event_parameters:

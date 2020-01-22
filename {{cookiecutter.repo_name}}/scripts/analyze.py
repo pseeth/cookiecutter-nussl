@@ -127,7 +127,7 @@ def upload_to_gsheet(results, config, exp=None, upload_source_metrics=False):
         for i, value in enumerate(overall_metrics):
             summary_worksheet.update_cell(row_index, overall_index + i, value)
 
-        if upload_sources:
+        if upload_source_metrics:
             try:
                 source_names = np.unique(_results['source_name']).tolist()
                 for source_name in source_names:

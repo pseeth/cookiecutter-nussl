@@ -11,41 +11,41 @@
 # an item of the list should use the same cache. The cache will be created as a separate
 # experiment. 
 
-# The config below creates two caches: one with STFTs with n_fft=128 and hop_length=64
-# and the other with  n_fft=512, hop_length=128. Four experiments are created per
-# cache, sweeping across num_layers (1 or 2), and bidirectionality (true or false).
+# The config below creates one cache with STFTs with n_fft=128 and hop_length=64. 
+# Two experiments are created per sweeping across the number of hidden units. Since
+# the number of hidden units in RecurrentStack needs to match the number of hidden_size
+# in the Embedding module, the "multiple parameters" option is used.
 
 # If there is a '.' in the key, then it is an absolute path to the exact value to update
 # in the configuration. If there isn't, then it is a global update for all matching keys.
 sweep:
-  - n_fft: 128
-    hop_length: 64
-    num_frequencies: 65 # n_fft / 2 + 1
-    num_features: 65
-    num_epochs: 10
-    model_config.modules.recurrent_stack.args.num_layers: 1
+  - n_fft: 512
+    hop_length: 128
+    num_frequencies: 257 # n_fft / 2 + 1
+    num_features: 257
+    num_epochs: 100
+    model_config.modules.recurrent_stack.args.num_layers: 4
     cache: '${CACHE_DIRECTORY}/musdb_128'
     populate_cache: true # controls whether to create a separate experiment for caching
     num_cache_workers: 60 # how many workers to use when populating the cache
     # multiple parameters can be sweeped across in pairs if 
     # there are dependencies between them. use 'multiple_parameters' in the key
-    # to indicate this.
     multiple_parameters_1: # maybe make this a list of tuples? dictionary of configs?
       - bidirectional: true
-        model_config.modules.recurrent_stack.args.hidden_size: 10
+        model_config.modules.recurrent_stack.args.hidden_size: 300
         num_mels: -1
-        model_config.modules.embedding.args.hidden_size: 20
-      - bidirectional: false
-        model_config.modules.recurrent_stack.args.hidden_size: 10
+        model_config.modules.embedding.args.hidden_size: 600
+      - bidirectional: true
+        model_config.modules.recurrent_stack.args.hidden_size: 150
         num_mels: -1
-        model_config.modules.embedding.args.hidden_size: 10
+        model_config.modules.embedding.args.hidden_size: 300
 
 info:
   blocking: false
   num_gpus: 1
   project_name: cookiecutter/music
   spreadsheet_name: nussl-testbed
-  worksheet_name: music
+  worksheet_name: musdb_samples
   output_folder: ${ARTIFACTS_DIRECTORY}/cookiecutter/music/${EXPERIMENT_KEY}
   experiment_key: ${EXPERIMENT_KEY}
 
@@ -80,13 +80,13 @@ datasets:
   # Paths are relative to the environment variable DATA_DIRECTORY
   #   see setup/environment/default.sh for details
   train:
-    folder: ${DATA_DIRECTORY}/babymusdb/generated/coherent/train/
+    folder: ${DATA_DIRECTORY}/musdb18_sample/generated/coherent/train/
     class: Scaper
   val:
-    folder: ${DATA_DIRECTORY}/babymusdb/generated/coherent/val/
+    folder: ${DATA_DIRECTORY}/musdb18_sample/generated/coherent/val/
     class: Scaper
   test:
-    folder: ${DATA_DIRECTORY}/babymusdb/generated/coherent/test/
+    folder: ${DATA_DIRECTORY}/musdb18_sample/generated/coherent/test/
     class: Scaper
 
 train_config:
@@ -119,9 +119,9 @@ model_config:
     log_spectrogram:
       input_shape: [-1, -1, 257]
     normalization:
-      class: BatchNorm
+      class: InstanceNorm
       args:
-        use_batch_norm: true
+        use_instance_norm: true
     mel_projection:
       class: MelProjection
       args:
@@ -185,5 +185,5 @@ test_config:
   testers:
     ScaleInvariantSDR:
       compute_permutation: true
-      scaling: false
+      scaling: true
       source_labels: [vocals, accompaniment]

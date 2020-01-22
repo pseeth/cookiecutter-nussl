@@ -23,26 +23,26 @@
 
 mixture_parameters:
   train:
-    num_mixtures: 100
-    foreground_path: ${DATA_DIRECTORY}/babymusdb/scaper/train_16k
+    num_mixtures: 20000
+    foreground_path: ${DATA_DIRECTORY}/musdb18_sample/scaper/train_16k
     background_path:
-    target_path: ${DATA_DIRECTORY}/babymusdb/generated/coherent/train
+    target_path: ${DATA_DIRECTORY}/musdb18_sample/generated/coherent/train
     scene_duration: 4
     labels: ['vocals', 'bass', 'drums', 'other']
 
   val:
-    num_mixtures: 10
-    foreground_path: ${DATA_DIRECTORY}/babymusdb/scaper/train_16k
+    num_mixtures: 5000
+    foreground_path: ${DATA_DIRECTORY}/musdb18_sample/scaper/train_16k
     background_path:
-    target_path: ${DATA_DIRECTORY}/babymusdb/generated/coherent/val
+    target_path: ${DATA_DIRECTORY}/musdb18_sample/generated/coherent/val
     scene_duration: 4
     labels: ['vocals', 'bass', 'drums', 'other']
 
   test:
-    num_mixtures: 10
-    foreground_path: ${DATA_DIRECTORY}/babymusdb/scaper/test_16k
+    num_mixtures: 3000
+    foreground_path: ${DATA_DIRECTORY}/musdb18_sample/scaper/test_16k
     background_path:
-    target_path: ${DATA_DIRECTORY}/babymusdb/generated/coherent/test
+    target_path: ${DATA_DIRECTORY}/musdb18_sample/generated/coherent/test
     scene_duration: 4
     labels: ['vocals', 'bass', 'drums', 'other']
 

@@ -1,11 +1,11 @@
 ---
 jobs:
-- input_path: ${DATA_DIRECTORY}/babymusdb/scaper/train
-  output_path: ${DATA_DIRECTORY}/babymusdb/scaper/train_16k
+- input_path: ${DATA_DIRECTORY}/musdb18_sample/scaper/train
+  output_path: ${DATA_DIRECTORY}/musdb18_sample/scaper/train_16k
   num_workers: 25
   sample_rate: 16000
 
-- input_path: ${DATA_DIRECTORY}/babymusdb/scaper/test
-  output_path: ${DATA_DIRECTORY}/babymusdb/scaper/test_16k
+- input_path: ${DATA_DIRECTORY}/musdb18_sample/scaper/test
+  output_path: ${DATA_DIRECTORY}/musdb18_sample/scaper/test_16k
   num_workers: 25
   sample_rate: 16000

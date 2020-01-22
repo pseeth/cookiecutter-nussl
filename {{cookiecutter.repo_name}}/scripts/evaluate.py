@@ -52,7 +52,7 @@ def evaluate(path_to_yml_file, eval_keys=['test']):
             _datasets[key],
             config['info']['output_folder'],
             max_workers=config['test_config']['num_workers'],
-            use_blocking_executor=config['test_config']['use_blocking_executor']
+            use_blocking_executor=config['test_config']['use_blocking_executor'],
         )
         _tester.run()
 

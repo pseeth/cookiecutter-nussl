@@ -1,11 +1,11 @@
 ---
 jobs:
-- input_path: ${DATA_DIRECTORY}/babymusdb/train
-  output_path: ${DATA_DIRECTORY}/babymusdb/scaper/train
+- input_path: ${DATA_DIRECTORY}/musdb18_sample/train
+  output_path: ${DATA_DIRECTORY}/musdb18_sample/scaper/train
   org_func: split_folder_by_class
   make_copy: false
   
-- input_path: ${DATA_DIRECTORY}/babymusdb/test
-  output_path: ${DATA_DIRECTORY}/babymusdb/scaper/test
+- input_path: ${DATA_DIRECTORY}/musdb18_sample/test
+  output_path: ${DATA_DIRECTORY}/musdb18_sample/scaper/test
   org_func: split_folder_by_class
   make_copy: false

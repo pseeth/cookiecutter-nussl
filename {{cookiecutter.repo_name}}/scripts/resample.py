@@ -12,7 +12,7 @@ from argparse import ArgumentParser
 import shutil
 import logging
 
-def resample_audio_file(original_path, resample_path, sample_rate):
+def resample_audio_file(original_path, resample_path, sample_rate, verbose=False):
     """
     Resamples an audio file at one path and places it at another path at a specified
     sample rate.
@@ -30,9 +30,10 @@ def resample_audio_file(original_path, resample_path, sample_rate):
         resample = resampled_signal.sample_rate != sample_rate
     
     if resample:
-        logging.info(
-            f'{original_path} @ {audio_signal.sample_rate} -> {resample_path} @ {sample_rate}'
-        )
+        if verbose:
+            logging.info(
+                f'{original_path} @ {audio_signal.sample_rate} -> {resample_path} @ {sample_rate}'
+            )
         audio_signal.resample(sample_rate)
         audio_signal.write_audio_to_file(resample_path)
 
@@ -88,7 +89,8 @@ def resample(input_path, output_path, sample_rate, num_workers=1,
         {
             'original_path': input_audio_files[i],
             'resample_path': output_audio_files[i][:-4] + '.wav',
-            'sample_rate': sample_rate
+            'sample_rate': sample_rate,
+            'verbose': False if i > 0 else True
         } 
         for i in range(len(input_audio_files))
     ]
