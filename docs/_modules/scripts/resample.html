@@ -169,7 +169,7 @@ from argparse import ArgumentParser
 import shutil
 import logging
 
-<div class="viewcode-block" id="resample_audio_file"><a class="viewcode-back" href="../../source/scripts.html#scripts.resample.resample_audio_file">[docs]</a>def resample_audio_file(original_path, resample_path, sample_rate):
+<div class="viewcode-block" id="resample_audio_file"><a class="viewcode-back" href="../../source/scripts.html#scripts.resample.resample_audio_file">[docs]</a>def resample_audio_file(original_path, resample_path, sample_rate, verbose=False):
     &quot;&quot;&quot;
     Resamples an audio file at one path and places it at another path at a specified
     sample rate.
@@ -187,9 +187,10 @@ import logging
         resample = resampled_signal.sample_rate != sample_rate
     
     if resample:
-        logging.info(
-            f&#39;{original_path} @ {audio_signal.sample_rate} -&gt; {resample_path} @ {sample_rate}&#39;
-        )
+        if verbose:
+            logging.info(
+                f&#39;{original_path} @ {audio_signal.sample_rate} -&gt; {resample_path} @ {sample_rate}&#39;
+            )
         audio_signal.resample(sample_rate)
         audio_signal.write_audio_to_file(resample_path)</div>
 
@@ -245,7 +246,8 @@ import logging
         {
             &#39;original_path&#39;: input_audio_files[i],
             &#39;resample_path&#39;: output_audio_files[i][:-4] + &#39;.wav&#39;,
-            &#39;sample_rate&#39;: sample_rate
+            &#39;sample_rate&#39;: sample_rate,
+            &#39;verbose&#39;: False if i &gt; 0 else True
         } 
         for i in range(len(input_audio_files))
     ]
