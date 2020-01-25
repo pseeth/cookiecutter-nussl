@@ -3,7 +3,7 @@ from .. import dataset, model
 def load_dataset(dataset_class, dataset_folder, dataset_config):
     """
     This is a helper function that looks in the 
-    ::py:mod:`src.dataset` module.
+    :py:mod:`src.dataset` module.
     
     Args:
         dataset_class (str): Name of the dataset class you want to
@@ -14,7 +14,7 @@ def load_dataset(dataset_class, dataset_folder, dataset_config):
         dataset_config (dict): Configuration of the dataset
     
     Returns:
-        DatasetClass: Instantiated DatasetClass given the parameters.
+        :py:class:`torch.utils.data.Dataset`: Instantiated DatasetClass given the parameters.
     """
     DatasetClass = getattr(dataset, dataset_class)
     dataset_instance = DatasetClass(dataset_folder, dataset_config)
@@ -22,13 +22,14 @@ def load_dataset(dataset_class, dataset_folder, dataset_config):
 
 def load_model(model_config):
     """
-    [summary]
+    Loads a deep :py:class:`SeparationModel` given a model configuration.
     
     Args:
-        model_config ([type]): [description]
+        model_config (dict): Model configuration with a 'class' key. The rest of the keys
+        get put into the 'args'.
     
     Returns:
-        [type]: [description]
+        :py:class:`SeparationModel`: Instantiated deep model given the parameters.
     """
     model_class = model_config.pop('class', 'SeparationModel')
     ModelClass = getattr(model, model_class)

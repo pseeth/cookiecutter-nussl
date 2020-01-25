@@ -10,7 +10,7 @@ import yaml
 
 class EvaluationRunner(object):
     """
-    [summary]
+    Loads an algorithm and a dataset and 
         
     Args:
         testers ([type]): [description]
