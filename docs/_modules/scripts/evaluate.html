@@ -180,8 +180,8 @@ import os
     &quot;&quot;&quot;
     config, exp, path_to_yml_file = load_experiment(path_to_yml_file)
 
-    if &#39;seed&#39; in config[&#39;test_config&#39;]:
-        seed(config[&#39;test_config&#39;][&#39;seed&#39;])
+    if &#39;seed&#39; in config[&#39;info&#39;]:
+        seed(config[&#39;info&#39;][&#39;seed&#39;])
 
     if &#39;test&#39; not in config[&#39;datasets&#39;]:
         logging.error(&#39;Test dataset must be specified!&#39;)

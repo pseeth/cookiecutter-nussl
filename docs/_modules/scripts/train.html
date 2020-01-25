@@ -157,7 +157,7 @@
   <h1>Source code for scripts.train</h1><div class="highlight"><pre>
 <span></span>from runners.experiment_utils import load_experiment, save_experiment
 from src import dataset, train, model
-from src.utils import loaders
+from src.utils import loaders, seed
 import logging
 from runners.utils import load_yaml
 from . import cmd, document_parser
@@ -176,6 +176,9 @@ import os
     &quot;&quot;&quot;
     config, exp, path_to_yml_file = load_experiment(path_to_yml_file)
     
+    if &#39;seed&#39; in config[&#39;info&#39;]:
+        seed(config[&#39;info&#39;][&#39;seed&#39;])
+
     train_class = config[&#39;train_config&#39;].pop(&#39;class&#39;)
     TrainerClass = getattr(train, train_class)
 
