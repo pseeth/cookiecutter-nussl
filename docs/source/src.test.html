@@ -181,7 +181,24 @@
 <dt id="src.test.EvaluationRunner">
 <em class="property">class </em><code class="sig-prename descclassname">src.test.</code><code class="sig-name descname">EvaluationRunner</code><span class="sig-paren">(</span><em class="sig-param">testers</em>, <em class="sig-param">algorithm_config</em>, <em class="sig-param">dataset</em>, <em class="sig-param">output_path</em>, <em class="sig-param">max_workers=1</em>, <em class="sig-param">use_blocking_executor=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/test.html#EvaluationRunner"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.test.EvaluationRunner" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>[summary]</p>
+<p>Class for efficiently evaluating an algorithm across multiple threads for every
+mixture in a dataset. If the algorithm requires something that must happen in a
+single thread, then the execution of the algorithm can happen in two steps - once
+on a blocking thread, and then continue on a parallel thread by specifying
+use_blocking_executor as True:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># run on a blocking executor (e.g. on one GPU), in self.blocking_func</span>
+<span class="n">features</span> <span class="o">=</span> <span class="n">algorithm</span><span class="o">.</span><span class="n">extract_features</span><span class="p">()</span>
+<span class="c1"># run the rest on the main executor, using the result self.blocking_func</span>
+<span class="c1"># this is in self.run_func</span>
+<span class="n">algorithm</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">)</span>
+<span class="n">algorithm</span><span class="o">.</span><span class="n">make_audio_signals</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This class is built assuming that you are using NUSSL style algorithms for source
+separation. If you’re evaluating on other tasks (e.g. sound classification or
+music transcription), then you can use new testers or edit this class to your
+liking. If you’re editing the class, your new code likely belongs in either
+main_func, run_func, or blocking_func.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">

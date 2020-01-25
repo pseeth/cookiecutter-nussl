@@ -189,6 +189,23 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
 <p>An example of a user-defined module that is passed to SeparationModel for building
 up the model. This should be imported explicitly in the init to be included.</p>
+<p>Now that it’s defined here, it can be used in your model configuration like so:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">model_config</span><span class="p">:</span>
+ <span class="nt">class</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">SeparationModel</span>
+ <span class="nt">modules</span><span class="p">:</span>
+     <span class="l l-Scalar l-Scalar-Plain">log_spectrogram</span>
+     <span class="l l-Scalar l-Scalar-Plain">example_module</span><span class="p p-Indicator">:</span>
+       <span class="nt">class</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ExampleModule</span>
+       <span class="nt">args</span><span class="p">:</span>
+ <span class="nt">connections</span><span class="p">:</span>
+     <span class="p p-Indicator">-</span> <span class="kt">!!python/tuple</span>      <span class="c1"># tuple containing two things:</span>
+       <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">example_module</span>    <span class="c1"># unique name given to module above</span>
+       <span class="p p-Indicator">-</span> <span class="p p-Indicator">[</span><span class="nv">log_spectrogram</span><span class="p p-Indicator">]</span> <span class="c1"># list of runtime arguments needed by that module</span>
+                         <span class="c1"># (e.g. output of prev layer)</span>
+ <span class="nt">output</span><span class="p">:</span>
+ <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">example_module</span>
+</pre></div>
+</div>
 <dl class="method">
 <dt id="src.model.extras.example_module.ExampleModule.forward">
 <code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/model/extras/example_module.html#ExampleModule.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.model.extras.example_module.ExampleModule.forward" title="Permalink to this definition">¶</a></dt>
