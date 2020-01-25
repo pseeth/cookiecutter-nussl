@@ -1,6 +1,6 @@
 from runners.experiment_utils import load_experiment, save_experiment
 from src import dataset, test, model
-from src.utils import loaders
+from src.utils import loaders, seed
 import logging
 from runners.utils import load_yaml
 from . import cmd, document_parser
@@ -22,6 +22,9 @@ def evaluate(path_to_yml_file, eval_keys=['test']):
             run the evaluation on each eval_key in sequence. Defaults to ['test'].
     """
     config, exp, path_to_yml_file = load_experiment(path_to_yml_file)
+
+    if 'seed' in config['test_config']:
+        seed(config['test_config']['seed'])
 
     if 'test' not in config['datasets']:
         logging.error('Test dataset must be specified!')

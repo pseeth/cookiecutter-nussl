@@ -182,6 +182,7 @@ algorithm_config:
 test_config:
   num_workers: 10
   use_blocking_executor: true
+  seed: 0
   testers:
     ScaleInvariantSDR:
       compute_permutation: true
