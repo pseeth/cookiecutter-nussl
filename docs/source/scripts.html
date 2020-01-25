@@ -99,8 +99,10 @@
 <li class="toctree-l2"><a class="reference internal" href="#module-scripts.pipeline">scripts.pipeline</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-scripts.reorganize">scripts.reorganize</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-scripts.resample">scripts.resample</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-scripts.run">scripts.run</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-scripts.sweep_experiment">scripts.sweep_experiment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-scripts.train">scripts.train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-scripts.visualize">scripts.visualize</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-scripts">Module contents</a></li>
 </ul>
 </li>
@@ -765,6 +767,49 @@ sample rate.</p>
 </dd></dl>
 
 </div>
+<div class="section" id="module-scripts.run">
+<span id="scripts-run"></span><h2>scripts.run<a class="headerlink" href="#module-scripts.run" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="scripts.run.build_parser">
+<code class="sig-prename descclassname">scripts.run.</code><code class="sig-name descname">build_parser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/run.html#build_parser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.run.build_parser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds the parser for <a class="reference internal" href="#module-scripts.run" title="scripts.run"><code class="xref py py-mod docutils literal notranslate"><span class="pre">scripts.run</span></code></a>.</p>
+<blockquote>
+<div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: python -m scripts.run  [-h] --command COMMAND [--run_in RUN_IN]
+
+optional arguments:
+  -h, --help         show this help message and exit
+  --command COMMAND  Command to run.
+  --run_in RUN_IN    Whether to run the command in the host or the container.
+                     Defaults to host.
+</pre></div>
+</div>
+</div></blockquote>
+<p>Also see the arguments to <a class="reference internal" href="#scripts.run.run" title="scripts.run.run"><code class="xref py py-func docutils literal notranslate"><span class="pre">scripts.run.run()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The parser for this script.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.ArgumentParser</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scripts.run.run">
+<code class="sig-prename descclassname">scripts.run.</code><code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param">command</em>, <em class="sig-param">run_in='host'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/run.html#run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.run.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs a command in the shell. Useful for sequences like wget a dataset, then
+unzip to another directory. You can just put the command in a yml file and
+call it here. You can run a sequence of commands easily by putting them one
+after the other in a .yml file and calling this script with the ‘-y’ option.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>command</strong> (<em>str</em>) – Command to run</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
 <div class="section" id="module-scripts.sweep_experiment">
 <span id="scripts-sweep-experiment"></span><h2>scripts.sweep_experiment<a class="headerlink" href="#module-scripts.sweep_experiment" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
@@ -1075,6 +1120,61 @@ model accordingly.</p>
 <li><p><strong>path_to_yml_file</strong> (<em>str</em>) – Path to the configuration for the experiment that</p></li>
 <li><p><strong>getting trained. The script will take the configuration and launch a</strong> (<em>is</em>) – </p></li>
 <li><p><strong>job for the experiment.</strong> (<em>training</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-scripts.visualize">
+<span id="scripts-visualize"></span><h2>scripts.visualize<a class="headerlink" href="#module-scripts.visualize" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="scripts.visualize.build_parser">
+<code class="sig-prename descclassname">scripts.visualize.</code><code class="sig-name descname">build_parser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/visualize.html#build_parser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.visualize.build_parser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds the parser for <a class="reference internal" href="#module-scripts.visualize" title="scripts.visualize"><code class="xref py py-mod docutils literal notranslate"><span class="pre">scripts.visualize</span></code></a>.</p>
+<blockquote>
+<div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: python -m scripts.visualize  [-h] -p PATH_TO_YML_FILE [-e EVAL_KEYS [EVAL_KEYS ...]]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -p PATH_TO_YML_FILE, --path_to_yml_file PATH_TO_YML_FILE
+                        Path to the yml file that defines the experiment. The
+                        visualization will be placed into a &quot;viz&quot; folder in
+                        the same directory as the yml file.
+  -e EVAL_KEYS [EVAL_KEYS ...], --eval_keys EVAL_KEYS [EVAL_KEYS ...]
+                        All of the dataset keys to be used to visualize the
+                        experiment. Will visualize for each eval_key in
+                        sequence. Defaults to [&#39;test&#39;].
+</pre></div>
+</div>
+</div></blockquote>
+<p>Also see the arguments to <a class="reference internal" href="#scripts.visualize.visualize" title="scripts.visualize.visualize"><code class="xref py py-func docutils literal notranslate"><span class="pre">scripts.visualize.visualize()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The parser for this script.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.ArgumentParser</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scripts.visualize.visualize">
+<code class="sig-prename descclassname">scripts.visualize.</code><code class="sig-name descname">visualize</code><span class="sig-paren">(</span><em class="sig-param">path_to_yml_file, eval_keys=['test']</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/visualize.html#visualize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.visualize.visualize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes in a path to a yml file containing an experiment configuration and runs
+the algorithm specified in the experiment on a random file from the test
+dataset specified in the experiment. If the algorithm has plotting available, then
+plot is used to visualize the algorithm and save it to a figure. The associated
+audio is also saved.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_to_yml_file</strong> (<em>str</em>) – Path to the yml file that defines the experiment. The
+visualization will be placed into a “viz” folder in the same directory
+as the yml file.</p></li>
+<li><p><strong>eval_keys</strong> (<em>list</em>) – All of the dataset keys to be used to visualize the experiment.
+Will visualize for each eval_key in sequence. Defaults to [‘test’].</p></li>
 </ul>
 </dd>
 </dl>

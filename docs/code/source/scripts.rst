@@ -60,6 +60,14 @@ scripts.resample
    :undoc-members:
    :show-inheritance:
 
+scripts.run
+-----------
+
+.. automodule:: scripts.run
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 scripts.sweep\_experiment
 -------------------------
 
@@ -72,6 +80,14 @@ scripts.train
 -------------
 
 .. automodule:: scripts.train
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+scripts.visualize
+-----------------
+
+.. automodule:: scripts.visualize
    :members:
    :undoc-members:
    :show-inheritance:
