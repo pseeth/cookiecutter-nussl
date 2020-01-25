@@ -1,0 +1,15 @@
+jobs:
+    # - command: curl https://storage.googleapis.com/whisper-public/wham_noise.zip 
+    #     -o ${DATA_DIRECTORY}/wham_noise.zip
+    #   run_in: host
+    - command: mkdir -p ${DATA_DIRECTORY}/wham/
+      run_in: host
+    # - command: unzip ${DATA_DIRECTORY}/wham_noise.zip 
+    #     -d ${DATA_DIRECTORY}/wham/wham-noise
+    #   run_in: host
+    - command: cd data_prep/wham/scripts && 
+        python create_wham_from_scratch.py 
+          --wsj0-root ${DATA_DIRECTORY}/wsj0/
+          --wham-noise-root ${DATA_DIRECTORY}/wham/wham_noise
+          --output-dir ${DATA_DIRECTORY}/wham/
+      run_in: host

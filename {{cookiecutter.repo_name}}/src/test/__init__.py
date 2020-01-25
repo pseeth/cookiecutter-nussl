@@ -10,7 +10,27 @@ import yaml
 
 class EvaluationRunner(object):
     """
-    Loads an algorithm and a dataset and 
+    Class for efficiently evaluating an algorithm across multiple threads for every 
+    mixture in a dataset. If the algorithm requires something that must happen in a
+    single thread, then the execution of the algorithm can happen in two steps - once
+    on a blocking thread, and then continue on a parallel thread by specifying 
+    use_blocking_executor as True:
+
+    .. code-block:: python
+
+       # run on a blocking executor (e.g. on one GPU), in self.blocking_func
+       features = algorithm.extract_features() 
+       # run the rest on the main executor, using the result self.blocking_func
+       # this is in self.run_func
+       algorithm.run(features=features)
+       algorithm.make_audio_signals()
+
+    This class is built assuming that you are using NUSSL style algorithms for source
+    separation. If you're evaluating on other tasks (e.g. sound classification or
+    music transcription), then you can use new testers or edit this class to your
+    liking. If you're editing the class, your new code likely belongs in either
+    main_func, run_func, or blocking_func. 
+
         
     Args:
         testers ([type]): [description]
