@@ -1,0 +1,10 @@
+jobs:
+- script: run
+  config: -y data_prep/wham/download.yml
+  run_in: host
+  blocking: true
+
+- script: run
+  config: -y data_prep/wham/create_dataset.yml
+  run_in: host
+  blocking: true
