@@ -48,6 +48,7 @@ info:
   worksheet_name: musdb_samples
   output_folder: ${ARTIFACTS_DIRECTORY}/cookiecutter/music/${EXPERIMENT_KEY}
   experiment_key: ${EXPERIMENT_KEY}
+  seed: 0
 
 dataset_config:
   cache: '${CACHE_DIRECTORY}/musdb' # Path is relative to environment variable CACHE_DIRECTORY
@@ -182,7 +183,6 @@ algorithm_config:
 test_config:
   num_workers: 10
   use_blocking_executor: true
-  seed: 0
   testers:
     ScaleInvariantSDR:
       compute_permutation: true

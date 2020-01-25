@@ -23,8 +23,8 @@ def evaluate(path_to_yml_file, eval_keys=['test']):
     """
     config, exp, path_to_yml_file = load_experiment(path_to_yml_file)
 
-    if 'seed' in config['test_config']:
-        seed(config['test_config']['seed'])
+    if 'seed' in config['info']:
+        seed(config['info']['seed'])
 
     if 'test' not in config['datasets']:
         logging.error('Test dataset must be specified!')

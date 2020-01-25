@@ -1,6 +1,6 @@
 from runners.experiment_utils import load_experiment, save_experiment
 from src import dataset, train, model
-from src.utils import loaders
+from src.utils import loaders, seed
 import logging
 from runners.utils import load_yaml
 from . import cmd, document_parser
@@ -19,6 +19,9 @@ def train_experiment(path_to_yml_file):
     """
     config, exp, path_to_yml_file = load_experiment(path_to_yml_file)
     
+    if 'seed' in config['info']:
+        seed(config['info']['seed'])
+
     train_class = config['train_config'].pop('class')
     TrainerClass = getattr(train, train_class)
 
