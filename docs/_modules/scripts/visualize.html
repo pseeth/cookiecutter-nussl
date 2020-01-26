@@ -197,12 +197,16 @@ import logging
     for key in _datasets:
         i = np.random.randint(len(_datasets[key]))
         file_name = _datasets[key].files[i]
-        folder = os.path.basename(file_name).split(&#39;.&#39;)[0]
+        logging.info(f&#39;Visualizing {file_name}&#39;)
+        folder = os.path.splitext(os.path.basename(file_name))[0]
         output_folder = os.path.join(
             config[&#39;info&#39;][&#39;output_folder&#39;], &#39;viz&#39;, key, folder)
         os.makedirs(output_folder, exist_ok=True)
 
+
         mixture = _datasets[key].load_audio_files(file_name)[0]
+
+        logging.info(mixture)
         
         _algorithm = AlgorithmClass(mixture, **algorithm_config[&#39;args&#39;])
         _algorithm.run()
