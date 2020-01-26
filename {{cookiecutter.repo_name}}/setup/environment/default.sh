@@ -14,6 +14,8 @@
 # your_name/your_project:latest.
 export DOCKER_IMAGE_NAME="{{ cookiecutter.DOCKER_IMAGE_NAME }}"
 
+export ENV_FILE="setup/environment/{{ cookiecutter.machine_name }}_local.sh"
+
 # This sets up all of the paths you need on the host machine. 
 # The data in those folders gets mounted inside the container,
 # which is then used by the scripts to train or test a separation

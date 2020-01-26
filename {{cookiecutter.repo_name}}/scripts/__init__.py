@@ -2,12 +2,23 @@ from argparse import ArgumentParser
 from runners.utils import load_yaml
 import inspect
 import textwrap
+import os
+from src import logging
 
 def build_parser_for_yml_script():
     """
     Builds an ArgumentParser with a common setup. Used in the scripts.
     """
-    parser = ArgumentParser()
+    parser = ArgumentParser(add_help=False)
+    parser.add_argument(
+        '-h',
+        '--help', 
+        action='store_true', 
+        dest='help',
+        help= """
+            show this help message and exit.
+            """
+    )
     parser.add_argument(
         '-y',
         '--yml', 
@@ -104,11 +115,34 @@ def cmd(script_func, parser_func, exec_func=sequential_job_execution):
         parser_func (function): A function that will build up the argument parser for
             the script.
     """
+
+    # first check if environment variables exist
+    if not os.getenv('DATA_DIRECTORY'):
+        logging.info(
+            """
+
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            | It doesn't look like you sourced your environment variables! Make sure to      |
+            | run 'source setup/environment/[machine_name]_local.sh' before running scripts, | 
+            | as the scripts depend on the environment variables.                            |
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            """
+        )
+        return
+
     jobs = []
 
     yml_parser = build_parser_for_yml_script()
     cmd_parser = parser_func()
     args = vars(yml_parser.parse_known_args()[0])
+    if args['help']:
+        print('Usage via YML file.')
+        yml_parser_help = yml_parser.print_help()
+        if cmd_parser:
+            print('\nDirect usage via command line arguments.')
+            cmd_parser_help = cmd_parser.print_help()        
+        return
+    
     extra_args = {}
 
     if args['yml'] is None:   
