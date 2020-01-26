@@ -40,12 +40,16 @@ def visualize(path_to_yml_file, eval_keys=['test']):
     for key in _datasets:
         i = np.random.randint(len(_datasets[key]))
         file_name = _datasets[key].files[i]
-        folder = os.path.basename(file_name).split('.')[0]
+        logging.info(f'Visualizing {file_name}')
+        folder = os.path.splitext(os.path.basename(file_name))[0]
         output_folder = os.path.join(
             config['info']['output_folder'], 'viz', key, folder)
         os.makedirs(output_folder, exist_ok=True)
 
+
         mixture = _datasets[key].load_audio_files(file_name)[0]
+
+        logging.info(mixture)
         
         _algorithm = AlgorithmClass(mixture, **algorithm_config['args'])
         _algorithm.run()

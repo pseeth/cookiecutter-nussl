@@ -1,0 +1,166 @@
+sweep:
+  - n_fft: 128
+    hop_length: 64
+    num_frequencies: 65 # n_fft / 2 + 1
+    num_features: 65
+    num_epochs: 100
+    batch_size: 40
+    model_config.modules.recurrent_stack.args.num_layers: 4
+
+    datasets.train.folder: ${DATA_DIRECTORY}/speech_commands/generated/train/
+    datasets.val.folder: ${DATA_DIRECTORY}/speech_commands/generated/val/
+    datasets.test.folder: ${DATA_DIRECTORY}/speech_commands/generated/test/
+
+    length: 100
+    initial_length: 100
+    sample_rate: 16000
+
+    learning_rate: [0.01, 0.001, 0.0002] # test the effect of learning rate
+
+    cache: '${CACHE_DIRECTORY}/gsc_128'
+    populate_cache: true # controls whether to create a separate experiment for caching
+    num_cache_workers: 100 
+    
+    bidirectional: false
+    model_config.modules.recurrent_stack.args.hidden_size: 300
+    num_mels: -1
+    model_config.modules.embedding.args.hidden_size: 300
+
+dataset_config:
+  cache: '${CACHE_DIRECTORY}/gsc' # Path is relative to environment variable CACHE_DIRECTORY
+  data_keys_for_training: [log_spectrogram, assignments, weights]
+  excerpt_selection_strategy: random
+  format: rnn
+  fraction_of_dataset: 1.0
+  group_sources: []
+  hop_length: 64
+  ignore_sources: []
+  length: 400
+  n_fft: 256
+  num_channels: 1
+  output_type: psa
+  overwrite_cache: false
+  sample_rate: 8000
+  source_labels: []
+  use_librosa_stft: false
+  weight_threshold: -40
+  weight_type: [magnitude]
+
+datasets:
+  # Three subsets - train/test/val
+  # Each subset has a folder and a class.
+  # Paths are relative to the environment variable DATA_DIRECTORY
+  #   see setup/environment/default.sh for details
+  train:
+    folder: ${DATA_DIRECTORY}/babywsj/generated/train/
+    class: Scaper
+  val:
+    folder: ${DATA_DIRECTORY}/babywsj/generated/val/
+    class: Scaper
+  test:
+    folder: ${DATA_DIRECTORY}/babywsj/generated/test/
+    class: Scaper
+
+info:
+  project_name: cookiecutter/speech
+  spreadsheet_name: nussl-testbed
+  worksheet_name: gsc
+  output_folder: ${ARTIFACTS_DIRECTORY}/cookiecutter/speech/${EXPERIMENT_KEY}
+  experiment_key: ${EXPERIMENT_KEY}
+
+train_config:
+  class: Trainer
+  batch_size: 40
+  curriculum_learning:
+  - args: [400]
+    command: set_current_length
+    num_epoch: 0
+  data_parallel: true
+  device: cuda
+  initial_length: 400
+  learning_rate: 0.0002
+  learning_rate_decay: 0.5
+  loss_function:
+  - !!python/tuple
+    - dpcl                # name of loss function
+    - embedding       # what output of model to apply the loss function on
+    - 1.0             # weight given to the loss function
+  num_epochs: 10
+  num_workers: 20
+  optimizer: adam
+  patience: 5
+  sample_strategy: sequential
+  weight_decay: 0.0
+
+model_config:
+  class: SeparationModel
+  modules:
+    log_spectrogram:
+      input_shape: [-1, -1, 129]
+    normalization:
+      class: InstanceNorm
+      args:
+        use_instance_norm: true
+    mel_projection:
+      class: MelProjection
+      args:
+        sample_rate: 8000
+        num_frequencies: 129
+        num_mels: -1
+        direction: forward
+        trainable: false
+        clamp: false
+    recurrent_stack:
+      class: RecurrentStack
+      args:
+        num_features: 129
+        hidden_size: 300
+        num_layers: 4
+        bidirectional: true
+        dropout: 0.3
+        rnn_type: lstm
+    embedding:
+      class: Embedding
+      args:
+        num_features: 129
+        num_channels: 1
+        hidden_size: 600
+        embedding_size: 20
+        activation:
+        - tanh
+
+  connections:
+    - !!python/tuple # tuple containing two things:
+      - mel_projection # unique name given to module above
+      - [log_spectrogram] # list of runtime arguments needed by that module (e.g. output of prev layer)
+    - !!python/tuple
+      - normalization
+      - [mel_projection]
+    - !!python/tuple
+      - recurrent_stack
+      - [normalization]
+    - !!python/tuple
+      - embedding
+      - [recurrent_stack]
+
+  output:
+  - embedding
+
+algorithm_config:
+  class: DeepClustering
+  args:
+    clustering_options:
+      posterior_alpha: 5.0
+    enhancement_amount: 0.0
+    mask_type: soft
+    model_path: ${ARTIFACTS_DIRECTORY}/cookiecutter/speech/${EXPERIMENT_KEY}/checkpoints/best.model.pth
+    num_sources: 2
+    percentile: 90
+
+test_config:
+  num_workers: 20
+  use_blocking_executor: true
+  testers:
+    ScaleInvariantSDR:
+      compute_permutation: true
+      scaling: true
