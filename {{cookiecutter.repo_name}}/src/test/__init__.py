@@ -1,7 +1,7 @@
 from nussl.evaluation.si_sdr import ScaleInvariantSDR
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 import os
-from .. import algorithms
+from .. import algorithms, model
 import inspect
 import copy
 import logging
@@ -53,13 +53,16 @@ class EvaluationRunner(object):
         self.main_executor = ThreadPoolExecutor(max_workers=max_workers)
         self.dataset = dataset
         self.testers = testers
-        self.algorithm_config = algorithm_config
+        self.algorithm_config = algorithm_confi
         self.use_blocking_executor = use_blocking_executor
 
         self.output_path = os.path.join(output_path, 'results')
         os.makedirs(self.output_path, exist_ok=True)
 
         self.AlgorithmClass = getattr(algorithms, algorithm_config['class'])
+        args = inspect.getfullargspec(AlgorithmClass)[0]
+        if 'extra_modules' in args:
+            algorithm_config['args']['extra_modules'] = model.extras
         dummy_mixture = self.dataset.load_audio_files(self.dataset.files[0])[0]
 
         if self.use_blocking_executor:

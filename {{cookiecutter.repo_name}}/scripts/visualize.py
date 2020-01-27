@@ -1,5 +1,5 @@
 from src.utils import loaders
-from src import algorithms
+from src import algorithms, model
 from . import cmd, document_parser
 from runners.experiment_utils import load_experiment
 import inspect
@@ -8,6 +8,7 @@ import os
 import matplotlib.pyplot as plt
 from argparse import ArgumentParser
 import logging
+import torch
 
 def visualize(path_to_yml_file, file_names=[], eval_keys=['test']):
     """
@@ -27,6 +28,11 @@ def visualize(path_to_yml_file, file_names=[], eval_keys=['test']):
     config, exp, path_to_yml_file = load_experiment(path_to_yml_file)
     algorithm_config = config['algorithm_config']
     AlgorithmClass = getattr(algorithms, algorithm_config['class'])
+    args = inspect.getfullargspec(AlgorithmClass)[0]
+    if 'extra_modules' in args:
+        algorithm_config['args']['extra_modules'] = model.extras
+    if 'use_cuda' in args:
+        algorithm_config['args']['use_cuda'] = torch.cuda.is_available()
     _datasets = {}
 
     for key in eval_keys:
