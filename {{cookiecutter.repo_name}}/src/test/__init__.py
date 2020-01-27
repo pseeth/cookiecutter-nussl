@@ -53,7 +53,7 @@ class EvaluationRunner(object):
         self.main_executor = ThreadPoolExecutor(max_workers=max_workers)
         self.dataset = dataset
         self.testers = testers
-        self.algorithm_config = algorithm_confi
+        self.algorithm_config = algorithm_config
         self.use_blocking_executor = use_blocking_executor
 
         self.output_path = os.path.join(output_path, 'results')
