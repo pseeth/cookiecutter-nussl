@@ -1133,7 +1133,8 @@ model accordingly.</p>
 <code class="sig-prename descclassname">scripts.visualize.</code><code class="sig-name descname">build_parser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/visualize.html#build_parser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.visualize.build_parser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Builds the parser for <a class="reference internal" href="#module-scripts.visualize" title="scripts.visualize"><code class="xref py py-mod docutils literal notranslate"><span class="pre">scripts.visualize</span></code></a>.</p>
 <blockquote>
-<div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: python -m scripts.visualize  [-h] -p PATH_TO_YML_FILE [-e EVAL_KEYS [EVAL_KEYS ...]]
+<div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: python -m scripts.visualize  [-h] -p PATH_TO_YML_FILE [-f FILE_NAMES [FILE_NAMES ...]]
+                    [-e EVAL_KEYS [EVAL_KEYS ...]]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -1141,6 +1142,9 @@ optional arguments:
                         Path to the yml file that defines the experiment. The
                         visualization will be placed into a &quot;viz&quot; folder in
                         the same directory as the yml file.
+  -f FILE_NAMES [FILE_NAMES ...], --file_names FILE_NAMES [FILE_NAMES ...]
+                        Files to evaluate. Use only the base name of each file
+                        in the list that is being evaluated.
   -e EVAL_KEYS [EVAL_KEYS ...], --eval_keys EVAL_KEYS [EVAL_KEYS ...]
                         All of the dataset keys to be used to visualize the
                         experiment. Will visualize for each eval_key in
@@ -1161,7 +1165,7 @@ optional arguments:
 
 <dl class="function">
 <dt id="scripts.visualize.visualize">
-<code class="sig-prename descclassname">scripts.visualize.</code><code class="sig-name descname">visualize</code><span class="sig-paren">(</span><em class="sig-param">path_to_yml_file, eval_keys=['test']</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/visualize.html#visualize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.visualize.visualize" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">scripts.visualize.</code><code class="sig-name descname">visualize</code><span class="sig-paren">(</span><em class="sig-param">path_to_yml_file, file_names=[], eval_keys=['test']</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/visualize.html#visualize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.visualize.visualize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Takes in a path to a yml file containing an experiment configuration and runs
 the algorithm specified in the experiment on a random file from the test
 dataset specified in the experiment. If the algorithm has plotting available, then

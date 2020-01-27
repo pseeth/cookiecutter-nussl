@@ -245,7 +245,6 @@ import yaml
         self.blocking_algorithm.set_audio_signal(mixture)
         self.blocking_algorithm._compute_spectrograms()
         features = self.blocking_algorithm.extract_features()
-        logging.info(f&#39;Features extracted for {file_path} of shape {features.shape}&#39;)
         return {&#39;features&#39;: features}</div>
 
 <div class="viewcode-block" id="EvaluationRunner.log_scores"><a class="viewcode-back" href="../../source/src.test.html#src.test.EvaluationRunner.log_scores">[docs]</a>    def log_scores(self, scores):

@@ -166,7 +166,7 @@ import matplotlib.pyplot as plt
 from argparse import ArgumentParser
 import logging
 
-<div class="viewcode-block" id="visualize"><a class="viewcode-back" href="../../source/scripts.html#scripts.visualize.visualize">[docs]</a>def visualize(path_to_yml_file, eval_keys=[&#39;test&#39;]):
+<div class="viewcode-block" id="visualize"><a class="viewcode-back" href="../../source/scripts.html#scripts.visualize.visualize">[docs]</a>def visualize(path_to_yml_file, file_names=[], eval_keys=[&#39;test&#39;]):
     &quot;&quot;&quot;
     Takes in a path to a yml file containing an experiment configuration and runs
     the algorithm specified in the experiment on a random file from the test
@@ -196,48 +196,46 @@ import logging
 
     for key in _datasets:
         i = np.random.randint(len(_datasets[key]))
-        file_name = _datasets[key].files[i]
-        logging.info(f&#39;Visualizing {file_name}&#39;)
-        folder = os.path.splitext(os.path.basename(file_name))[0]
-        output_folder = os.path.join(
-            config[&#39;info&#39;][&#39;output_folder&#39;], &#39;viz&#39;, key, folder)
-        os.makedirs(output_folder, exist_ok=True)
+        file_names = file_names if file_names else [_datasets[key].files[i]]
+
+        for file_name in file_names:
+            try:
+                logging.info(f&#39;Visualizing {file_name}&#39;)
+                folder = os.path.splitext(os.path.basename(file_name))[0]
+                output_folder = os.path.join(
+                    config[&#39;info&#39;][&#39;output_folder&#39;], &#39;viz&#39;, key, folder)
+                os.makedirs(output_folder, exist_ok=True)
 
 
-        mixture = _datasets[key].load_audio_files(file_name)[0]
+                mixture = _datasets[key].load_audio_files(file_name)[0]
 
-        logging.info(mixture)
-        
-        _algorithm = AlgorithmClass(mixture, **algorithm_config[&#39;args&#39;])
-        _algorithm.run()
-        estimates = _algorithm.make_audio_signals()
+                logging.info(mixture)
+                
+                _algorithm = AlgorithmClass(mixture, **algorithm_config[&#39;args&#39;])
+                _algorithm.run()
+                estimates = _algorithm.make_audio_signals()
 
-        try:
-            plt.figure(figsize=(20, 10))
-            _algorithm.plot()
-            plt.savefig(
-                os.path.join(output_folder, &#39;viz.png&#39;), bbox_inches=&#39;tight&#39;, dpi=100)
-        except:
-            logging.error(&#39;Unable to plot.&#39;)
+                try:
+                    plt.figure(figsize=(20, 10))
+                    _algorithm.plot()
+                    plt.savefig(
+                        os.path.join(output_folder, &#39;viz.png&#39;), bbox_inches=&#39;tight&#39;, dpi=100)
+                except:
+                    logging.error(&#39;Unable to plot.&#39;)
 
-        mixture.write_audio_to_file(
-            os.path.join(output_folder, f&#39;mixture.wav&#39;)
-        )
-        for i, e in enumerate(estimates):
-            e.write_audio_to_file(
-                os.path.join(output_folder, f&#39;source{i}.wav&#39;)
-            )</div>
+                mixture.write_audio_to_file(
+                    os.path.join(output_folder, f&#39;mixture.wav&#39;)
+                )
+                for i, e in enumerate(estimates):
+                    e.write_audio_to_file(
+                        os.path.join(output_folder, f&#39;source{i}.wav&#39;)
+                    )
+            except:
+                logging.error(&#39;File name not found.&#39;)</div>
 
 
 <div class="viewcode-block" id="build_parser"><a class="viewcode-back" href="../../source/scripts.html#scripts.visualize.build_parser">[docs]</a>@document_parser(&#39;visualize&#39;, &#39;scripts.visualize.visualize&#39;)
 def build_parser():
-    &quot;&quot;&quot;
-    Builds the parser for the evaluate script. See the arguments to 
-    :py:func:`scripts.evaluate.evaluate`.
-
-    Returns:
-        :class:`argparse.ArgumentParser`: The parser for this script.
-    &quot;&quot;&quot;
     parser = ArgumentParser()
     parser.add_argument(
         &quot;-p&quot;,
@@ -247,6 +245,15 @@ def build_parser():
         help=&quot;&quot;&quot;Path to the yml file that defines the experiment. The 
             visualization will be placed into a &quot;viz&quot; folder in the same directory
             as the yml file.
+        &quot;&quot;&quot;
+    )
+    parser.add_argument(
+        &quot;-f&quot;,
+        &quot;--file_names&quot;,
+        nargs=&#39;+&#39;,
+        type=str,
+        help=&quot;&quot;&quot;Files to evaluate. Use only the base name of each file in the list that
+            is being evaluated.
         &quot;&quot;&quot;
     )
     parser.add_argument(
