@@ -156,7 +156,7 @@
             
   <h1>Source code for scripts.visualize</h1><div class="highlight"><pre>
 <span></span>from src.utils import loaders
-from src import algorithms
+from src import algorithms, model
 from . import cmd, document_parser
 from runners.experiment_utils import load_experiment
 import inspect
@@ -165,6 +165,7 @@ import os
 import matplotlib.pyplot as plt
 from argparse import ArgumentParser
 import logging
+import torch
 
 <div class="viewcode-block" id="visualize"><a class="viewcode-back" href="../../source/scripts.html#scripts.visualize.visualize">[docs]</a>def visualize(path_to_yml_file, file_names=[], eval_keys=[&#39;test&#39;]):
     &quot;&quot;&quot;
@@ -184,6 +185,11 @@ import logging
     config, exp, path_to_yml_file = load_experiment(path_to_yml_file)
     algorithm_config = config[&#39;algorithm_config&#39;]
     AlgorithmClass = getattr(algorithms, algorithm_config[&#39;class&#39;])
+    args = inspect.getfullargspec(AlgorithmClass)[0]
+    if &#39;extra_modules&#39; in args:
+        algorithm_config[&#39;args&#39;][&#39;extra_modules&#39;] = model.extras
+    if &#39;use_cuda&#39; in args:
+        algorithm_config[&#39;args&#39;][&#39;use_cuda&#39;] = torch.cuda.is_available()
     _datasets = {}
 
     for key in eval_keys:
