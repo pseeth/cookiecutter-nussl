@@ -17,7 +17,7 @@ sweep:
     initial_length: 400
     sample_rate: 8000
 
-    learning_rate: 0.0002 # test the effect of learning rate
+    learning_rate: 0.001 # test the effect of learning rate
 
     cache: '${CACHE_DIRECTORY}/wham_128_mag'
     populate_cache: false # controls whether to create a separate experiment for caching
