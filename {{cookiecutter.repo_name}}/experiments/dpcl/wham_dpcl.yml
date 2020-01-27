@@ -1,10 +1,10 @@
 sweep:
-  - n_fft: 128
-    hop_length: 64
-    num_frequencies: 65 # n_fft / 2 + 1
-    num_features: 65
-    num_epochs: 100
-    batch_size: 40
+  - n_fft: 512
+    hop_length: 128
+    num_frequencies: 257 # n_fft / 2 + 1
+    num_features: 257
+    num_epochs: 80
+    batch_size: 20
     model_config.modules.recurrent_stack.args.num_layers: 4
 
     datasets.train.folder: ${DATA_DIRECTORY}/wham/wav8k/min/tr

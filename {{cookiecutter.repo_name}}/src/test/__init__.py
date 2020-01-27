@@ -90,7 +90,6 @@ class EvaluationRunner(object):
         self.blocking_algorithm.set_audio_signal(mixture)
         self.blocking_algorithm._compute_spectrograms()
         features = self.blocking_algorithm.extract_features()
-        logging.info(f'Features extracted for {file_path} of shape {features.shape}')
         return {'features': features}
 
     def log_scores(self, scores):
