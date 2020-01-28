@@ -332,7 +332,7 @@ from src import logging
                     else:
                         args.append(f&#39;--{key}&#39;)
                         args.append(str(val))
-                args, unknown_args = cmd_parser.parse_known_args()
+                args, unknown_args = cmd_parser.parse_known_args(args)
 
                 unknown_args = [u.replace(&#39;--&#39;, &#39;&#39;) for u in unknown_args]
                 unknown_args = dict(zip(unknown_args[:-1:2], unknown_args[1::2]))
