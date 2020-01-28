@@ -215,9 +215,7 @@ import yaml
         os.makedirs(self.output_path, exist_ok=True)
 
         self.AlgorithmClass = getattr(algorithms, algorithm_config[&#39;class&#39;])
-        args = inspect.getfullargspec(AlgorithmClass)[0]
-        if &#39;extra_modules&#39; in args:
-            algorithm_config[&#39;args&#39;][&#39;extra_modules&#39;] = model.extras
+        
         dummy_mixture = self.dataset.load_audio_files(self.dataset.files[0])[0]
 
         if self.use_blocking_executor:
@@ -227,6 +225,9 @@ import yaml
             if &#39;use_cuda&#39; in inspect.getargspec(self.AlgorithmClass).args:
                 blocking_algorithm_config[&#39;use_cuda&#39;] = True
                 self.algorithm_config[&#39;args&#39;][&#39;use_cuda&#39;] = False
+            args = inspect.getfullargspec(self.AlgorithmClass)[0]
+            if &#39;extra_modules&#39; in args:
+                blocking_algorithm_config[&#39;extra_modules&#39;] = model.extras
             self.blocking_algorithm = self.AlgorithmClass(
                 dummy_mixture, **blocking_algorithm_config
             )
@@ -280,7 +281,11 @@ import yaml
         classes = self.dataset.options[&#39;source_labels&#39;]
         labels = [classes[np.argmax(l)] for l in labels]
 
-        algorithm = self.AlgorithmClass(mixture, **self.algorithm_config[&#39;args&#39;])
+        args = inspect.getfullargspec(self.AlgorithmClass)[0]
+        algorithm_args = copy.deepcopy(self.algorithm_config[&#39;args&#39;])
+        if &#39;extra_modules&#39; in args:
+            algorithm_args[&#39;extra_modules&#39;] = model.extras
+        algorithm = self.AlgorithmClass(mixture, **algorithm_args)
         if data:
             for key in data:
                 if key not in inspect.getargspec(algorithm.run).args:
