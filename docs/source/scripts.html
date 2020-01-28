@@ -1111,9 +1111,10 @@ optional arguments:
 
 <dl class="function">
 <dt id="scripts.train.train_experiment">
-<code class="sig-prename descclassname">scripts.train.</code><code class="sig-name descname">train_experiment</code><span class="sig-paren">(</span><em class="sig-param">path_to_yml_file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/train.html#train_experiment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.train.train_experiment" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">scripts.train.</code><code class="sig-name descname">train_experiment</code><span class="sig-paren">(</span><em class="sig-param">path_to_yml_file</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/train.html#train_experiment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.train.train_experiment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Starts a training job for the experiment defined at the path specified. Fits the
-model accordingly.</p>
+model accordingly. You can also pass in things into keyword arguments that will
+get tossed into the “options” dictionary that is passed to the Trainer class.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">

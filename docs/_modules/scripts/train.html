@@ -164,10 +164,11 @@ from . import cmd, document_parser
 from argparse import ArgumentParser
 import os
 
-<div class="viewcode-block" id="train_experiment"><a class="viewcode-back" href="../../source/scripts.html#scripts.train.train_experiment">[docs]</a>def train_experiment(path_to_yml_file):
+<div class="viewcode-block" id="train_experiment"><a class="viewcode-back" href="../../source/scripts.html#scripts.train.train_experiment">[docs]</a>def train_experiment(path_to_yml_file, **kwargs):
     &quot;&quot;&quot;
     Starts a training job for the experiment defined at the path specified. Fits the
-    model accordingly.
+    model accordingly. You can also pass in things into keyword arguments that will
+    get tossed into the &quot;options&quot; dictionary that is passed to the Trainer class.
     
     Args:
         path_to_yml_file (str): Path to the configuration for the experiment that 
@@ -175,6 +176,7 @@ import os
         training job for the experiment.
     &quot;&quot;&quot;
     config, exp, path_to_yml_file = load_experiment(path_to_yml_file)
+    config[&#39;train_config&#39;].update(kwargs)
     
     if &#39;seed&#39; in config[&#39;info&#39;]:
         seed(config[&#39;info&#39;][&#39;seed&#39;])
