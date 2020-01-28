@@ -7,10 +7,11 @@ from . import cmd, document_parser
 from argparse import ArgumentParser
 import os
 
-def train_experiment(path_to_yml_file):
+def train_experiment(path_to_yml_file, **kwargs):
     """
     Starts a training job for the experiment defined at the path specified. Fits the
-    model accordingly.
+    model accordingly. You can also pass in things into keyword arguments that will
+    get tossed into the "options" dictionary that is passed to the Trainer class.
     
     Args:
         path_to_yml_file (str): Path to the configuration for the experiment that 
@@ -18,6 +19,7 @@ def train_experiment(path_to_yml_file):
         training job for the experiment.
     """
     config, exp, path_to_yml_file = load_experiment(path_to_yml_file)
+    config['train_config'].update(kwargs)
     
     if 'seed' in config['info']:
         seed(config['info']['seed'])

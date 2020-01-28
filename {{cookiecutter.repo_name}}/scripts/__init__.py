@@ -146,7 +146,16 @@ def cmd(script_func, parser_func, exec_func=sequential_job_execution):
     extra_args = {}
 
     if args['yml'] is None:   
-        args = vars(cmd_parser.parse_known_args()[0])
+        args, unknown_args = cmd_parser.parse_known_args()
+
+        unknown_args = [u.replace('--', '') for u in unknown_args]
+        unknown_args = dict(zip(unknown_args[:-1:2], unknown_args[1::2]))
+        args = vars(args)
+
+        script_signature = inspect.getfullargspec(script_func)
+        if script_signature.varkw is not None:
+            args.update(unknown_args)
+
         jobs.append(args)
     else:
         _args = load_yaml(args['yml'])
@@ -168,17 +177,25 @@ def cmd(script_func, parser_func, exec_func=sequential_job_execution):
                     else:
                         args.append(f'--{key}')
                         args.append(str(val))
-                args, unknown_args = cmd_parser.parse_known_args(args)
+                args, unknown_args = cmd_parser.parse_known_args()
+
+                unknown_args = [u.replace('--', '') for u in unknown_args]
+                unknown_args = dict(zip(unknown_args[:-1:2], unknown_args[1::2]))
                 args = vars(args)
+
+                script_signature = inspect.getfullargspec(script_func)
+                if script_signature.varkw is not None:
+                    args.update(unknown_args)
+                
                 [job.pop(k) for k in args if k in job]
                 args.update(job)
             else:
                 args = job
             jobs.append(args)
     
-    exec_args = inspect.getfullargspec(exec_func)[0]
+    exec_args = inspect.getfullargspec(exec_func)
     for key in extra_args.copy():
-        if key not in exec_args:
+        if key not in exec_args.args:
             extra_args.pop(key)
 
     exec_func(script_func, jobs, **extra_args)
