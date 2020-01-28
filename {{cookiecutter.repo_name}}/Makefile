@@ -14,8 +14,7 @@ poetry:
 	curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
 
 # Install all the requirements into the conda environment after activating it.
-install:
-	make poetry
+install: poetry
 	poetry update
 	poetry install
 
