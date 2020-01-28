@@ -60,9 +60,7 @@ class EvaluationRunner(object):
         os.makedirs(self.output_path, exist_ok=True)
 
         self.AlgorithmClass = getattr(algorithms, algorithm_config['class'])
-        args = inspect.getfullargspec(self.AlgorithmClass)[0]
-        if 'extra_modules' in args:
-            algorithm_config['args']['extra_modules'] = model.extras
+        
         dummy_mixture = self.dataset.load_audio_files(self.dataset.files[0])[0]
 
         if self.use_blocking_executor:
@@ -72,6 +70,9 @@ class EvaluationRunner(object):
             if 'use_cuda' in inspect.getargspec(self.AlgorithmClass).args:
                 blocking_algorithm_config['use_cuda'] = True
                 self.algorithm_config['args']['use_cuda'] = False
+            args = inspect.getfullargspec(self.AlgorithmClass)[0]
+            if 'extra_modules' in args:
+                blocking_algorithm_config['extra_modules'] = model.extras
             self.blocking_algorithm = self.AlgorithmClass(
                 dummy_mixture, **blocking_algorithm_config
             )
@@ -125,7 +126,11 @@ class EvaluationRunner(object):
         classes = self.dataset.options['source_labels']
         labels = [classes[np.argmax(l)] for l in labels]
 
-        algorithm = self.AlgorithmClass(mixture, **self.algorithm_config['args'])
+        args = inspect.getfullargspec(self.AlgorithmClass)[0]
+        algorithm_args = copy.deepcopy(self.algorithm_config['args'])
+        if 'extra_modules' in args:
+            algorithm_args['extra_modules'] = model.extras
+        algorithm = self.AlgorithmClass(mixture, **algorithm_args)
         if data:
             for key in data:
                 if key not in inspect.getargspec(algorithm.run).args:
