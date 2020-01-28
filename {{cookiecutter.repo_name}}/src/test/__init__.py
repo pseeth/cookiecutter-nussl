@@ -60,7 +60,7 @@ class EvaluationRunner(object):
         os.makedirs(self.output_path, exist_ok=True)
 
         self.AlgorithmClass = getattr(algorithms, algorithm_config['class'])
-        args = inspect.getfullargspec(AlgorithmClass)[0]
+        args = inspect.getfullargspec(self.AlgorithmClass)[0]
         if 'extra_modules' in args:
             algorithm_config['args']['extra_modules'] = model.extras
         dummy_mixture = self.dataset.load_audio_files(self.dataset.files[0])[0]
