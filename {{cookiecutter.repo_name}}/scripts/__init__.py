@@ -177,7 +177,7 @@ def cmd(script_func, parser_func, exec_func=sequential_job_execution):
                     else:
                         args.append(f'--{key}')
                         args.append(str(val))
-                args, unknown_args = cmd_parser.parse_known_args()
+                args, unknown_args = cmd_parser.parse_known_args(args)
 
                 unknown_args = [u.replace('--', '') for u in unknown_args]
                 unknown_args = dict(zip(unknown_args[:-1:2], unknown_args[1::2]))
