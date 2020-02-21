@@ -75,6 +75,9 @@ export CODE_DIRECTORY=`pwd`
 
 # export NUSSL_DIRECTORY="path/to/nussl"
 
+# VAMP PATH for finding Melodia plugins for nussl.
+export VAMP_PATH="setup/melodia/"
+
 # Experiment results are logged to a Google sheet. Put the path
 # to the Google service account credentials here. Make sure that
 # those credentials are not being tracked by Git. This only needs

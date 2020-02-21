@@ -1,0 +1,17 @@
+jobs:
+- command: mkdir -p ${DATA_DIRECTORY}/speech_commands/all/ &&
+    curl http://download.tensorflow.org/data/speech_commands_v0.01.tar.gz -o ${DATA_DIRECTORY}/speech_commands_v0.01.tar.gz
+  name: download
+
+- command: tar xf ${DATA_DIRECTORY}/speech_commands_v0.01.tar.gz -C ${DATA_DIRECTORY}/speech_commands/all/ &&
+    python data_prep/speech_commands/create_training_list.py
+  name: unzip
+  depends_on: download
+
+- command: python -m scripts.reorganize -y data_prep/speech_commands/reorganize.yml
+  name: reorganize
+  depends_on: unzip
+
+- command: python -m scripts.mix_with_scaper -y data_prep/speech_commands/incoherent.yml
+  name: mix_with_scaper
+  depends_on: reorganize

@@ -1,0 +1,23 @@
+jobs:
+- command: python data_prep/musdb/download.py --target_folder ${DATA_DIRECTORY}/musdb18_sample/raw
+  name: download
+
+- command: musdbconvert ${DATA_DIRECTORY}/musdb18_sample/raw ${DATA_DIRECTORY}/musdb18_sample/
+  name: conversion
+  depends_on: download
+
+- command: python -m scripts.reorganize -y data_prep/musdb/reorganize.yml
+  name: reorganize
+  depends_on: conversion
+
+- command: python -m scripts.resample -y data_prep/musdb/resample.yml
+  name: resample
+  depends_on: reorganize
+
+- command: python -m scripts.mix_with_scaper -y data_prep/musdb/coherent.yml
+  name: coherent
+  depends_on: reorganize
+
+- command: python -m scripts.mix_with_scaper -y data_prep/musdb/incoherent.yml
+  name: incoherent
+  depends_on: reorganize

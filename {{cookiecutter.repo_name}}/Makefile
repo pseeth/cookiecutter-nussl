@@ -17,6 +17,7 @@ poetry:
 install: poetry
 	poetry update
 	poetry install
+	apt-get install redis
 
 # If you add or delete requirements via poetry add, make sure to run 
 # make freeze_requirements to update the requirements file.
@@ -94,3 +95,18 @@ pipeline:
 experiment:
 	source $(env_file) && \
 	python -m scripts.sweep_experiment -p $(yml) --num_gpus $(num_gpus) --num_jobs $(num_jobs) 
+
+services:
+	mkdir -p logs/
+	rm -rf *.sock
+	supervisord
+
+status:
+	supervisorctl status
+	rq info -c settings
+
+stop:
+	supervisorctl stop all
+
+logging:
+	tail -f logs/*

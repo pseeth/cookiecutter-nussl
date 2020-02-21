@@ -31,6 +31,9 @@ scaper = { git = "https://github.com/pseeth/scaper.git", branch = "master" }
 pyyaml = "^5.1.2"
 tensorboard = "^2.0.2"
 pytest-cov = "^2.8.1"
+supervisor = "^4.1.0"
+rq = "^1.2.2"
+rq-dashboard = "^0.6.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.3"
