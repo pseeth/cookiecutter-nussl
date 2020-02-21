@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>tests &mdash; Cookiecutter for nussl  documentation</title>
+  <title>settings &mdash; Cookiecutter for nussl  documentation</title>
   
 
   
@@ -87,9 +87,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../experiments.html">Configuring an experiment</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../source/runners.html">runners</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../source/scripts.html">scripts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../source/src.html">src</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runners.html">runners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts.html">scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.html">src</a></li>
 </ul>
 
             
@@ -135,12 +135,14 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-          <li><a href="index.html">Module code</a> &raquo;</li>
-        
-      <li>tests</li>
+      <li>settings</li>
     
     
       <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/source/settings.rst.txt" rel="nofollow"> View page source</a>
+          
         
       </li>
     
@@ -152,19 +154,10 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <h1>Source code for tests</h1><div class="highlight"><pre>
-<span></span>import comet_ml
+  <div class="section" id="module-settings">
+<span id="settings"></span><h1>settings<a class="headerlink" href="#module-settings" title="Permalink to this headline">¶</a></h1>
+</div>
 
-import os
-import sys
-import pytest
-
-from scripts.download_toy_data import download_toy_data
-
-<div class="viewcode-block" id="setup_tests"><a class="viewcode-back" href="../source/tests.html#tests.setup_tests">[docs]</a>@pytest.fixture(scope=&quot;session&quot;, autouse=True)
-def setup_tests():
-    download_toy_data(&#39;tests/out/_test_data/&#39;)</div>
-</pre></div>
 
            </div>
            
