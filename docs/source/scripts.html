@@ -92,18 +92,18 @@
 <li class="toctree-l1"><a class="reference internal" href="runners.html">runners</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">scripts</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#scripts-analyze">scripts.analyze</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#scripts-download-toy-data">scripts.download_toy_data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#scripts-evaluate">scripts.evaluate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#scripts-mix-with-scaper">scripts.mix_with_scaper</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#scripts-pipeline">scripts.pipeline</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#scripts-reorganize">scripts.reorganize</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#scripts-resample">scripts.resample</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#scripts-run">scripts.run</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#scripts-sweep-experiment">scripts.sweep_experiment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#scripts-train">scripts.train</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#scripts-visualize">scripts.visualize</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-contents">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-scripts.analyze">scripts.analyze</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-scripts.download_toy_data">scripts.download_toy_data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-scripts.evaluate">scripts.evaluate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-scripts.mix_with_scaper">scripts.mix_with_scaper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-scripts.pipeline">scripts.pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-scripts.reorganize">scripts.reorganize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-scripts.resample">scripts.resample</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-scripts.run">scripts.run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-scripts.sweep_experiment">scripts.sweep_experiment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-scripts.train">scripts.train</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-scripts.visualize">scripts.visualize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-scripts">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="src.html">src</a></li>
@@ -176,41 +176,1092 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="scripts-analyze">
-<h2>scripts.analyze<a class="headerlink" href="#scripts-analyze" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-scripts.analyze">
+<span id="scripts-analyze"></span><h2>scripts.analyze<a class="headerlink" href="#module-scripts.analyze" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="scripts.analyze.analyze">
+<code class="sig-prename descclassname">scripts.analyze.</code><code class="sig-name descname">analyze</code><span class="sig-paren">(</span><em class="sig-param">path_to_yml_file</em>, <em class="sig-param">use_gsheet=False</em>, <em class="sig-param">upload_source_metrics=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/analyze.html#analyze"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.analyze.analyze" title="Permalink to this definition">¶</a></dt>
+<dd><p>Analyzes the metrics for all the files that were evaluated in the experiment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_to_yml_file</strong> (<em>str</em>) – Path to the yml file that defines the experiment. The
+corresponding results folder for the experiment is what will be analyzed and put
+into a Pandas dataframe.</p></li>
+<li><p><strong>use_gsheet</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether or not to upload to the Google Sheet.
+Defaults to False.</p></li>
+<li><p><strong>upload_source_metrics</strong> (<em>bool</em>) – Uploads metrics for each source if True. Defaults to False.
+Can have interactions with the API limit on Google Sheets. If there are two many
+sources, then it will hit the limit and the script will break.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>3-element tuple containing</p>
+<blockquote>
+<div><ul>
+<li><p>results (<code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code>): DataFrame containing all of the results
+for every file evaluated in the experiment. The DataFrame also has every
+key in the experiment configuration in flattened format.</p>
+<p>For example, model_config_recurrent_stack_args_embedding_size is a column in the DataFrame.</p>
+</li>
+<li><p>config (<em>dict</em>):  A dictionary containing the configuration of the experiment.</p></li>
+<li><p>exp (<code class="xref py py-class docutils literal notranslate"><span class="pre">comet_ml.Experiment</span></code>): An instantiated experiment if comet.ml is needed,  otherwise it is None.</p></li>
+</ul>
+</div></blockquote>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scripts.analyze.build_parser">
+<code class="sig-prename descclassname">scripts.analyze.</code><code class="sig-name descname">build_parser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/analyze.html#build_parser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.analyze.build_parser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds the parser for <a class="reference internal" href="#module-scripts.analyze" title="scripts.analyze"><code class="xref py py-mod docutils literal notranslate"><span class="pre">scripts.analyze</span></code></a>.</p>
+<blockquote>
+<div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: python -m scripts.analyze  [-h] -p PATH_TO_YML_FILE [--use_gsheet]
+                    [--upload_source_metrics]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -p PATH_TO_YML_FILE, --path_to_yml_file PATH_TO_YML_FILE
+                        Path to the configuration for the experiment that is
+                        getting analyzed. The corresponding results folder for
+                        the experiment is what will be analyzed and put into a
+                        Pandas dataframe.
+  --use_gsheet          Results can be synced to a Google sheet after analysis
+                        if this is true. Defaults to false.
+  --upload_source_metrics
+                        Uploads metrics for each source if True. Defaults to
+                        False. Can have interactions with the API limit on
+                        Google Sheets. If there are two many sources, then it
+                        will hit the limit and the script will break.
+</pre></div>
 </div>
-<div class="section" id="scripts-download-toy-data">
-<h2>scripts.download_toy_data<a class="headerlink" href="#scripts-download-toy-data" title="Permalink to this headline">¶</a></h2>
+</div></blockquote>
+<p>Also see the arguments to <a class="reference internal" href="#scripts.analyze.analyze" title="scripts.analyze.analyze"><code class="xref py py-func docutils literal notranslate"><span class="pre">scripts.analyze.analyze()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The parser for this script.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.ArgumentParser</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scripts.analyze.init_gsheet">
+<code class="sig-prename descclassname">scripts.analyze.</code><code class="sig-name descname">init_gsheet</code><span class="sig-paren">(</span><em class="sig-param">credentials_path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/analyze.html#init_gsheet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.analyze.init_gsheet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the Google Sheets client given a path to credentials.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>credentials_path</strong> (<em>str</em>) – path to your Google credentials that are used to
+authorize the Google Sheets access.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Google Sheets Client initialized with credentials.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">gspread.Client</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scripts.analyze.upload_to_gsheet">
+<code class="sig-prename descclassname">scripts.analyze.</code><code class="sig-name descname">upload_to_gsheet</code><span class="sig-paren">(</span><em class="sig-param">results</em>, <em class="sig-param">config</em>, <em class="sig-param">exp=None</em>, <em class="sig-param">upload_source_metrics=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/analyze.html#upload_to_gsheet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.analyze.upload_to_gsheet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uploads the analysis to the Google Sheet, if possible.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>results</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code>) – DataFrame containing all the results - output
+by <a class="reference internal" href="#scripts.analyze.analyze" title="scripts.analyze.analyze"><code class="xref py py-func docutils literal notranslate"><span class="pre">scripts.analyze.analyze()</span></code></a>.</p></li>
+<li><p><strong>config</strong> (<em>dict</em>) – Dictionary containing the entire experiment configuration.</p></li>
+<li><p><strong>exp</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">comet_ml.Experiment</span></code>) – Experiment given by comet.ml (optional).</p></li>
+<li><p><strong>upload_source_metrics</strong> (<em>bool</em>) – Uploads metrics for each source if True. Defaults to False.
+Can have interactions with the API limit on Google Sheets. If there are two many
+sources, then it will hit the limit and the script will break.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
-<div class="section" id="scripts-evaluate">
-<h2>scripts.evaluate<a class="headerlink" href="#scripts-evaluate" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-scripts.download_toy_data">
+<span id="scripts-download-toy-data"></span><h2>scripts.download_toy_data<a class="headerlink" href="#module-scripts.download_toy_data" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="scripts.download_toy_data.build_parser">
+<code class="sig-prename descclassname">scripts.download_toy_data.</code><code class="sig-name descname">build_parser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/download_toy_data.html#build_parser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.download_toy_data.build_parser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds the parser for <a class="reference internal" href="#module-scripts.download_toy_data" title="scripts.download_toy_data"><code class="xref py py-mod docutils literal notranslate"><span class="pre">scripts.download_toy_data</span></code></a>.</p>
+<blockquote>
+<div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: python -m scripts.download_toy_data  [-h] --target_folder TARGET_FOLDER
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --target_folder TARGET_FOLDER
+                        Folder where the toy data gets saved to.
+</pre></div>
 </div>
-<div class="section" id="scripts-mix-with-scaper">
-<h2>scripts.mix_with_scaper<a class="headerlink" href="#scripts-mix-with-scaper" title="Permalink to this headline">¶</a></h2>
+</div></blockquote>
+<p>Also see the arguments to <a class="reference internal" href="#scripts.download_toy_data.download_toy_data" title="scripts.download_toy_data.download_toy_data"><code class="xref py py-func docutils literal notranslate"><span class="pre">scripts.download_toy_data.download_toy_data()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The parser for this script.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.ArgumentParser</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scripts.download_toy_data.download_toy_data">
+<code class="sig-prename descclassname">scripts.download_toy_data.</code><code class="sig-name descname">download_toy_data</code><span class="sig-paren">(</span><em class="sig-param">target_folder</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/download_toy_data.html#download_toy_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.download_toy_data.download_toy_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Downloads toy data to a target folder for the purposes of running some
+demo scripts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>target_folder</strong> (<em>str</em>) – Where to put the data that gets downloaded.</p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
-<div class="section" id="scripts-pipeline">
-<h2>scripts.pipeline<a class="headerlink" href="#scripts-pipeline" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-scripts.evaluate">
+<span id="scripts-evaluate"></span><h2>scripts.evaluate<a class="headerlink" href="#module-scripts.evaluate" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="scripts.evaluate.build_parser">
+<code class="sig-prename descclassname">scripts.evaluate.</code><code class="sig-name descname">build_parser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/evaluate.html#build_parser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.evaluate.build_parser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds the parser for <a class="reference internal" href="#module-scripts.evaluate" title="scripts.evaluate"><code class="xref py py-mod docutils literal notranslate"><span class="pre">scripts.evaluate</span></code></a>.</p>
+<blockquote>
+<div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: python -m scripts.evaluate  [-h] -p PATH_TO_YML_FILE [-e EVAL_KEYS [EVAL_KEYS ...]]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -p PATH_TO_YML_FILE, --path_to_yml_file PATH_TO_YML_FILE
+                        Path to the configuration for the experiment that is
+                        getting evaluated. The corresponding test
+                        configuration for the experiment will be used to
+                        evaluate the experiment across all of the audio files
+                        in the test dataset.
+  -e EVAL_KEYS [EVAL_KEYS ...], --eval_keys EVAL_KEYS [EVAL_KEYS ...]
+                        All of the keys to be used to evaluate the experiment.
+                        Will run the evaluation on each eval_key in sequence.
+                        Defaults to [&#39;test&#39;].
+</pre></div>
 </div>
-<div class="section" id="scripts-reorganize">
-<h2>scripts.reorganize<a class="headerlink" href="#scripts-reorganize" title="Permalink to this headline">¶</a></h2>
+</div></blockquote>
+<p>Also see the arguments to <a class="reference internal" href="#scripts.evaluate.evaluate" title="scripts.evaluate.evaluate"><code class="xref py py-func docutils literal notranslate"><span class="pre">scripts.evaluate.evaluate()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The parser for this script.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.ArgumentParser</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scripts.evaluate.evaluate">
+<code class="sig-prename descclassname">scripts.evaluate.</code><code class="sig-name descname">evaluate</code><span class="sig-paren">(</span><em class="sig-param">path_to_yml_file, eval_keys=['test']</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/evaluate.html#evaluate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.evaluate.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluates an experiment across all of the data for each key in eval_keys. The key
+must correspond to a dataset included in the experiment configuration. This uses
+<a class="reference internal" href="src.test.html#src.test.EvaluationRunner" title="src.test.EvaluationRunner"><code class="xref py py-class docutils literal notranslate"><span class="pre">src.test.EvaluationRunner</span></code></a> to evaluate the performance of the model on
+each dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_to_yml_file</strong> (<em>str</em>) – Path to the yml file that defines the experiment. The
+corresponding test configuration for the experiment will be used to evaluate
+the experiment across all of the audio files in the test dataset.</p></li>
+<li><p><strong>eval_keys</strong> (<em>list</em>) – All of the keys to be used to evaluate the experiment. Will
+run the evaluation on each eval_key in sequence. Defaults to [‘test’].</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
-<div class="section" id="scripts-resample">
-<h2>scripts.resample<a class="headerlink" href="#scripts-resample" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-scripts.mix_with_scaper">
+<span id="scripts-mix-with-scaper"></span><h2>scripts.mix_with_scaper<a class="headerlink" href="#module-scripts.mix_with_scaper" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="scripts.mix_with_scaper.mix_with_scaper">
+<code class="sig-prename descclassname">scripts.mix_with_scaper.</code><code class="sig-name descname">mix_with_scaper</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/mix_with_scaper.html#mix_with_scaper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.mix_with_scaper.mix_with_scaper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes in keyword arguments containing the specification for mixing with Scaper. See
+<code class="xref py py-func docutils literal notranslate"><span class="pre">src.dataset.scaper_mix()</span></code> for a description of what should be in the
+kwargs. This function does some sanitation of the keyword arguments before
+passing it to <code class="xref py py-func docutils literal notranslate"><span class="pre">src.dataset.scaper_mix()</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>kwargs</strong> (<em>dict</em>) – All of the keyword arguments required for
+<code class="xref py py-func docutils literal notranslate"><span class="pre">src.dataset.scaper_mix()</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
-<div class="section" id="scripts-run">
-<h2>scripts.run<a class="headerlink" href="#scripts-run" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-scripts.pipeline">
+<span id="scripts-pipeline"></span><h2>scripts.pipeline<a class="headerlink" href="#module-scripts.pipeline" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="scripts.pipeline.build_parser">
+<code class="sig-prename descclassname">scripts.pipeline.</code><code class="sig-name descname">build_parser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/pipeline.html#build_parser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.pipeline.build_parser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds the parser for <a class="reference internal" href="#module-scripts.pipeline" title="scripts.pipeline"><code class="xref py py-mod docutils literal notranslate"><span class="pre">scripts.pipeline</span></code></a>.</p>
+<blockquote>
+<div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: python -m scripts.pipeline  [-h] [--script SCRIPT] [--config CONFIG] [--run_in RUN_IN]
+                    [--num_gpus NUM_GPUS] [--blocking]
+
+optional arguments:
+  -h, --help           show this help message and exit
+  --script SCRIPT      Path to script to run.
+  --config CONFIG      Path to config for script.
+  --run_in RUN_IN      Run in host or container.
+  --num_gpus NUM_GPUS  How many GPUs to use.
+  --blocking           Finish this job before proceeding to next.
+</pre></div>
 </div>
-<div class="section" id="scripts-sweep-experiment">
-<h2>scripts.sweep_experiment<a class="headerlink" href="#scripts-sweep-experiment" title="Permalink to this headline">¶</a></h2>
+</div></blockquote>
+<p>Also see the arguments to <a class="reference internal" href="#scripts.pipeline.parallel_job_execution" title="scripts.pipeline.parallel_job_execution"><code class="xref py py-func docutils literal notranslate"><span class="pre">scripts.pipeline.parallel_job_execution()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The parser for this script.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.ArgumentParser</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scripts.pipeline.parallel_job_execution">
+<code class="sig-prename descclassname">scripts.pipeline.</code><code class="sig-name descname">parallel_job_execution</code><span class="sig-paren">(</span><em class="sig-param">script_func</em>, <em class="sig-param">jobs</em>, <em class="sig-param">num_jobs=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/pipeline.html#parallel_job_execution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.pipeline.parallel_job_execution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a .yml file with structure as follows:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>script: name of script in scripts/ folder
+config: path/to/yml/config.yml
+run_in: &#39;host&#39; or &#39;container&#39; (default: host)
+num_gpus: how many gpus (default: 0)
+blocking: whether to block on this job or not (default: false)
+</pre></div>
 </div>
-<div class="section" id="scripts-train">
-<h2>scripts.train<a class="headerlink" href="#scripts-train" title="Permalink to this headline">¶</a></h2>
+<p>Could also be multiple jobs:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>num_jobs: how many jobs to run in parallel (default: 1)
+
+jobs:
+- script: script1.py
+  config: config1.yml
+- script: script2.py
+  config: config2.yml
+...
+</pre></div>
 </div>
-<div class="section" id="scripts-visualize">
-<h2>scripts.visualize<a class="headerlink" href="#scripts-visualize" title="Permalink to this headline">¶</a></h2>
+<p>The jobs get executed in sequence or in parallel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path_to_yml_file</strong> (<em>str</em>) – Path to .yml file specifying the sequence
+of jobs that should be run.</p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
-<div class="section" id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-scripts.reorganize">
+<span id="scripts-reorganize"></span><h2>scripts.reorganize<a class="headerlink" href="#module-scripts.reorganize" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="scripts.reorganize.build_parser">
+<code class="sig-prename descclassname">scripts.reorganize.</code><code class="sig-name descname">build_parser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/reorganize.html#build_parser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.reorganize.build_parser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds the parser for <a class="reference internal" href="#module-scripts.reorganize" title="scripts.reorganize"><code class="xref py py-mod docutils literal notranslate"><span class="pre">scripts.reorganize</span></code></a>.</p>
+<blockquote>
+<div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: python -m scripts.reorganize  [-h] [--input_path INPUT_PATH] [--output_path OUTPUT_PATH]
+                    [--org_func ORG_FUNC] [--make_copy]
+                    [--audio_extensions AUDIO_EXTENSIONS [AUDIO_EXTENSIONS ...]]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --input_path INPUT_PATH
+                        Root of folder where all audio files will be
+                        reorganized.
+  --output_path OUTPUT_PATH
+                        Root of folder where all reorganized files will be
+                        placed.
+  --org_func ORG_FUNC   Organization function to use reorganize the dataset.
+                        Should correspond to the name of a function in
+                        reorganize.py.
+  --make_copy           Whether to use a symlink or to actually copy the file.
+  --audio_extensions AUDIO_EXTENSIONS [AUDIO_EXTENSIONS ...]
+                        Audio extensions to look for in the input_path.
+                        Matching ones will be reorganize and placed into the
+                        output directory via a symlink.
+</pre></div>
+</div>
+</div></blockquote>
+<p>Also see the arguments to <a class="reference internal" href="#scripts.reorganize.reorganize" title="scripts.reorganize.reorganize"><code class="xref py py-func docutils literal notranslate"><span class="pre">scripts.reorganize.reorganize()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The parser for this script.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.ArgumentParser</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scripts.reorganize.reorganize">
+<code class="sig-prename descclassname">scripts.reorganize.</code><code class="sig-name descname">reorganize</code><span class="sig-paren">(</span><em class="sig-param">input_path, output_path, org_func, make_copy=False, audio_extensions=['.wav', '.mp3', '.aac'], **kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/reorganize.html#reorganize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.reorganize.reorganize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reorganizes the folders in the input path into the output path given an
+organization function, passed in by org_func.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_path</strong> (<em>str</em>) – Root of folder where all audio files will be reorganized.</p></li>
+<li><p><strong>output_path</strong> (<em>str</em>) – Root of folder where the reorganized files will be placed.</p></li>
+<li><p><strong>org_func</strong> (<em>str</em>) – Organization function to use reorganize the dataset. Should
+correspond to the name of a function in reorganize.py.</p></li>
+<li><p><strong>make_copy</strong> (<em>bool</em>) – Whether to use a symlink or to actually copy the file.
+Defaults to False.</p></li>
+<li><p><strong>audio_extensions</strong> (<em>list</em><em>, </em><em>optional</em>) – Audio extensions to look for in the
+input_path. Matching ones will be reorganize and placed into the output
+directory via a symlink.. Defaults to [‘.wav’, ‘.mp3’, ‘.aac’].</p></li>
+<li><p><strong>kwargs</strong> (<em>dict</em>) – Additional keyword arguments that are passed to the org_func
+that is specified.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scripts.reorganize.split_folder_by_class">
+<code class="sig-prename descclassname">scripts.reorganize.</code><code class="sig-name descname">split_folder_by_class</code><span class="sig-paren">(</span><em class="sig-param">path_to_file</em>, <em class="sig-param">output_directory</em>, <em class="sig-param">input_directory</em>, <em class="sig-param">make_copy=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/reorganize.html#split_folder_by_class"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.reorganize.split_folder_by_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>Splits a folder by class which is indicated by the name of the file.</p>
+<p>The mixture name is the name of the parent directory to the file. This function
+is used to organize datasets like musdb for consumption by Scaper for mixing
+new datasets.</p>
+<p>Takes a folder with audio file structure that looks like this:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>folder_input/
+    mixture_one_name/
+        vocals.wav
+        bass.wav
+        drums.wav
+        other.wav
+    mixture_two_name/
+        vocals.wav
+        bass.wav
+        drums.wav
+        other.wav
+    ...
+</pre></div>
+</div>
+<p>and reorganizes it to a different folder like so:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>folder_output/
+    vocals/
+        mixture_one_name.wav
+        mixture_two_name.wav
+        ...
+    bass/
+        mixture_one_name.wav
+        mixture_two_name.wav
+        ...
+    drums/
+        mixture_one_name.wav
+        mixture_two_name.wav
+        ...
+    other/
+        mixture_one_name.wav
+        mixture_two_name.wav
+        ...
+</pre></div>
+</div>
+<p>so that it can be processed easily by Scaper. Notably, MUSDB has this folder
+structure. This reorganization is done via symlinks so that the entire dataset
+is not copied.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_to_file</strong> (<em>str</em>) – Path to the audio file that will be reorganized. Has form
+/path/to/mixture_name/source_name.ext</p></li>
+<li><p><strong>output_directory</strong> (<em>str</em>) – Where the file after swapping the mixture_name and source_name
+will be copied to.</p></li>
+<li><p><strong>input_directory</strong> (<em>str</em>) – The root of the directory that the file comes from. Useful for
+figuring out the relative path with respect to the input directory for copying
+to the output_directory.</p></li>
+<li><p><strong>make_copy</strong> (<em>bool</em>) – Whether to use a symlink or to actually copy the file.
+Defaults to False.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scripts.reorganize.split_folder_by_file">
+<code class="sig-prename descclassname">scripts.reorganize.</code><code class="sig-name descname">split_folder_by_file</code><span class="sig-paren">(</span><em class="sig-param">path_to_file</em>, <em class="sig-param">output_directory</em>, <em class="sig-param">input_directory</em>, <em class="sig-param">org_file</em>, <em class="sig-param">make_copy=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/reorganize.html#split_folder_by_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.reorganize.split_folder_by_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reorganizes a directory using a organization file. The organization file should contain a
+list of paths that are relative to the input_directory. If path_to_file is in the organization
+file, then it will be symlinked (or moved) to the same relative path in output_directory.</p>
+<p>For example if organization file has an entry:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>path/to/my/file/0.wav
+</pre></div>
+</div>
+<p>And path to file looks like:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>input_directory/path/to/my/file/0.wav
+</pre></div>
+</div>
+<p>Then a new file will be created (or symlinked) at:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>output_directory/path/to/my/file/0.wav
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_to_file</strong> (<em>str</em>) – Path to the audio file that will be reorganized.</p></li>
+<li><p><strong>output_directory</strong> (<em>str</em>) – Where the file after swapping the mixture_name and source_name
+will be copied to.</p></li>
+<li><p><strong>input_directory</strong> (<em>str</em>) – The root of the directory that the file comes from. Useful for
+figuring out the relative path with respect to the input directory for copying
+to the output_directory.</p></li>
+<li><p><strong>org_file</strong> (<em>str</em>) – Path to the file containing all of the file names that should be moved.</p></li>
+<li><p><strong>make_copy</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to use a symlink or to actually copy the file.
+Defaults to False.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scripts.reorganize.split_urbansound_by_fold">
+<code class="sig-prename descclassname">scripts.reorganize.</code><code class="sig-name descname">split_urbansound_by_fold</code><span class="sig-paren">(</span><em class="sig-param">path_to_file, output_directory, input_directory, make_copy=False, train_folds=[1, 2, 3, 4, 5, 6, 7, 8], val_folds=[9], test_folds=[10], path_to_urbansound_csv=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/reorganize.html#split_urbansound_by_fold"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.reorganize.split_urbansound_by_fold" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reorganizes the urbansound dataset using the metadata/UrbanSound8K.csv to
+determine which fold each file belongs to. It makes symlinks in the corresponding
+train, test, and val folders.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_to_file</strong> (<em>str</em>) – Path to the audio file that will be reorganized. Has form
+/path/to/mixture_name/source_name.ext</p></li>
+<li><p><strong>output_directory</strong> (<em>str</em>) – Where the file after swapping the mixture_name and source_name
+will be copied to.</p></li>
+<li><p><strong>input_directory</strong> (<em>str</em>) – The root of the directory that the file comes from. Useful for
+figuring out the relative path with respect to the input directory for copying
+to the output_directory.</p></li>
+<li><p><strong>make_copy</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to use a symlink or to actually copy the file.
+Defaults to False.</p></li>
+<li><p><strong>train_folds</strong> (<em>list</em><em>, </em><em>optional</em>) – Which folds belong to the train set.
+Defaults to [1, 2, 3, 4, 5, 6, 7, 8].</p></li>
+<li><p><strong>val_folds</strong> (<em>list</em><em>, </em><em>optional</em>) – Which folds belong to the validation set.
+Defaults to [9].</p></li>
+<li><p><strong>test_folds</strong> (<em>list</em><em>, </em><em>optional</em>) – Which folds belong to the test set.
+Defaults to [10].</p></li>
+<li><p><strong>path_to_urbansound_csv</strong> (<em>[</em><em>type</em><em>]</em>) – Path to metadata/UrbanSound8k.csv.
+Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – raises an error if the path to the csv isn’t given.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-scripts.resample">
+<span id="scripts-resample"></span><h2>scripts.resample<a class="headerlink" href="#module-scripts.resample" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="scripts.resample.build_parser">
+<code class="sig-prename descclassname">scripts.resample.</code><code class="sig-name descname">build_parser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/resample.html#build_parser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.resample.build_parser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds the parser for <a class="reference internal" href="#module-scripts.resample" title="scripts.resample"><code class="xref py py-mod docutils literal notranslate"><span class="pre">scripts.resample</span></code></a>.</p>
+<blockquote>
+<div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: python -m scripts.resample  [-h] [--input_path INPUT_PATH] [--output_path OUTPUT_PATH]
+                    [--sample_rate SAMPLE_RATE] [--num_workers NUM_WORKERS]
+                    [--audio_extensions AUDIO_EXTENSIONS [AUDIO_EXTENSIONS ...]]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --input_path INPUT_PATH
+                        Root of folder where all audio files will be
+                        resampled.
+  --output_path OUTPUT_PATH
+                        Root of folder where all resampled files will be
+                        placed. Will match the same structure as the
+                        input_path folder structure.
+  --sample_rate SAMPLE_RATE
+                        Sample rate to resample files to.
+  --num_workers NUM_WORKERS
+                        How many workers to use in parallel to resample files.
+  --audio_extensions AUDIO_EXTENSIONS [AUDIO_EXTENSIONS ...]
+                        Audio extensions to look for in the input_path.
+                        Matching ones will be resampled and placed in the
+                        output_path at the same relative location.
+</pre></div>
+</div>
+</div></blockquote>
+<p>Also see the arguments to <a class="reference internal" href="#scripts.resample.resample" title="scripts.resample.resample"><code class="xref py py-func docutils literal notranslate"><span class="pre">scripts.resample.resample()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The parser for this script.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.ArgumentParser</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scripts.resample.ig_f">
+<code class="sig-prename descclassname">scripts.resample.</code><code class="sig-name descname">ig_f</code><span class="sig-paren">(</span><em class="sig-param">dir</em>, <em class="sig-param">files</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/resample.html#ig_f"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.resample.ig_f" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter for making sure something is a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dir</strong> (<em>str</em>) – Directory to filter to only look for files.</p></li>
+<li><p><strong>files</strong> (<em>list</em>) – List of items to filter.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Filtered list.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scripts.resample.resample">
+<code class="sig-prename descclassname">scripts.resample.</code><code class="sig-name descname">resample</code><span class="sig-paren">(</span><em class="sig-param">input_path, output_path, sample_rate, num_workers=1, audio_extensions=['.wav', '.mp3', '.aac']</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/resample.html#resample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.resample.resample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resamples a folder of audio files into a copy of the same folder with the same
+structure but with every audio file replaced with a resampled version of that
+audio file. Relative paths to the audio file from the root of the folder will be the
+same.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_path</strong> (<em>str</em>) – Root of folder where all audio files will be resampled.</p></li>
+<li><p><strong>output_path</strong> (<em>str</em>) – Root of folder where all resampled files will be placed. Will match
+the same structure as the input_path folder structure.</p></li>
+<li><p><strong>sample_rate</strong> (<em>int</em>) – Sample rate to resample files to.</p></li>
+<li><p><strong>num_workers</strong> (<em>int</em><em>, </em><em>optional</em>) – How many workers to use in parallel to resample files.
+Defaults to 1.</p></li>
+<li><p><strong>audio_extensions</strong> (<em>list</em><em>, </em><em>optional</em>) – Audio extensions to look for in the input_path.
+Matching ones will be resampled and placed in the output_path at the
+same relative location. Defaults to [‘.wav’, ‘.mp3’, ‘.aac’].</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scripts.resample.resample_audio_file">
+<code class="sig-prename descclassname">scripts.resample.</code><code class="sig-name descname">resample_audio_file</code><span class="sig-paren">(</span><em class="sig-param">original_path</em>, <em class="sig-param">resample_path</em>, <em class="sig-param">sample_rate</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/resample.html#resample_audio_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.resample.resample_audio_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resamples an audio file at one path and places it at another path at a specified
+sample rate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>original_path</strong> (<em>str</em>) – Path of audio file to be resampled.</p></li>
+<li><p><strong>resample_path</strong> (<em>str</em>) – Path to save resampled audio file to.</p></li>
+<li><p><strong>sample_rate</strong> (<em>int</em>) – Sample rate to resample audio file to.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-scripts.run">
+<span id="scripts-run"></span><h2>scripts.run<a class="headerlink" href="#module-scripts.run" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="scripts.run.build_parser">
+<code class="sig-prename descclassname">scripts.run.</code><code class="sig-name descname">build_parser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/run.html#build_parser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.run.build_parser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds the parser for <a class="reference internal" href="#module-scripts.run" title="scripts.run"><code class="xref py py-mod docutils literal notranslate"><span class="pre">scripts.run</span></code></a>.</p>
+<blockquote>
+<div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: python -m scripts.run  [-h] --command COMMAND [--run_in RUN_IN]
+
+optional arguments:
+  -h, --help         show this help message and exit
+  --command COMMAND  Command to run.
+  --run_in RUN_IN    Whether to run the command in the host or the container.
+                     Defaults to host.
+</pre></div>
+</div>
+</div></blockquote>
+<p>Also see the arguments to <a class="reference internal" href="#scripts.run.run" title="scripts.run.run"><code class="xref py py-func docutils literal notranslate"><span class="pre">scripts.run.run()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The parser for this script.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.ArgumentParser</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scripts.run.run">
+<code class="sig-prename descclassname">scripts.run.</code><code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param">command</em>, <em class="sig-param">run_in='host'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/run.html#run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.run.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs a command in the shell. Useful for sequences like wget a dataset, then
+unzip to another directory. You can just put the command in a yml file and
+call it here. You can run a sequence of commands easily by putting them one
+after the other in a .yml file and calling this script with the ‘-y’ option.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>command</strong> (<em>str</em>) – Command to run</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-scripts.sweep_experiment">
+<span id="scripts-sweep-experiment"></span><h2>scripts.sweep_experiment<a class="headerlink" href="#module-scripts.sweep_experiment" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="scripts.sweep_experiment.build_parser">
+<code class="sig-prename descclassname">scripts.sweep_experiment.</code><code class="sig-name descname">build_parser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/sweep_experiment.html#build_parser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.sweep_experiment.build_parser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds the parser for <a class="reference internal" href="#module-scripts.sweep_experiment" title="scripts.sweep_experiment"><code class="xref py py-mod docutils literal notranslate"><span class="pre">scripts.sweep_experiment</span></code></a>.</p>
+<blockquote>
+<div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: python -m scripts.sweep_experiment  [-h] -p PATH_TO_YML_FILE [--num_jobs NUM_JOBS]
+                    [--num_gpus NUM_GPUS] [--run_in RUN_IN]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -p PATH_TO_YML_FILE, --path_to_yml_file PATH_TO_YML_FILE
+                        Path to the configuration for the base experiment.
+                        This will be expanded by the script, filling in the
+                        values defined in &#39;sweep&#39; accordingly, and create new
+                        experiments.
+  --num_jobs NUM_JOBS   Controls the number of jobs to use in the created
+                        pipelines. Defaults to 1.
+  --num_gpus NUM_GPUS   Controls the number of gpus to use in the created
+                        pipelines. Defaults to 0.
+  --run_in RUN_IN       Run jobs in containers or on the host (&#39;container&#39; or
+                        &#39;host&#39;). Defaults to host.
+</pre></div>
+</div>
+</div></blockquote>
+<p>Also see the arguments to <a class="reference internal" href="#scripts.sweep_experiment.sweep_experiment" title="scripts.sweep_experiment.sweep_experiment"><code class="xref py py-func docutils literal notranslate"><span class="pre">scripts.sweep_experiment.sweep_experiment()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The parser for this script.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.ArgumentParser</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scripts.sweep_experiment.create_experiments">
+<code class="sig-prename descclassname">scripts.sweep_experiment.</code><code class="sig-name descname">create_experiments</code><span class="sig-paren">(</span><em class="sig-param">path_to_yml_file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/sweep_experiment.html#create_experiments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.sweep_experiment.create_experiments" title="Permalink to this definition">¶</a></dt>
+<dd><p>The main logic of this script. Takes the path to the base experiment file and
+loads the configuration. It then goes through the sweep dictionary kept in that
+base experiment file. The sweep dictionary tells how to update the configuration.
+The Cartesian product of all the possible settings specified by sweep is taken.
+Each experiment is updated accordingly. The length of the Cartesian product of
+the sweep is the number of experiments that get created.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path_to_yml_file</strong> (<em>str</em>) – Path to base experiment file.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>2-element tuple containing</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt>experiments (<em>list</em>):  List of paths to .yml files that define the generated</dt><dd><p>experiments.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>cache_experiments (<em>list</em>):  List of paths to .yml files that define the</dt><dd><p>experiments used for creating caches if any.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scripts.sweep_experiment.create_pipeline">
+<code class="sig-prename descclassname">scripts.sweep_experiment.</code><code class="sig-name descname">create_pipeline</code><span class="sig-paren">(</span><em class="sig-param">path_to_yml_files</em>, <em class="sig-param">script_name</em>, <em class="sig-param">num_jobs=1</em>, <em class="sig-param">num_gpus=0</em>, <em class="sig-param">run_in='host'</em>, <em class="sig-param">blocking=False</em>, <em class="sig-param">prefix='-p'</em>, <em class="sig-param">extra_cmd_args=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/sweep_experiment.html#create_pipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.sweep_experiment.create_pipeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a list of yml files, a script name, and some configuration options and
+creates a pipeline that can be passed to <a class="reference internal" href="#module-scripts.pipeline" title="scripts.pipeline"><code class="xref py py-mod docutils literal notranslate"><span class="pre">scripts.pipeline</span></code></a> so that each
+job is executed accordingly.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_to_yml_files</strong> (<em>list</em>) – List of paths to each .yml file that contains the
+generated experiment configuration from the sweep.</p></li>
+<li><p><strong>script_name</strong> (<em>str</em>) – What script to use, should exist in <a class="reference internal" href="#module-scripts" title="scripts"><code class="xref py py-mod docutils literal notranslate"><span class="pre">scripts</span></code></a>.</p></li>
+<li><p><strong>num_jobs</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of jobs to be used to run each of these jobs.
+Is used as the max_workers argument in
+<a class="reference internal" href="runners.html#runners.script_runner_pool.ScriptRunnerPool" title="runners.script_runner_pool.ScriptRunnerPool"><code class="xref py py-class docutils literal notranslate"><span class="pre">runners.script_runner_pool.ScriptRunnerPool</span></code></a>. Defaults to 1.</p></li>
+<li><p><strong>num_gpus</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of GPUs to use for each job. Defaults to 0.</p></li>
+<li><p><strong>run_in</strong> (<em>str</em><em>, </em><em>optional</em>) – Whether to run on ‘host’ or ‘container’.
+Defaults to ‘host’.</p></li>
+<li><p><strong>blocking</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to block on each job (forces the jobs to run
+sequentially). Defaults to False.</p></li>
+<li><p><strong>prefix</strong> (<em>str</em><em>, </em><em>optional</em>) – The prefix to use before the command (either ‘-p’ or ‘-y’).
+Defaults to ‘-p’.</p></li>
+<li><p><strong>extra_cmd_args</strong> (<em>str</em><em>, </em><em>optional</em>) – Any extra command line arguments that pipeline may
+need to run the script, specified as a str as if it was on the command line.
+Defaults to ‘’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A dictionary containing the sequence of pipelines that is later dumped to</dt><dd><p>YAML so it can be passed to <a class="reference internal" href="#module-scripts.pipeline" title="scripts.pipeline"><code class="xref py py-mod docutils literal notranslate"><span class="pre">scripts.pipeline</span></code></a>.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scripts.sweep_experiment.nested_set">
+<code class="sig-prename descclassname">scripts.sweep_experiment.</code><code class="sig-name descname">nested_set</code><span class="sig-paren">(</span><em class="sig-param">element</em>, <em class="sig-param">value</em>, <em class="sig-param">*keys</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/sweep_experiment.html#nested_set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.sweep_experiment.nested_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use a list of keys to replace a value in a dictionary. The result will look
+like:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>element[key1][key2][key3]...[keyn] = value
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>element</strong> (<em>dict</em>) – Dictionary to iteratively query.</p></li>
+<li><p><strong>value</strong> (<em>[</em><em>type</em><em>]</em>) – Value to set at the end of the query</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>AttributeError</strong> – first argument must be a dictionary</p></li>
+<li><p><strong>AttributeError</strong> – must have at least three arguments.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scripts.sweep_experiment.replace_item">
+<code class="sig-prename descclassname">scripts.sweep_experiment.</code><code class="sig-name descname">replace_item</code><span class="sig-paren">(</span><em class="sig-param">obj</em>, <em class="sig-param">key</em>, <em class="sig-param">replace_value</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/sweep_experiment.html#replace_item"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.sweep_experiment.replace_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recursively replaces any matching key in a dictionary with a specified replacement
+value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obj</strong> (<em>dict</em>) – Dictionary where item is being replaced.</p></li>
+<li><p><strong>key</strong> (<em>obj</em>) – Key to replace in dictionary.</p></li>
+<li><p><strong>replace_value</strong> (<em>obj</em>) – What to replace the key with.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dictionary with everything of that key replaced with the specified value.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scripts.sweep_experiment.sweep_experiment">
+<code class="sig-prename descclassname">scripts.sweep_experiment.</code><code class="sig-name descname">sweep_experiment</code><span class="sig-paren">(</span><em class="sig-param">path_to_yml_file</em>, <em class="sig-param">num_jobs=1</em>, <em class="sig-param">num_gpus=0</em>, <em class="sig-param">run_in='host'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/sweep_experiment.html#sweep_experiment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.sweep_experiment.sweep_experiment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a base experiment file and sweeps across the ‘sweep’ key in it, replacing
+values as needed. Results in the Cartesian product of all of the parameters that are
+being swept across. Also creates pipeline files that can be passed to
+<a class="reference internal" href="#module-scripts.pipeline" title="scripts.pipeline"><code class="xref py py-mod docutils literal notranslate"><span class="pre">scripts.pipeline</span></code></a> so that everything can be run in sequence easily, or
+in parallel as determined by num_jobs.</p>
+<p>The sweep config is used to replace dictionary keys and create experiments
+on the fly. A separate experiment will be created for each sweep discovered. The
+set of experiments can then be submitted to the job runner in parallel or in sequence.
+If one of the arguments is a list, then it will loop across each of the items in the
+list creating a separate experiment for each one. There’s no real error checking so be careful
+when setting things up as creating invalid or buggy experiments (e.g. num_frequencies
+and n_fft don’t match) is possible.</p>
+<p>If there is a ‘.’ in the key, then it is an absolute path to the exact value to update
+in the configuration. If there isn’t, then it is a global update for all matching keys.</p>
+<p>Here’s a simple example of a sweep configuration that specifies the STFT parameters
+and sweeps across the number of hidden units and embedding size:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">sweep</span><span class="p">:</span>
+   <span class="p p-Indicator">-</span> <span class="nt">n_fft</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">128</span>
+     <span class="nt">hop_length</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">64</span>
+     <span class="nt">num_frequencies</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">65</span> <span class="c1"># n_fft / 2 + 1</span>
+     <span class="nt">num_features</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">65</span>
+     <span class="nt">model_config.modules.recurrent_stack.args.hidden_size</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">50</span><span class="p p-Indicator">,</span> <span class="nv">100</span><span class="p p-Indicator">]</span> <span class="c1"># specific sweep, delimited by &#39;.&#39;</span>
+     <span class="nt">embedding_size</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">10</span><span class="p p-Indicator">,</span> <span class="nv">20</span><span class="p p-Indicator">]</span> <span class="c1"># global sweep</span>
+     <span class="nt">cache</span><span class="p">:</span> <span class="s">&#39;${CACHE_DIRECTORY}/musdb_128&#39;</span>
+     <span class="nt">populate_cache</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span> <span class="c1"># controls whether to create a separate experiment for caching</span>
+     <span class="nt">num_cache_workers</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">60</span> <span class="c1"># how many workers to use when populating the cache</span>
+</pre></div>
+</div>
+<p>The above creates 5 experiments, across the Cartesian product of hidden size and
+embedding size, +1 for the caching experiment:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>- caching &quot;experiment&quot; where training data is prepared
+- hidden_size = 50, embedding_size = 10  # 1st experiment
+- hidden_size = 50, embedding_size = 20  # 2nd experiment
+- hidden_size = 100, embedding_size = 10 # 3rd experiment
+- hidden_size = 100, embedding_size = 20 # 4th experiment
+</pre></div>
+</div>
+<p>Each sweep within an item of the list should use the same cache. The cache is
+created as a separate experiment. For example, if we want to sweep across STFT parameters,
+then we need different caches as different STFTs will result in different training data.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">sweep</span><span class="p">:</span>
+   <span class="p p-Indicator">-</span> <span class="nt">n_fft</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">128</span>
+     <span class="nt">hop_length</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">64</span>
+     <span class="nt">num_frequencies</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">65</span> <span class="c1"># n_fft / 2 + 1</span>
+     <span class="nt">num_features</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">65</span>
+     <span class="nt">model_config.modules.recurrent_stack.args.hidden_size</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">50</span><span class="p p-Indicator">,</span> <span class="nv">100</span><span class="p p-Indicator">]</span> <span class="c1"># specific sweep, delimited by &#39;.&#39;</span>
+     <span class="nt">embedding_size</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">10</span><span class="p p-Indicator">,</span> <span class="nv">20</span><span class="p p-Indicator">]</span> <span class="c1"># global sweep</span>
+     <span class="nt">cache</span><span class="p">:</span> <span class="s">&#39;${CACHE_DIRECTORY}/musdb_128&#39;</span>
+     <span class="nt">populate_cache</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span> <span class="c1"># controls whether to create a separate experiment for caching</span>
+     <span class="nt">num_cache_workers</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">60</span> <span class="c1"># how many workers to use when populating the cache</span>
+
+   <span class="p p-Indicator">-</span> <span class="nt">n_fft</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">256</span>
+     <span class="nt">hop_length</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">64</span>
+     <span class="nt">num_frequencies</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">129</span> <span class="c1"># n_fft / 2 + 1</span>
+     <span class="nt">num_features</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">129</span>
+     <span class="nt">model_config.modules.recurrent_stack.args.hidden_size</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">50</span><span class="p p-Indicator">,</span> <span class="nv">100</span><span class="p p-Indicator">]</span> <span class="c1"># specific sweep, delimited by &#39;.&#39;</span>
+     <span class="nt">embedding_size</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">10</span><span class="p p-Indicator">,</span> <span class="nv">20</span><span class="p p-Indicator">]</span> <span class="c1"># global sweep</span>
+     <span class="nt">cache</span><span class="p">:</span> <span class="s">&#39;${CACHE_DIRECTORY}/musdb_256&#39;</span>
+     <span class="nt">populate_cache</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span> <span class="c1"># controls whether to create a separate experiment for caching</span>
+     <span class="nt">num_cache_workers</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">60</span> <span class="c1"># how many workers to use when populating the cache</span>
+</pre></div>
+</div>
+<p>Now we create 10 experiments, 4 for each item in the list, +1 for each cache.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_to_yml_file</strong> (<em>[</em><em>type</em><em>]</em>) – Path to the configuration for the base experiment.
+This will be expanded by the script, filling in the values defined in ‘sweep’
+accordingly, and create new experiments.</p></li>
+<li><p><strong>num_jobs</strong> (<em>int</em>) – Controls the number of jobs to use in the created pipelines.
+Defaults to 1.</p></li>
+<li><p><strong>num_gpus</strong> (<em>int</em>) – Controls the number of gpus to use in the created pipelines.
+Defaults to 0.</p></li>
+<li><p><strong>run_in</strong> (<em>str</em>) – Run jobs in containers or on the host (‘container’ or ‘host’).
+Defaults to host.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scripts.sweep_experiment.update_config_with_sweep">
+<code class="sig-prename descclassname">scripts.sweep_experiment.</code><code class="sig-name descname">update_config_with_sweep</code><span class="sig-paren">(</span><em class="sig-param">config</em>, <em class="sig-param">sweep</em>, <em class="sig-param">combo</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/sweep_experiment.html#update_config_with_sweep"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.sweep_experiment.update_config_with_sweep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update a configuration with a sweep. The experiment configuration is updated using
+the sweep and combo. The sweep contains every key that needs to be updated
+in the configuration. If something in the sweep is a list, then the associated
+key is updated with only one of the elements of the list. Which element is
+specified by ‘combo. Otherwise, the value from sweep is used.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<em>dict</em>) – The experiment configuration that is being updated.</p></li>
+<li><p><strong>sweep</strong> (<em>dict</em>) – The full sweep that is used to update the configuration.</p></li>
+<li><p><strong>combo</strong> (<em>dict</em>) – The specific values for keys in the sweep that are lists.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An updated configuration using the sweep and combo arguments.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-scripts.train">
+<span id="scripts-train"></span><h2>scripts.train<a class="headerlink" href="#module-scripts.train" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="scripts.train.build_parser">
+<code class="sig-prename descclassname">scripts.train.</code><code class="sig-name descname">build_parser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/train.html#build_parser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.train.build_parser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds the parser for <code class="xref py py-mod docutils literal notranslate"><span class="pre">scripts.train_experiment</span></code>.</p>
+<blockquote>
+<div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: python -m scripts.train_experiment  [-h] -p PATH_TO_YML_FILE
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -p PATH_TO_YML_FILE, --path_to_yml_file PATH_TO_YML_FILE
+                        Path to the configuration for the experiment that is
+                        getting trained. The script will take the
+                        configuration and launch a training job for the
+                        experiment.
+</pre></div>
+</div>
+</div></blockquote>
+<p>Also see the arguments to <code class="xref py py-func docutils literal notranslate"><span class="pre">scripts.train.train()</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The parser for this script.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.ArgumentParser</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scripts.train.train_experiment">
+<code class="sig-prename descclassname">scripts.train.</code><code class="sig-name descname">train_experiment</code><span class="sig-paren">(</span><em class="sig-param">path_to_yml_file</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/train.html#train_experiment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.train.train_experiment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Starts a training job for the experiment defined at the path specified. Fits the
+model accordingly. You can also pass in things into keyword arguments that will
+get tossed into the “options” dictionary that is passed to the Trainer class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_to_yml_file</strong> (<em>str</em>) – Path to the configuration for the experiment that</p></li>
+<li><p><strong>getting trained. The script will take the configuration and launch a</strong> (<em>is</em>) – </p></li>
+<li><p><strong>job for the experiment.</strong> (<em>training</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-scripts.visualize">
+<span id="scripts-visualize"></span><h2>scripts.visualize<a class="headerlink" href="#module-scripts.visualize" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="scripts.visualize.build_parser">
+<code class="sig-prename descclassname">scripts.visualize.</code><code class="sig-name descname">build_parser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/visualize.html#build_parser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.visualize.build_parser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds the parser for <a class="reference internal" href="#module-scripts.visualize" title="scripts.visualize"><code class="xref py py-mod docutils literal notranslate"><span class="pre">scripts.visualize</span></code></a>.</p>
+<blockquote>
+<div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>usage: python -m scripts.visualize  [-h] -p PATH_TO_YML_FILE [-f FILE_NAMES [FILE_NAMES ...]]
+                    [-e EVAL_KEYS [EVAL_KEYS ...]]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -p PATH_TO_YML_FILE, --path_to_yml_file PATH_TO_YML_FILE
+                        Path to the yml file that defines the experiment. The
+                        visualization will be placed into a &quot;viz&quot; folder in
+                        the same directory as the yml file.
+  -f FILE_NAMES [FILE_NAMES ...], --file_names FILE_NAMES [FILE_NAMES ...]
+                        Files to evaluate. Use only the base name of each file
+                        in the list that is being evaluated.
+  -e EVAL_KEYS [EVAL_KEYS ...], --eval_keys EVAL_KEYS [EVAL_KEYS ...]
+                        All of the dataset keys to be used to visualize the
+                        experiment. Will visualize for each eval_key in
+                        sequence. Defaults to [&#39;test&#39;].
+</pre></div>
+</div>
+</div></blockquote>
+<p>Also see the arguments to <a class="reference internal" href="#scripts.visualize.visualize" title="scripts.visualize.visualize"><code class="xref py py-func docutils literal notranslate"><span class="pre">scripts.visualize.visualize()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The parser for this script.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.ArgumentParser</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scripts.visualize.visualize">
+<code class="sig-prename descclassname">scripts.visualize.</code><code class="sig-name descname">visualize</code><span class="sig-paren">(</span><em class="sig-param">path_to_yml_file, file_names=[], eval_keys=['test']</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/visualize.html#visualize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.visualize.visualize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes in a path to a yml file containing an experiment configuration and runs
+the algorithm specified in the experiment on a random file from the test
+dataset specified in the experiment. If the algorithm has plotting available, then
+plot is used to visualize the algorithm and save it to a figure. The associated
+audio is also saved.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_to_yml_file</strong> (<em>str</em>) – Path to the yml file that defines the experiment. The
+visualization will be placed into a “viz” folder in the same directory
+as the yml file.</p></li>
+<li><p><strong>eval_keys</strong> (<em>list</em>) – All of the dataset keys to be used to visualize the experiment.
+Will visualize for each eval_key in sequence. Defaults to [‘test’].</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-scripts">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-scripts" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="scripts.build_parser_for_yml_script">
+<code class="sig-prename descclassname">scripts.</code><code class="sig-name descname">build_parser_for_yml_script</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts.html#build_parser_for_yml_script"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.build_parser_for_yml_script" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds an ArgumentParser with a common setup. Used in the scripts.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="scripts.cmd">
+<code class="sig-prename descclassname">scripts.</code><code class="sig-name descname">cmd</code><span class="sig-paren">(</span><em class="sig-param">script_func</em>, <em class="sig-param">parser_func</em>, <em class="sig-param">exec_func=&lt;function sequential_job_execution&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts.html#cmd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.cmd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds a parser for any script in the scripts/ directory. Scripts should have two
+main functions: 1) a function that actually runs the script and 2) a build_parser
+function that builds up an ArgumentParser with informative help text for the script.
+This function allows the command line arguments to be passed to the script either
+through the command line as normal or through a YAML file which has matching keyword
+arguments for the script. Positional arguments are discouraged.</p>
+<p>The arguments in the YAML file are checked by passing them back into the command
+line parser function before giving them to the script. This also allows for default
+values to be defined in the script argument parser.</p>
+<p>A script can be called multiple times using a YAML file by having a top-level key
+called ‘jobs’. ‘jobs’ should contain a list where each item in the list is a
+set of arguments to be passed to the script one by one.</p>
+<p>For each script, simply add this like so:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>if __name__ == &quot;__main__&quot;:
+    cmd(script_func, parser_func)
+</pre></div>
+</div>
+<p>Then to run a script, simply do:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>python -m scripts.[script_name] --yml [path_to_yml_file] # for yml
+python -m scripts.[script_name] [--arg val] # for cmd line
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>script_func</strong> (<em>function</em>) – A function that will take in the arguments as keyword
+arguments and perform some action.</p></li>
+<li><p><strong>parser_func</strong> (<em>function</em>) – A function that will build up the argument parser for
+the script.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scripts.document_parser">
+<code class="sig-prename descclassname">scripts.</code><code class="sig-name descname">document_parser</code><span class="sig-paren">(</span><em class="sig-param">script_name</em>, <em class="sig-param">reference</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts.html#document_parser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.document_parser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fancy function for documenting a parser easily. Runs the function to build
+the parser, then gets the parsers help texts and formats it into the
+function’s doc string for sphinx. A bit hacky but works great!</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>script_name</strong> (<em>str</em>) – Name of the script.</p></li>
+<li><p><strong>reference</strong> (<em>str</em>) – Where to point the reference function for the script
+(e.g. the script that it runs).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scripts.sequential_job_execution">
+<code class="sig-prename descclassname">scripts.</code><code class="sig-name descname">sequential_job_execution</code><span class="sig-paren">(</span><em class="sig-param">script_func</em>, <em class="sig-param">jobs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts.html#sequential_job_execution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.sequential_job_execution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute jobs one by one with a simple for loop.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>script_func</strong> (<em>function</em>) – Function to run.</p></li>
+<li><p><strong>jobs</strong> (<em>list</em>) – List of dictionaries containing arguments for function.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 </div>
 

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Overview: module code &mdash; Cookiecutter for nussl  documentation</title>
+  <title>tests &mdash; Cookiecutter for nussl  documentation</title>
   
 
   
@@ -135,7 +135,9 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-      <li>Overview: module code</li>
+          <li><a href="index.html">Module code</a> &raquo;</li>
+        
+      <li>tests</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -150,44 +152,19 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <h1>All modules for which code is available</h1>
-<ul><li><a href="nussl/deep/networks/separation_model.html">nussl.deep.networks.separation_model</a></li>
-<li><a href="nussl/separation/clustering/clustering_algorithms.html">nussl.separation.clustering.clustering_algorithms</a></li>
-<li><a href="nussl/separation/deep_mask_estimation.html">nussl.separation.deep_mask_estimation</a></li>
-<li><a href="nussl/separation/ft2d.html">nussl.separation.ft2d</a></li>
-<li><a href="nussl/separation/mask_separation_base.html">nussl.separation.mask_separation_base</a></li>
-<li><a href="nussl/separation/separation_base.html">nussl.separation.separation_base</a></li>
-<li><a href="runners/docker_runner.html">runners.docker_runner</a></li>
-<li><a href="runners/experiment_utils.html">runners.experiment_utils</a></li>
-<li><a href="runners/run_in_docker.html">runners.run_in_docker</a></li>
-<li><a href="runners/script_runner_pool.html">runners.script_runner_pool</a></li>
-<li><a href="runners/utils.html">runners.utils</a></li>
-<li><a href="scripts.html">scripts</a></li>
-<ul><li><a href="scripts/analyze.html">scripts.analyze</a></li>
-<li><a href="scripts/download_toy_data.html">scripts.download_toy_data</a></li>
-<li><a href="scripts/evaluate.html">scripts.evaluate</a></li>
-<li><a href="scripts/mix_with_scaper.html">scripts.mix_with_scaper</a></li>
-<li><a href="scripts/pipeline.html">scripts.pipeline</a></li>
-<li><a href="scripts/reorganize.html">scripts.reorganize</a></li>
-<li><a href="scripts/resample.html">scripts.resample</a></li>
-<li><a href="scripts/run.html">scripts.run</a></li>
-<li><a href="scripts/sweep_experiment.html">scripts.sweep_experiment</a></li>
-<li><a href="scripts/train.html">scripts.train</a></li>
-<li><a href="scripts/visualize.html">scripts.visualize</a></li>
-</ul><li><a href="src/dataset/scaper_mixer.html">src.dataset.scaper_mixer</a></li>
-<li><a href="src/model/extras/example_module.html">src.model.extras.example_module</a></li>
-<li><a href="src/test.html">src.test</a></li>
-<li><a href="src/utils/loaders.html">src.utils.loaders</a></li>
-<li><a href="src/utils/parallel.html">src.utils.parallel</a></li>
-<li><a href="src/utils/seed.html">src.utils.seed</a></li>
-<li><a href="tests.html">tests</a></li>
-<ul><li><a href="tests/test_data.html">tests.test_data</a></li>
-<li><a href="tests/test_experiment.html">tests.test_experiment</a></li>
-<li><a href="tests/test_experiment_utils.html">tests.test_experiment_utils</a></li>
-<li><a href="tests/test_pipeline.html">tests.test_pipeline</a></li>
-<li><a href="tests/test_runners.html">tests.test_runners</a></li>
-<li><a href="tests/test_yaml.html">tests.test_yaml</a></li>
-</ul></ul>
+  <h1>Source code for tests</h1><div class="highlight"><pre>
+<span></span>import comet_ml
+
+import os
+import sys
+import pytest
+
+from scripts.download_toy_data import download_toy_data
+
+<div class="viewcode-block" id="setup_tests"><a class="viewcode-back" href="../source/tests.html#tests.setup_tests">[docs]</a>@pytest.fixture(scope=&quot;session&quot;, autouse=True)
+def setup_tests():
+    download_toy_data(&#39;tests/out/_test_data/&#39;)</div>
+</pre></div>
 
            </div>
            

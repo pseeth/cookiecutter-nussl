@@ -1,0 +1,271 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>scripts.train &mdash; Cookiecutter for nussl  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> Cookiecutter for nussl
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started.html">Getting started</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../using_scaper.html">Using Scaper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../experiments.html">Configuring an experiment</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../source/runners.html">runners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/scripts.html">scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/src.html">src</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Cookiecutter for nussl</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../scripts.html">scripts</a> &raquo;</li>
+        
+      <li>scripts.train</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for scripts.train</h1><div class="highlight"><pre>
+<span></span>from runners.experiment_utils import load_experiment, save_experiment
+from src import dataset, train, model
+from src.utils import loaders, seed
+import logging
+from runners.utils import load_yaml
+from . import cmd, document_parser
+from argparse import ArgumentParser
+import os
+
+<div class="viewcode-block" id="train_experiment"><a class="viewcode-back" href="../../source/scripts.html#scripts.train.train_experiment">[docs]</a>def train_experiment(path_to_yml_file, **kwargs):
+    &quot;&quot;&quot;
+    Starts a training job for the experiment defined at the path specified. Fits the
+    model accordingly. You can also pass in things into keyword arguments that will
+    get tossed into the &quot;options&quot; dictionary that is passed to the Trainer class.
+    
+    Args:
+        path_to_yml_file (str): Path to the configuration for the experiment that 
+        is getting trained. The script will take the configuration and launch a 
+        training job for the experiment.
+    &quot;&quot;&quot;
+    config, exp, path_to_yml_file = load_experiment(path_to_yml_file)
+    config[&#39;train_config&#39;].update(kwargs)
+    
+    if &#39;seed&#39; in config[&#39;info&#39;]:
+        seed(config[&#39;info&#39;][&#39;seed&#39;])
+
+    train_class = config[&#39;train_config&#39;].pop(&#39;class&#39;)
+    TrainerClass = getattr(train, train_class)
+
+    if &#39;train&#39; not in config[&#39;datasets&#39;]:
+        logging.error(&#39;Train dataset must be specified!&#39;)
+
+    _datasets = {}
+
+    for key in [&#39;train&#39;, &#39;val&#39;]:
+        if key in config[&#39;datasets&#39;]:
+            _datasets[key] = loaders.load_dataset(
+                config[&#39;datasets&#39;][key][&#39;class&#39;],
+                config[&#39;datasets&#39;][key][&#39;folder&#39;],
+                config[&#39;dataset_config&#39;]
+            )
+        else:
+            _datasets[key] = None
+
+    _model = loaders.load_model(config[&#39;model_config&#39;])
+    _trainer = TrainerClass(
+        config[&#39;info&#39;][&#39;output_folder&#39;],
+        _datasets[&#39;train&#39;],
+        _model,
+        config[&#39;train_config&#39;],
+        validation_data=_datasets[&#39;val&#39;],
+        use_tensorboard=config[&#39;train_config&#39;].pop(&#39;use_tensorboard&#39;, False),
+        experiment=exp
+    )
+    _trainer.fit()</div>
+
+<div class="viewcode-block" id="build_parser"><a class="viewcode-back" href="../../source/scripts.html#scripts.train.build_parser">[docs]</a>@document_parser(&#39;train_experiment&#39;, &#39;scripts.train.train&#39;)
+def build_parser():
+    parser = ArgumentParser()
+    parser.add_argument(
+        &quot;-p&quot;,
+        &quot;--path_to_yml_file&quot;,
+        type=str,
+        required=True,
+        help=&quot;&quot;&quot;Path to the configuration for the experiment that is getting trained. The
+        script will take the configuration and launch a training job for the experiment.
+        &quot;&quot;&quot;
+    )
+    return parser</div>
+
+if __name__ == &#39;__main__&#39;:
+    cmd(train_experiment, build_parser)
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Prem Seetharaman
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

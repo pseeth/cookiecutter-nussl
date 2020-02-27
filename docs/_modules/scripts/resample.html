@@ -1,0 +1,336 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>scripts.resample &mdash; Cookiecutter for nussl  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> Cookiecutter for nussl
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started.html">Getting started</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../using_scaper.html">Using Scaper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../experiments.html">Configuring an experiment</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../source/runners.html">runners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/scripts.html">scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/src.html">src</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Cookiecutter for nussl</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../scripts.html">scripts</a> &raquo;</li>
+        
+      <li>scripts.resample</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for scripts.resample</h1><div class="highlight"><pre>
+<span></span>import os
+from multiprocessing import cpu_count
+
+from src.utils.parallel import parallel_process
+from nussl import AudioSignal
+import os
+import glob
+from multiprocessing import cpu_count
+from . import cmd, document_parser
+from argparse import ArgumentParser
+
+import shutil
+import logging
+
+<div class="viewcode-block" id="resample_audio_file"><a class="viewcode-back" href="../../source/scripts.html#scripts.resample.resample_audio_file">[docs]</a>def resample_audio_file(original_path, resample_path, sample_rate, verbose=False):
+    &quot;&quot;&quot;
+    Resamples an audio file at one path and places it at another path at a specified
+    sample rate.
+    
+    Args:
+        original_path (str): Path of audio file to be resampled.
+        resample_path (str): Path to save resampled audio file to.
+        sample_rate (int): Sample rate to resample audio file to.
+    &quot;&quot;&quot;
+    audio_signal = AudioSignal(original_path)
+    resample = True
+
+    if os.path.exists(resample_path):
+        resampled_signal = AudioSignal(resample_path)
+        resample = resampled_signal.sample_rate != sample_rate
+    
+    if resample:
+        if verbose:
+            logging.info(
+                f&#39;{original_path} @ {audio_signal.sample_rate} -&gt; {resample_path} @ {sample_rate}&#39;
+            )
+        audio_signal.resample(sample_rate)
+        audio_signal.write_audio_to_file(resample_path)</div>
+
+<div class="viewcode-block" id="ig_f"><a class="viewcode-back" href="../../source/scripts.html#scripts.resample.ig_f">[docs]</a>def ig_f(dir, files):
+    &quot;&quot;&quot;
+    Filter for making sure something is a file.
+    
+    Args:
+        dir (str): Directory to filter to only look for files.
+        files (list): List of items to filter.
+    
+    Returns:
+        list: Filtered list.
+    &quot;&quot;&quot;
+    return [f for f in files if os.path.isfile(os.path.join(dir, f))]</div>
+
+<div class="viewcode-block" id="resample"><a class="viewcode-back" href="../../source/scripts.html#scripts.resample.resample">[docs]</a>def resample(input_path, output_path, sample_rate, num_workers=1, 
+             audio_extensions=[&#39;.wav&#39;, &#39;.mp3&#39;, &#39;.aac&#39;]):
+    &quot;&quot;&quot;
+    Resamples a folder of audio files into a copy of the same folder with the same 
+    structure but with every audio file replaced with a resampled version of that
+    audio file. Relative paths to the audio file from the root of the folder will be the
+    same.
+    
+    Args:
+        input_path (str): Root of folder where all audio files will be resampled.
+        output_path (str): Root of folder where all resampled files will be placed. Will match
+            the same structure as the input_path folder structure.
+        sample_rate (int): Sample rate to resample files to.
+        num_workers (int, optional): How many workers to use in parallel to resample files. 
+            Defaults to 1.
+        audio_extensions (list, optional): Audio extensions to look for in the input_path. 
+            Matching ones will be resampled and placed in the output_path at the 
+            same relative location. Defaults to [&#39;.wav&#39;, &#39;.mp3&#39;, &#39;.aac&#39;].
+    &quot;&quot;&quot;
+    try:
+        shutil.copytree(input_path, output_path, ignore=ig_f)
+    except:
+        pass
+
+    input_audio_files = []
+    for ext in audio_extensions:
+        input_audio_files += glob.glob(
+            f&quot;{input_path}/**/*{ext}&quot;, 
+            recursive=True
+        )
+
+    output_audio_files = [
+        x.replace(input_path, output_path)
+        for x in input_audio_files
+    ]
+    arguments = [
+        {
+            &#39;original_path&#39;: input_audio_files[i],
+            &#39;resample_path&#39;: output_audio_files[i][:-4] + &#39;.wav&#39;,
+            &#39;sample_rate&#39;: sample_rate,
+            &#39;verbose&#39;: False if i &gt; 0 else True
+        } 
+        for i in range(len(input_audio_files))
+    ]
+
+    parallel_process(
+        arguments, 
+        resample_audio_file, 
+        n_jobs=min(num_workers, cpu_count()),
+        front_num=1,
+        use_kwargs=True,
+    )</div>
+
+<div class="viewcode-block" id="build_parser"><a class="viewcode-back" href="../../source/scripts.html#scripts.resample.build_parser">[docs]</a>@document_parser(&#39;resample&#39;, &#39;scripts.resample.resample&#39;)
+def build_parser():
+    parser = ArgumentParser()
+    parser.add_argument(
+        &#39;--input_path&#39;, type=str, 
+        help=&quot;&quot;&quot;Root of folder where all audio files will be resampled.&quot;&quot;&quot;
+    )
+    parser.add_argument(
+        &#39;--output_path&#39;, type=str, 
+        help=&quot;&quot;&quot;Root of folder where all resampled files will be placed. Will match
+        the same structure as the input_path folder structure.&quot;&quot;&quot;
+    )
+    parser.add_argument(
+        &#39;--sample_rate&#39;, type=int, 
+        help=&quot;&quot;&quot;Sample rate to resample files to.&quot;&quot;&quot;
+    )
+    parser.add_argument(
+        &#39;--num_workers&#39;, type=int, 
+        help=&quot;&quot;&quot;How many workers to use in parallel to resample files.&quot;&quot;&quot;,
+        default=1
+    )
+    parser.add_argument(
+        &#39;--audio_extensions&#39;, nargs=&#39;+&#39;, 
+        help=&quot;&quot;&quot;Audio extensions to look for in the input_path. Matching ones will
+        be resampled and placed in the output_path at the same relative location.&quot;&quot;&quot;,
+        default=[&#39;.wav&#39;, &#39;.mp3&#39;, &#39;.aac&#39;]
+    )
+    return parser</div>
+
+
+if __name__ == &#39;__main__&#39;:
+    cmd(resample, build_parser)
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Prem Seetharaman
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

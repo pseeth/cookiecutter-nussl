@@ -1,0 +1,450 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>scripts.analyze &mdash; Cookiecutter for nussl  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> Cookiecutter for nussl
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started.html">Getting started</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../using_scaper.html">Using Scaper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../experiments.html">Configuring an experiment</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../source/runners.html">runners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/scripts.html">scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/src.html">src</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Cookiecutter for nussl</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../scripts.html">scripts</a> &raquo;</li>
+        
+      <li>scripts.analyze</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for scripts.analyze</h1><div class="highlight"><pre>
+<span></span>from runners.experiment_utils import load_experiment, save_experiment
+from src import logging
+from runners.utils import load_yaml, flatten
+from . import cmd, document_parser
+import glob
+import pandas as pd
+import os
+import copy
+import numpy as np
+from argparse import ArgumentParser
+
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
+from gspread import WorksheetNotFound
+
+<div class="viewcode-block" id="init_gsheet"><a class="viewcode-back" href="../../source/scripts.html#scripts.analyze.init_gsheet">[docs]</a>def init_gsheet(credentials_path):
+    &quot;&quot;&quot;
+    Initializes the Google Sheets client given a path to credentials.
+    
+    Args:
+        credentials_path (str): path to your Google credentials that are used to
+            authorize the Google Sheets access.
+    
+    Returns:
+        :class:`gspread.Client`: Google Sheets Client initialized with credentials.
+    &quot;&quot;&quot;
+    scope = [&#39;https://spreadsheets.google.com/feeds&#39;,
+    &#39;https://www.googleapis.com/auth/drive&#39;]
+    credentials = ServiceAccountCredentials.from_json_keyfile_name(
+        credentials_path, scope
+    )
+    gc = gspread.authorize(credentials)
+    return gc</div>
+
+<div class="viewcode-block" id="upload_to_gsheet"><a class="viewcode-back" href="../../source/scripts.html#scripts.analyze.upload_to_gsheet">[docs]</a>def upload_to_gsheet(results, config, exp=None, upload_source_metrics=False):
+    &quot;&quot;&quot;
+    Uploads the analysis to the Google Sheet, if possible.
+    
+    Args:
+        results (:class:`pandas.DataFrame`): DataFrame containing all the results - output
+            by :py:func:`scripts.analyze.analyze`.
+        config (dict): Dictionary containing the entire experiment configuration.
+        exp (:class:`comet_ml.Experiment`): Experiment given by comet.ml (optional).
+        upload_source_metrics (bool): Uploads metrics for each source if True. Defaults to False.
+            Can have interactions with the API limit on Google Sheets. If there are two many 
+            sources, then it will hit the limit and the script will break.
+    &quot;&quot;&quot;
+    credentials_path = os.getenv(&#39;PATH_TO_GOOGLE_CREDENTIALS&#39;, None)
+    if not credentials_path:
+        logging.info(&#39;PATH_TO_GOOGLE_CREDENTIALS not set, cannot proceed.&#39;)
+        return None
+
+    gc = init_gsheet(credentials_path)
+
+    config = copy.deepcopy(config)
+    sheet_name = config[&#39;info&#39;].pop(&#39;spreadsheet_name&#39;, None)
+    worksheet_name = config[&#39;info&#39;].pop(&#39;worksheet_name&#39;, None)
+    if not sheet_name or not worksheet_name:
+        logging.info(&#39;Sheet name not specified, not uploading results to Google sheets&#39;)
+        return None
+    logging.info(f&#39;Opening {sheet_name} with {worksheet_name}&#39;)
+    sheet = gc.open(sheet_name)
+
+    try:
+        summary_worksheet = sheet.worksheet(worksheet_name)
+    except WorksheetNotFound:
+        logging.info(f&#39;Worksheet not found, creating new sheet w/ name {worksheet_name}&#39;)
+        template_worksheet = sheet.worksheet(&#39;Template&#39;)
+        summary_worksheet = template_worksheet.duplicate(new_sheet_name=worksheet_name)
+
+    datasets = np.unique(results[&#39;dataset&#39;])
+    metrics = [&#39;SDR&#39;, &#39;SIR&#39;, &#39;SAR&#39;]
+    notes = config[&#39;info&#39;].pop(&#39;notes&#39;, &#39;No notes&#39;)
+
+    def trunc(values, decs=0):
+        return np.trunc(values*10**decs)/(10**decs)
+
+    existing_rows = summary_worksheet.get_all_values()
+
+    for dataset in datasets:
+        logging.info(
+            f&quot;Uploading results for {dataset} for {config[&#39;info&#39;][&#39;experiment_key&#39;]} &quot;
+            f&quot;@ {worksheet_name} in {summary_worksheet}&quot;
+        )
+        _results = results[results[&#39;dataset&#39;] == dataset]
+        dataset_paths = {
+            key: config[&#39;datasets&#39;][key][&#39;folder&#39;] 
+            for key in config[&#39;datasets&#39;]
+        }
+        experiment_key = config[&#39;info&#39;][&#39;experiment_key&#39;]
+        experiment_url = &#39;No link&#39;
+        if hasattr(exp, &#39;_get_experiment_url&#39;):
+            experiment_url = exp._get_experiment_url()
+        row_to_insert = [
+            f&#39;=HYPERLINK(&quot;{experiment_url}&quot;, &quot;{experiment_key}&quot;)&#39;,
+            notes, 
+            dataset_paths.pop(&#39;train&#39;, &#39;No training&#39;),
+            dataset_paths.pop(&#39;val&#39;, &#39;No validation.&#39;),
+            dataset,
+            np.unique(_results[&#39;file_name&#39;]).shape[0],
+        ]
+
+        row_exists = False
+        row_index = 3
+        for j, row in enumerate(existing_rows):
+            compared_indices = [2, 3, 4]
+            row = [row[0]] + [row[i] for i in compared_indices]
+            inserted_row = (
+                [config[&#39;info&#39;][&#39;experiment_key&#39;]] + 
+                [str(row_to_insert[i]) for i in compared_indices] 
+            )
+            if (row == inserted_row):
+                logging.info(&quot;Row already exists&quot;)
+                row_exists = True
+                row_index = j + 1
+                break
+        
+        if not row_exists:
+            summary_worksheet.insert_row(
+                row_to_insert, index=3, value_input_option=&#39;USER_ENTERED&#39;
+            )
+        overall_metrics = (
+            [np.unique(_results[&#39;file_name&#39;]).shape[0]] + 
+            [trunc(x, decs=2) for x in _results.mean()[metrics]]
+        )
+        overall_index = summary_worksheet.find(&#39;Overall&#39;).col - 1
+        for i, value in enumerate(overall_metrics):
+            summary_worksheet.update_cell(row_index, overall_index + i, value)
+
+        if upload_source_metrics:
+            try:
+                source_names = np.unique(_results[&#39;source_name&#39;]).tolist()
+                for source_name in source_names:
+                    source_metrics = []
+                    try:
+                        source_name_cell = summary_worksheet.find(source_name)
+                    except Exception as e:
+                        source_name_cell = summary_worksheet.find(&#39;Source&#39;)
+                        source_name_cell.value = source_name
+                        summary_worksheet.update_cells([source_name_cell])
+                    for i, metric in enumerate(metrics):
+                        value = trunc(
+                            _results[_results[&#39;source_name&#39;] == source_name].mean()[metric], 
+                            decs=2
+                        )
+                        summary_worksheet.update_cell(
+                            row_index, source_name_cell.col + i, value
+                        )
+            except:
+                logging.info(&quot;Failure in uploading. Likely too many unique sources and we hit an API limit.&quot;)
+                pass</div>
+
+<div class="viewcode-block" id="analyze"><a class="viewcode-back" href="../../source/scripts.html#scripts.analyze.analyze">[docs]</a>def analyze(path_to_yml_file, use_gsheet=False, upload_source_metrics=False):
+    &quot;&quot;&quot;
+    Analyzes the metrics for all the files that were evaluated in the experiment.
+    
+    Args:
+        path_to_yml_file (str): Path to the yml file that defines the experiment. The
+            corresponding results folder for the experiment is what will be analyzed and put
+            into a Pandas dataframe.
+        use_gsheet (bool, optional): Whether or not to upload to the Google Sheet. 
+            Defaults to False.
+        upload_source_metrics (bool): Uploads metrics for each source if True. Defaults to False.
+            Can have interactions with the API limit on Google Sheets. If there are two many 
+            sources, then it will hit the limit and the script will break.
+    
+    Returns:
+        tuple: 3-element tuple containing
+
+            - results (:class:`pandas.DataFrame`): DataFrame containing all of the results 
+              for every file evaluated in the experiment. The DataFrame also has every
+              key in the experiment configuration in flattened format.
+              
+              For example, model_config_recurrent_stack_args_embedding_size is a column in the DataFrame.
+
+            - config (*dict*):  A dictionary containing the configuration of the experiment. 
+
+            - exp (:class:`comet_ml.Experiment`): An instantiated experiment if comet.ml is needed,  otherwise it is None.
+    &quot;&quot;&quot;
+    config, exp, path_to_yml_file = load_experiment(path_to_yml_file)
+    
+    paths = glob.glob(
+        os.path.join(config[&#39;info&#39;][&#39;output_folder&#39;], &#39;results&#39;, &#39;**.yml&#39;),
+        recursive=True
+    )
+
+    results = []
+
+    for _path in paths:
+        data = load_yaml(_path, [])
+        for _data in data:
+            keys = sorted(list(_data.keys()))
+            keys.remove(&#39;permutation&#39;)
+            for key in keys:
+                flattened = {
+                    &#39;experiment_key&#39;: config[&#39;info&#39;][&#39;experiment_key&#39;],
+                    &#39;notes&#39;: config[&#39;info&#39;][&#39;notes&#39;],
+                    &#39;file_name&#39;: _path,
+                    &#39;dataset&#39;: config[&#39;datasets&#39;][&#39;test&#39;][&#39;folder&#39;],
+                    &#39;source_name&#39;: key.split(&#39;/&#39;)[-1],
+                }
+
+                flattened.update(flatten(config))
+
+                for metric in _data[key]:
+                    flattened[metric] = np.mean(_data[key][metric])
+
+                results.append(flattened)
+    
+    results = pd.DataFrame(results)
+
+    logging.info(results.mean())
+    logging.info(config[&#39;info&#39;][&#39;experiment_key&#39;])
+
+    if use_gsheet:
+        upload_to_gsheet(results, config, exp, upload_source_metrics)
+
+    return results, config, exp</div>
+
+<div class="viewcode-block" id="build_parser"><a class="viewcode-back" href="../../source/scripts.html#scripts.analyze.build_parser">[docs]</a>@document_parser(&#39;analyze&#39;, &#39;scripts.analyze.analyze&#39;)
+def build_parser():
+    parser = ArgumentParser()
+    parser.add_argument(
+        &quot;-p&quot;,
+        &quot;--path_to_yml_file&quot;,
+        type=str,
+        required=True,
+        help=&quot;&quot;&quot;Path to the configuration for the experiment that is getting analyzed. The
+        corresponding results folder for the experiment is what will be analyzed and put
+        into a Pandas dataframe.
+        &quot;&quot;&quot;
+    )
+    parser.add_argument(
+        &quot;--use_gsheet&quot;,
+        action=&quot;store_true&quot;,
+        help=&quot;&quot;&quot;Results can be synced to a Google sheet after analysis if this is true.
+        Defaults to false.
+        &quot;&quot;&quot;
+    )
+    parser.add_argument(
+        &quot;--upload_source_metrics&quot;,
+        action=&quot;store_true&quot;,
+        help=&quot;&quot;&quot;Uploads metrics for each source if True. Defaults to False.
+        Can have interactions with the API limit on Google Sheets. If there are two many 
+        sources, then it will hit the limit and the script will break.
+        &quot;&quot;&quot;
+    )
+    return parser</div>
+
+if __name__ == &#39;__main__&#39;:
+    cmd(analyze, build_parser) 
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Prem Seetharaman
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

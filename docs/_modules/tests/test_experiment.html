@@ -1,0 +1,288 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>tests.test_experiment &mdash; Cookiecutter for nussl  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> Cookiecutter for nussl
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started.html">Getting started</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../using_scaper.html">Using Scaper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../experiments.html">Configuring an experiment</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../source/runners.html">runners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/scripts.html">scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/src.html">src</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Cookiecutter for nussl</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../tests.html">tests</a> &raquo;</li>
+        
+      <li>tests.test_experiment</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for tests.test_experiment</h1><div class="highlight"><pre>
+<span></span>from runners.utils import load_yaml
+from src import train, dataset, model, logging
+from src.utils import loaders, seed
+import glob
+import pytest
+
+import sys, os
+import torch
+import shutil
+
+seed(0)
+
+logger = logging.getLogger()
+os.makedirs(&#39;tests/out/_test_train/logs/&#39;, exist_ok=True)
+fh = logging.FileHandler(f&#39;tests/out/_test_train/logs/output.txt&#39;)
+logger.addHandler(fh)
+
+def _load_dataset(config, split):
+    config[&#39;dataset_config&#39;][&#39;overwrite_cache&#39;] = True
+    config[&#39;dataset_config&#39;][&#39;cache&#39;] = &#39;tests/out/_test_dataset/&#39;
+    config[&#39;dataset_config&#39;][&#39;fraction_of_dataset&#39;] = .1
+    dset = loaders.load_dataset(
+            config[&#39;datasets&#39;][split][&#39;class&#39;],
+            config[&#39;datasets&#39;][split][&#39;folder&#39;],
+            config[&#39;dataset_config&#39;],
+        )
+    return dset
+
+paths_to_yml = list(glob.glob(&#39;./experiments/*.yml&#39;, recursive=False))
+configs = [
+    load_yaml(path_to_yml)
+    for path_to_yml in paths_to_yml
+]
+
+<div class="viewcode-block" id="test_dataset"><a class="viewcode-back" href="../../source/tests.html#tests.test_experiment.test_dataset">[docs]</a>@pytest.mark.parametrize(&quot;config&quot;, configs, ids=paths_to_yml)
+def test_dataset(config):
+    for split in config[&#39;datasets&#39;]:
+        dset = _load_dataset(config, split)
+        dset[0]</div>
+
+<div class="viewcode-block" id="test_model"><a class="viewcode-back" href="../../source/tests.html#tests.test_experiment.test_model">[docs]</a>@pytest.mark.parametrize(&quot;config&quot;, configs, ids=paths_to_yml)
+def test_model(config):
+    if &#39;model_config&#39; in config:
+        model = loaders.load_model(config[&#39;model_config&#39;])</div>
+
+<div class="viewcode-block" id="test_model_and_dataset_match"><a class="viewcode-back" href="../../source/tests.html#tests.test_experiment.test_model_and_dataset_match">[docs]</a>@pytest.mark.parametrize(&quot;config&quot;, configs, ids=paths_to_yml)
+def test_model_and_dataset_match(config):
+    device = (
+        torch.device(&#39;cuda&#39;) 
+        if torch.cuda.is_available()
+        else torch.device(&#39;cpu&#39;)
+    )
+    if &#39;datasets&#39; in config and &#39;model_config&#39; in config:
+        for split in config[&#39;datasets&#39;]:
+            dset = _load_dataset(config, split)
+            data = dset[0]
+            for key in data:
+                data[key] = torch.from_numpy(
+                    data[key]
+                ).unsqueeze(0).float().to(device)
+            model_instance = loaders.load_model(config[&#39;model_config&#39;])
+            model_instance = model_instance.to(device)
+            output = model_instance(data)</div>
+
+<div class="viewcode-block" id="test_train"><a class="viewcode-back" href="../../source/tests.html#tests.test_experiment.test_train">[docs]</a>@pytest.mark.parametrize(&quot;config&quot;, configs, ids=paths_to_yml)
+def test_train(config):
+    if &#39;train_config&#39; in config:
+        train_class = config[&#39;train_config&#39;].pop(&#39;class&#39;)
+        output_folder = &#39;tests/out/_test_train/&#39;
+        config[&#39;train_config&#39;][&#39;num_epochs&#39;] = 1
+
+        TrainerClass = getattr(train, train_class)
+
+        train_dataset = _load_dataset(config, &#39;train&#39;)
+        val_dataset = _load_dataset(config, &#39;val&#39;)
+
+        model_instance = loaders.load_model(config[&#39;model_config&#39;])
+
+        trainer = TrainerClass(
+            output_folder,
+            train_dataset,
+            model_instance,
+            config[&#39;train_config&#39;],
+            validation_data=val_dataset,
+            use_tensorboard=True,
+            experiment=None,
+        )
+
+        trainer.fit()</div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Prem Seetharaman
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
