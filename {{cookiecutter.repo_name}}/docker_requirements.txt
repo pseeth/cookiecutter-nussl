@@ -28,7 +28,7 @@ httplib2==0.16.0
 idna==2.8
 importlib-metadata==1.4.0; python_version < "3.8"
 jams==0.3.4
-joblib==0.14.1
+joblib==1.2.0
 jsonschema==3.0.2
 kiwisolver==1.1.0
 librosa==0.7.2
