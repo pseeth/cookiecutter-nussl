@@ -89,7 +89,7 @@ urllib3==1.25.7
 wcwidth==0.1.8
 websocket-client==0.57.0
 werkzeug==0.16.0
-wheel==0.33.6; python_version >= "3"
+wheel==0.38.1; python_version >= "3"
 wurlitzer==2.0.0
 zarr==2.3.0
 zipp==2.0.0; python_version < "3.8"
